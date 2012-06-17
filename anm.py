@@ -143,9 +143,16 @@ class overlay_graph(object):
     def __repr__(self):
         return self._overlay_name
 
+    def __contains__(self, n):
+        return n.node_id in self._graph
+
     @property
     def name(self):
         return self._overlay_name
+
+    def dump(self):
+        #TODO: map this to ank functions
+        self._anm.dump_graph(self)
 
     @property
     def _graph(self):
@@ -312,6 +319,10 @@ def load_graphml(filename):
             if key not in graph.node[node]:
                 graph.node[node][key] = val
 
+    # and ensure asn is integer
+    for node in graph:
+        graph.node[node]['asn'] = int(graph.node[node]['asn'])
+
     ank_edge_defaults = {
             }
     edge_defaults = graph.graph['edge_default']
@@ -411,6 +422,11 @@ print "devices in phy", [n for n in G_phy]
 edges = [edge.data for edge in G_in.edges()]
 print edges
 
+G_bgp.add_nodes_from([d for d in G_in if d.device_type == "router"])
+
+present_nodes = [n for n in G_in if n in G_bgp and n.asn == 1]
+print "present nodes", present_nodes
+
 bgp_edges = [edge for edge in G_in.edges()
         if edge.src.asn != edge.dst.asn]
 print "bgp edges are", bgp_edges
@@ -420,7 +436,8 @@ anm.dump_graph(G_bgp)
 for asn, devices in G_in.groupby("asn").items():
     print asn, "has devices", devices
 
-plot(G_in)
+G_bgp.dump()
+plot(G_bgp)
 
 # call platform compiler to build NIDB
 # NIDB copies properties from each graph, including links, but also allows extra details to be added.
