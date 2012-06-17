@@ -97,6 +97,8 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
         try:
             return self._graph.node[self.node_id].get(key)
         except KeyError:
+            print "testing if ", self.node_id, "in", self.overlay_id, self.node_id in self._graph
+            print self._graph.nodes()
             raise IntegrityException(self.node_id)
 
     def get(self, key):
@@ -461,7 +463,14 @@ def plot(overlay_graph, edge_label_attribute = None, save = True, show = False):
     plt.close()
 
 def save(overlay_graph):
-    graph = overlay_graph._graph
+    graph = overlay_graph._graph.copy()
+
+# and put in basic attributes
+    for node in overlay_graph:
+        graph.node[node.node_id]['label'] = node.overlay.input.label
+        graph.node[node.node_id]['x'] = node.overlay.input.x
+        graph.node[node.node_id]['y'] = node.overlay.input.y
+
     mapping = dict( (n.node_id, str(n)) for n in overlay_graph) 
     nx.relabel_nodes( graph, mapping, copy=False)
     filename = "%s.graphml" % overlay_graph.name
@@ -489,7 +498,11 @@ G_phy = anm.overlay.phy
 routers = [d for d in G_in if d.device_type=="router"]
 #routers = G_in.filter(device_type='router')
 
-G_phy.add_nodes_from(routers, retain=['label', 'device_type'], default={'color': 'red'})
+#G_phy.add_nodes_from(routers, retain=['label', 'device_type'], default={'color': 'red'})
+in_nodes = [n for n in G_in]
+G_phy.add_nodes_from(in_nodes, retain=['label'])
+
+G_phy.dump()
 
 #print list(anm.devices())
 
@@ -498,14 +511,13 @@ G_igp = anm.add_overlay("igp")
 G_bgp = anm.add_overlay("bgp")
 print anm.overlay
 
-print "devices in phy", [n for n in G_phy]
-
 edges = [edge.data for edge in G_in.edges()]
 print edges
 
 G_bgp.add_nodes_from([d for d in G_in if d.device_type == "router"])
 
 present_nodes = [n for n in G_in if n in G_bgp and n.asn == 1]
+print len(G_in)
 print "present nodes", present_nodes
 
 #TODO: need to be able to create overlay subgraphs, that inherit from same base, but have _graph stored internally
