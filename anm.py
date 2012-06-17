@@ -144,6 +144,10 @@ class overlay_graph(object):
         return self._overlay_name
 
     @property
+    def name(self):
+        return self._overlay_name
+
+    @property
     def _graph(self):
         #access underlying graph for this overlay_node
         return self._anm._overlays[self._overlay_name]
@@ -160,6 +164,11 @@ class overlay_graph(object):
         return overlay_node(self._anm, self._overlay_name, key)
 
     def groupby(self, attribute):
+        """Returns a dictionary sorted by attribute
+        
+        >>> G_in.groupby("asn")
+        {u'1': [r1, r2, r3, sw1], u'2': [r4]}
+        """
         result={}
 
         data = self.nodes()
@@ -320,7 +329,7 @@ def load_graphml(filename):
 #other handling... split this into seperate module!
     return graph
 
-def plot(anm, graph_name, save = True, show = False):
+def plot(overlay_graph, save = True, show = False):
     #TODO: use mapping of x,y from existing ank
     """ Plot a graph"""
     try:
@@ -328,8 +337,8 @@ def plot(anm, graph_name, save = True, show = False):
     except ImportError:
         print ("Matplotlib not found, not plotting using Matplotlib")
         return
-    graph = anm._overlays[graph_name] 
-    print len(graph)
+    graph = overlay_graph._graph
+    graph_name = overlay_graph.name
     pos=nx.spring_layout(graph)
     plt.clf()
     cf = plt.gcf()
@@ -374,18 +383,19 @@ and once done with overlays freeze them before nidb
 anm = AbstractNetworkModel()
 input_graph = load_graphml("example.graphml")
 
-anm.add_overlay("input", input_graph)
+G_in = anm.add_overlay("input", input_graph)
 
 #print anm.dump_graph("input")
 
+#G_phy created automatically by ank
 G_phy = anm.overlay.phy
 
 #print "grouped by", anm.overlay.input.groupby("device_type")
 #print "grouped by", anm.overlay.input.groupby("asn")
 
 # build physical graph
-routers = [d for d in anm.overlay.input if d.device_type=="router"]
-routers = anm.overlay.input.filter(device_type='router')
+routers = [d for d in G_in if d.device_type=="router"]
+#routers = G_in.filter(device_type='router')
 
 G_phy.add_nodes_from(routers, retain=['label', 'device_type'], default={'color': 'red'})
 
@@ -396,18 +406,21 @@ G_phy.add_nodes_from(routers, retain=['label', 'device_type'], default={'color':
 G_bgp = anm.add_overlay("bgp")
 #print anm.overlay
 
-print "devices in phy", [n for n in anm.overlay.phy]
+print "devices in phy", [n for n in G_phy]
 
-edges = [edge.data for edge in anm.overlay.input.edges()]
+edges = [edge.data for edge in G_in.edges()]
 print edges
 
-bgp_edges = [edge for edge in anm.overlay.input.edges()
+bgp_edges = [edge for edge in G_in.edges()
         if edge.src.asn != edge.dst.asn]
 print "bgp edges are", bgp_edges
 G_bgp.add_edges_from(bgp_edges)
 anm.dump_graph(G_bgp)
+# now iBGP
+for asn, devices in G_in.groupby("asn").items():
+    print asn, "has devices", devices
 
-#plot(anm, "phy")
+plot(G_in)
 
 # call platform compiler to build NIDB
 # NIDB copies properties from each graph, including links, but also allows extra details to be added.
