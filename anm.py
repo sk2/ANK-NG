@@ -2,6 +2,8 @@ import networkx as nx
 from collections import namedtuple
 import pprint
 
+#Add plotting abilities, and allow legend attribute to be set: for both color and symbol
+
 class AutoNetkitException(Exception):
     pass
 
@@ -55,7 +57,7 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
         This is useful for accesing attributes passed through from graphml"""
 #TODO: make this log to debug on a miss, ie if key not found: do a try/except for KeyError for this
         try:
-            return self._graph[self.node_id].get(key)
+            return self._graph.node[self.node_id].get(key)
         except KeyError:
             raise IntegrityException(self.node_id)
 
@@ -68,6 +70,8 @@ class overlay_graph(object):
     """API to interact with an overlay graph in ANM"""
 
     def __init__(self, anm, overlay_name):
+        print "CREATING"
+#TODO: check overlay exists
         self._anm = anm
         self._overlay_name = overlay_name
 
@@ -91,6 +95,7 @@ class overlay_graph(object):
         return overlay_node(self._anm, self._overlay_name, key)
 
     def filter(self, **kwargs):
+        print "self nodes", [type(n) for n in self]
         print "nodes in", self, "are", [n for n in self]
 
         # need to allow filter_func to access these args
@@ -99,6 +104,11 @@ class overlay_graph(object):
                             kwargs.items())
 
         return (n for n in self if filter_func(n))
+
+    # these work similar to their nx counterparts: just need to strip the node_id
+    def add_nodes_from(self, nbunch):
+        nbunch = (n.node_id for n in nbunch) # only store the id in overlay
+        self._graph.add_nodes_from(nbunch)
 
 class overlay_accessor(namedtuple('overlay_accessor', "anm")):
     """API to access overlay graphs in ANM"""
@@ -153,12 +163,21 @@ class AbstractNetworkModel(object):
     def devices(self, **kwargs):
         return self._phy.filter(**kwargs)
 
+
+    #TODO: move this out into debug module
     def dump_graph(self, graph):
         print "Dumping graph", graph
+        print "Graph"
+        print self.dump_graph_data(graph)
         print "Nodes"
         print self.dump_nodes(graph)
         print "Edges"
         print self.dump_edges(graph)
+
+    def dump_graph_data(self, graph):
+        debug_data = dict( (key, val)
+                for key, val in sorted(self._overlays[graph].graph.items()))
+        return pprint.pformat(debug_data)
 
     def dump_nodes(self, graph):
         debug_data = dict( (node, data)
@@ -186,16 +205,12 @@ and once done with overlays freeze them before nidb
 """
 
 anm = AbstractNetworkModel()
-G_in = load_graphml("multias.graphml")
+G_in = load_graphml("example.graphml")
 
 anm.add_overlay("input")
 anm.overlay.input = G_in
 
-
 print anm.dump_graph("input")
-
-for device in anm.overlay.input:
-    print device
 
 G_phy = anm.overlay.phy
 
@@ -204,6 +219,8 @@ print "devices are", [d for d in anm.overlay.input]
 routers = [d for d in anm.overlay.input if d.device_type=="router"]
 print "routers are", routers
 
+G_phy.add_nodes_from(routers)
+print anm.dump_graph("phy")
 
 print list(anm.devices())
 
@@ -214,6 +231,7 @@ print anm.overlay
 
 # call platform compiler to build NIDB
 
-# pass to renderer
+# pass each NIDB to renderer
 
 
+# Render: NIDB has a property for topology creation, which is also a folder or a mako template, same as for devices.
