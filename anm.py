@@ -97,8 +97,6 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
         try:
             return self._graph.node[self.node_id].get(key)
         except KeyError:
-            print "testing if ", self.node_id, "in", self.overlay_id, self.node_id in self._graph
-            print self._graph.nodes()
             raise IntegrityException(self.node_id)
 
     def get(self, key):
@@ -251,9 +249,6 @@ class overlay_graph(OverlayBase):
 
     def add_edges_from(self, ebunch, retain=[], default={}):
         #TODO: need to test if given a (id, id) or an edge overlay pair... use try/except for speed
-        print "ebunch", ebunch
-        print [type(e) for e in ebunch]
-
         try:
             if len(retain):
                 add_edges = []
@@ -462,6 +457,38 @@ def plot(overlay_graph, edge_label_attribute = None, save = True, show = False):
 
     plt.close()
 
+def stream(overlay_graph):
+    import json
+
+    import urllib
+
+    url = 'http://127.0.0.1:8080/workspace0?operation=getGraph'
+    u = urllib.urlopen(url)
+# u is a file-like object
+    content = u.read()
+    print content
+
+
+# parse content with the json module
+    data = json.loads(content)
+    print data
+    return
+    
+    graph = overlay_graph._graph.copy()
+    for node in overlay_graph:
+        graph.node[node.node_id]['label'] = node.overlay.input.label
+        graph.node[node.node_id]['x'] = node.overlay.input.x
+        graph.node[node.node_id]['y'] = node.overlay.input.y
+
+    for node, data in graph.nodes(data=True):
+        add_nodes = {'an': {node: {'label': data['label']}}}
+        print json.dumps(add_nodes)
+        print 'curl "http://localhost:8080/workspace0?operation=updateGraph" -d "%s"' % json.dumps(add_nodes)
+
+    #add_edges = {'ae':data['links']}
+    #print 'curl "http://localhost:8080/workspace0?operation=updateGraph -d "%s"' % pprint.pformat(add_nodes)
+    #pprint.pformat(add_edges)
+
 def save(overlay_graph):
     graph = overlay_graph._graph.copy()
 
@@ -512,13 +539,10 @@ G_bgp = anm.add_overlay("bgp")
 print anm.overlay
 
 edges = [edge.data for edge in G_in.edges()]
-print edges
 
 G_bgp.add_nodes_from([d for d in G_in if d.device_type == "router"])
 
 present_nodes = [n for n in G_in if n in G_bgp and n.asn == 1]
-print len(G_in)
-print "present nodes", present_nodes
 
 #TODO: need to be able to create overlay subgraphs, that inherit from same base, but have _graph stored internally
 # ie properties are not stored, they are just a view...
@@ -544,10 +568,11 @@ for asn, devices in G_in.groupby("asn").items():
 # full iBGP mesh
 
 
-G_bgp.dump()
-plot(G_bgp, edge_label_attribute="type")
-plot(G_phy)
-save(G_bgp)
+#G_bgp.dump()
+#plot(G_bgp, edge_label_attribute="type")
+#plot(G_phy)
+#save(G_bgp)
+stream(G_bgp)
 
 # call platform compiler to build NIDB
 # NIDB copies properties from each graph, including links, but also allows extra details to be added.
