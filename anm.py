@@ -30,6 +30,18 @@ class DeviceNotFoundException(AutoNetkitException):
     def __str__(self):
         return "Unable to find %s" % self.Errors
 
+class overlay_node_accessor(namedtuple('overlay_accessor', "anm, node_id")):
+    """API to access overlay nodes in ANM"""
+    __slots = ()
+
+    def __repr__(self):
+        #TODO: make this list overlays the node is present in
+        return "Available overlay graphs: %s" % ", ".join(sorted(self.anm._overlays.keys()))
+
+    def __getattr__(self, key):
+        """Access overlay graph"""
+        return overlay_node(self.anm, key, self.node_id)
+
 class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
     """API to access overlay graph node in network"""
     __slots = ()
@@ -47,9 +59,10 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
 # refer back to the physical node, to access attributes such as name
         return overlay_node(self.anm, "phy", self.node_id)
 
-    def overlay(self, key):
+    @property
+    def overlay(self):
         """Access node in another overlay graph"""
-        return overlay_node(self.anm, key, self.node_id)
+        return overlay_node_accessor(self.anm, self.node_id)
         
 
     def __repr__(self):
@@ -57,7 +70,7 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
 #TODO: label should come from node in physical graph
         #return self.anm.overlay.phy.device(self.node).label
         try:
-            return self.overlay("phy").label
+            return self.overlay.phy.label
         except IntegrityException:
 # Node not in physical graph
             try:
@@ -88,7 +101,7 @@ class overlay_graph(object):
 
     def __init__(self, anm, overlay_name):
         if overlay_name not in anm._overlays:
-            raise OverlayNotFound
+            raise OverlayNotFound(overlay_name)
 
 #TODO: check overlay exists
         self._anm = anm
@@ -215,7 +228,6 @@ class AbstractNetworkModel(object):
             ) for src, dst, data in sorted(self._overlays[graph].edges(data=True)))
         return pprint.pformat(debug_data)
 
-
 def load_graphml(filename):
     graph = nx.read_graphml(filename)
 
@@ -223,7 +235,7 @@ def load_graphml(filename):
 #TODO: store these in config file
     ank_node_defaults = {
             'asn': 1,
-            'device_type': 'router',
+            'device_type': 'router'
             }
     node_defaults = graph.graph['node_default']
     for key, val in ank_node_defaults.items():
@@ -252,6 +264,55 @@ def load_graphml(filename):
 #other handling... split this into seperate module!
     return graph
 
+
+def plot(anm, graph_name, save = True, show = False):
+    """ Plot a graph"""
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print ("Matplotlib not found, not plotting using Matplotlib")
+        return
+    overlay_graph = getattr(anm.overlay, graph_name)
+    graph = anm._overlays[graph_name] 
+    pos=nx.spring_layout(graph)
+    plt.clf()
+    cf = plt.gcf()
+    ax=cf.add_axes((0,0,1,1))
+    # Create axes to allow adding of text relative to map
+    ax.set_axis_off() 
+    font_color = "k"
+    node_color = "#336699"
+    edge_color = "#888888"
+
+    print graph.nodes(data=True)
+
+    nodes = nx.draw_networkx_nodes(graph, pos, 
+                           node_size = 50, 
+                           alpha = 0.8, linewidths = (0,0),
+                           node_color = node_color,
+                           cmap=plt.cm.jet)
+
+    nx.draw_networkx_edges(graph, pos, arrows=False,
+                           edge_color=edge_color,
+                           alpha=0.8)
+
+    labels = dict( (n, overlay_graph.get(n).label) for n in graph)
+    nx.draw_networkx_labels(graph, pos, 
+                            labels=labels,
+                            font_size = 12,
+                            font_color = font_color)
+
+    
+    if show:
+        plt.show()
+    if save:
+        filename = "%s.pdf" % graph_name
+        plt.savefig(filename)
+
+    plt.close()
+
+    
+
 # probably want to create a graph from input with switches expanded to direct connections
 
 """TODO: allow graphs to be frozen for integrity, 
@@ -276,7 +337,7 @@ print "grouped by", anm.overlay.input.groupby("asn")
 routers = [d for d in anm.overlay.input if d.device_type=="router"]
 routers = anm.overlay.input.filter(device_type='router')
 for device in routers:
-    print device.overlay("bgp")
+    print device.overlay.bgp
 
 G_phy.add_nodes_from(routers, retain=['label', 'device_type'], default={'color': 'red'})
 print anm.dump_graph("phy")
@@ -287,6 +348,8 @@ anm.add_overlay("ip")
 anm.add_overlay("igp")
 anm.add_overlay("bgp")
 print anm.overlay
+
+plot(anm, "ph")
 
 # call platform compiler to build NIDB
 # NIDB copies properties from each graph, including links, but also allows extra details to be added.
