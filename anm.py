@@ -145,15 +145,19 @@ class overlay_graph(object):
 
     # these work similar to their nx counterparts: just need to strip the node_id
     def add_nodes_from(self, nbunch, retain=[], default={}):
+        print "adding with nbunch", nbunch
         if len(retain):
             add_nodes = []
             for n in nbunch:
+                print "n is in in nbubch", n
                 data = dict( (key, n.get(key)) for key in retain)
                 add_nodes.append( (n.node_id, data) )
             nbunch = add_nodes
         else:
             nbunch = (n.node_id for n in nbunch) # only store the id in overlay
+        print "nbunch", nbunch
         self._graph.add_nodes_from(nbunch, **default)
+        print "len after adding", len(self._graph)
 
 class overlay_accessor(namedtuple('overlay_accessor', "anm")):
     """API to access overlay graphs in ANM"""
@@ -202,6 +206,10 @@ class AbstractNetworkModel(object):
 
     def devices(self, **kwargs):
         return self._phy.filter(**kwargs)
+
+    def node_label(self, node):
+        """Returns node label from physical graph"""
+        return overlay_node(self, "phy", node).label
 
     #TODO: move this out into debug module
     def dump_graph(self, graph):
@@ -264,7 +272,6 @@ def load_graphml(filename):
 #other handling... split this into seperate module!
     return graph
 
-
 def plot(anm, graph_name, save = True, show = False):
     """ Plot a graph"""
     try:
@@ -272,8 +279,8 @@ def plot(anm, graph_name, save = True, show = False):
     except ImportError:
         print ("Matplotlib not found, not plotting using Matplotlib")
         return
-    overlay_graph = getattr(anm.overlay, graph_name)
     graph = anm._overlays[graph_name] 
+    print len(graph)
     pos=nx.spring_layout(graph)
     plt.clf()
     cf = plt.gcf()
@@ -296,7 +303,7 @@ def plot(anm, graph_name, save = True, show = False):
                            edge_color=edge_color,
                            alpha=0.8)
 
-    labels = dict( (n, overlay_graph.get(n).label) for n in graph)
+    labels = dict( (n, anm.node_label(n)) for n in graph)
     nx.draw_networkx_labels(graph, pos, 
                             labels=labels,
                             font_size = 12,
@@ -336,20 +343,20 @@ print "grouped by", anm.overlay.input.groupby("asn")
 # build physical graph
 routers = [d for d in anm.overlay.input if d.device_type=="router"]
 routers = anm.overlay.input.filter(device_type='router')
-for device in routers:
-    print device.overlay.bgp
 
-G_phy.add_nodes_from(routers, retain=['label', 'device_type'], default={'color': 'red'})
+anm.overlay.phy.add_nodes_from(routers, retain=['label', 'device_type'], default={'color': 'red'})
 print anm.dump_graph("phy")
 
-print list(anm.devices())
+#print list(anm.devices())
 
-anm.add_overlay("ip")
-anm.add_overlay("igp")
-anm.add_overlay("bgp")
-print anm.overlay
+#anm.add_overlay("ip")
+#anm.add_overlay("igp")
+#anm.add_overlay("bgp")
+#print anm.overlay
 
-plot(anm, "ph")
+print "devices in phy", [n for n in anm.overlay.phy]
+
+plot(anm, "phy")
 
 # call platform compiler to build NIDB
 # NIDB copies properties from each graph, including links, but also allows extra details to be added.
