@@ -162,7 +162,7 @@ class OverlayBase(object):
 
     @property
     def name(self):
-        return self._overlay_name
+        return self.__repr__()
 
     def dump(self):
         #TODO: map this to ank functions
@@ -173,11 +173,12 @@ class OverlayBase(object):
 #TODO: handle case of user creating edge, eg test tuples and ids directly
         return self._graph.has_edge(edge.src, edge.dst)
 
-
-
     def __iter__(self):
         return iter(overlay_node(self._anm, self._overlay_name, node)
                 for node in self._graph)
+
+    def __len__(self):
+        return len(self._graph)
 
     def nodes(self):
         return self.__iter__()
@@ -216,14 +217,18 @@ class OverlayBase(object):
 
 class overlay_subgraph(OverlayBase):
 
-    def __init__(self, anm, overlay_name, graph):
+    def __init__(self, anm, overlay_name, graph, name = None):
         super(overlay_subgraph, self).__init__(anm, overlay_name)
         self._graph = graph
+        self._subgraph_name = name
 
+    def __repr__(self):
+        return self._subgraph_name
 
 
 class overlay_graph(OverlayBase):
     """API to interact with an overlay graph in ANM"""
+#TODO: provide an strip_id function to turn node tuples back into just ids for the graph
 
     @property
     def _graph(self):
@@ -244,6 +249,10 @@ class overlay_graph(OverlayBase):
 
     def add_edges_from(self, ebunch, retain=[], default={}):
         #TODO: need to test if given a (id, id) or an edge overlay pair... use try/except for speed
+        print "ebunch", ebunch
+
+
+        return
         if len(retain):
             add_edges = []
             for e in ebunch:
@@ -251,13 +260,18 @@ class overlay_graph(OverlayBase):
                 add_edges.append( (e.src.node_id, e.dst.node_id, data) )
             ebunch = add_edges
         else:
-            ebunch = ((e.src.node_id, e.dst.node_id) for e in ebunch) # only store the id in overlay
-        ebunch = list(ebunch)
+            try:
+                ebunch = [(e.src.node_id, e.dst.node_id) for e in ebunch] # only store the id in overlay
+            except:
+                pass
+
         print "ebunch", ebunch
         self._graph.add_edges_from(ebunch, **default)
+        print self._graph.edges(data=True)
 
-    def subgraph(self, nbunch):
-        return overlay_subgraph(self._anm, self._overlay_name, self._graph.subgraph(nbunch))
+    def subgraph(self, nbunch, name=None):
+        nbunch = (n.node_id for n in nbunch) # only store the id in overlay
+        return overlay_subgraph(self._anm, self._overlay_name, self._graph.subgraph(nbunch), name)
 
 class overlay_accessor(namedtuple('overlay_accessor', "anm")):
     """API to access overlay graphs in ANM"""
@@ -506,25 +520,25 @@ ebgp_edges = [edge for edge in G_in.edges() if edge.src.asn != edge.dst.asn]
 G_bgp.add_edges_from(ebgp_edges, default={'type:': 'ebgp'})
 # now iBGP
 for asn, devices in G_in.groupby("asn").items():
-    print "iBGP for asn", asn
+    #print "iBGP for asn", asn
 
-    asn_subgraph = G_in.subgraph(devices)
-    print "subgraph edges", list(asn_subgraph.edges())
-    for edge in asn_subgraph.edges():
-        print "asn subgraph has edge", edge
+    asn_subgraph = G_in.subgraph(devices, name="asn%s" % asn)
+    #print asn_subgraph
+    #print len(asn_subgraph)
+    #print "subgraph edges", list(asn_subgraph.edges())
 
     routers = [d for d in devices if d.device_type == "router"]
-    print "routers are", routers
-    print "g in edges", list(G_in.edges(routers))
-    ibgp_edges = [ edge for edge in G_in.edges(routers)]
-    print "ibgp edges", ibgp_edges
-    #G_bgp.add_edges_from(ibgp_edges, default={'type:': 'ibgp'})
+    #print "routers are", routers
+    #print "g in edges", list(G_in.edges(routers))
+    ibgp_edges = [ (s, t) for s in routers for t in routers]
+    #print "ibgp edges", ibgp_edges
+    G_bgp.add_edges_from(ibgp_edges, default={'type:': 'ibgp'})
     
 # full iBGP mesh
 
 
-G_bgp.dump()
-plot(G_bgp, edge_label_attribute="type")
+#G_bgp.dump()
+#plot(G_bgp, edge_label_attribute="type")
 
 # call platform compiler to build NIDB
 # NIDB copies properties from each graph, including links, but also allows extra details to be added.
