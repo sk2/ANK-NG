@@ -438,19 +438,15 @@ def plot(overlay_graph, edge_label_attribute = None, save = True, show = False):
                            alpha=0.8)
     
     if edge_label_attribute:
-        print "get ttpe", [edge.get(edge_label_attribute) for edge in overlay_graph.edges()]
         edge_labels = dict ( ( (edge.src.node_id, edge.dst.node_id), edge.get(edge_label_attribute))
             for edge in overlay_graph.edges())
-        print "get ttpe", [edge.get(edge_label_attribute) for edge in overlay_graph.edges()]
-        print "edge labels", edge_labels
         nx.draw_networkx_edge_labels(graph, pos, 
-                            labels=edge_labels,
+                            edge_labels = edge_labels,
                             font_size = 12,
                             font_color = font_color)
 
-
 #TODO: where is anm from here? global? :/
-    labels = dict( (n, anm.node_label(n)) for n in graph)
+    labels = dict( (n.node_id, n) for n in overlay_graph)
     nx.draw_networkx_labels(graph, pos, 
                             labels=labels,
                             font_size = 12,
@@ -463,6 +459,13 @@ def plot(overlay_graph, edge_label_attribute = None, save = True, show = False):
         plt.savefig(filename)
 
     plt.close()
+
+def save(overlay_graph):
+    graph = overlay_graph._graph
+    mapping = dict( (n.node_id, str(n)) for n in overlay_graph) 
+    nx.relabel_nodes( graph, mapping, copy=False)
+    filename = "%s.graphml" % overlay_graph.name
+    nx.write_graphml(graph, filename)
 
 # probably want to create a graph from input with switches expanded to direct connections
 
@@ -505,12 +508,11 @@ G_bgp.add_nodes_from([d for d in G_in if d.device_type == "router"])
 present_nodes = [n for n in G_in if n in G_bgp and n.asn == 1]
 print "present nodes", present_nodes
 
-
 #TODO: need to be able to create overlay subgraphs, that inherit from same base, but have _graph stored internally
 # ie properties are not stored, they are just a view...
 
 ebgp_edges = [edge for edge in G_in.edges() if edge.src.asn != edge.dst.asn]
-G_bgp.add_edges_from(ebgp_edges, default={'type:': 'ebgp'})
+G_bgp.add_edges_from(ebgp_edges, default={'type': 'ebgp'})
 # now iBGP
 for asn, devices in G_in.groupby("asn").items():
     #print "iBGP for asn", asn
@@ -525,13 +527,15 @@ for asn, devices in G_in.groupby("asn").items():
     #print "g in edges", list(G_in.edges(routers))
     ibgp_edges = [ (s, t) for s in routers for t in routers if s!=t]
     #print "ibgp edges", ibgp_edges
-    G_bgp.add_edges_from(ibgp_edges, default={'type:': 'ibgp'})
+    G_bgp.add_edges_from(ibgp_edges, default={'type': 'ibgp'})
     
 # full iBGP mesh
 
 
 G_bgp.dump()
 plot(G_bgp, edge_label_attribute="type")
+plot(G_phy)
+save(G_bgp)
 
 # call platform compiler to build NIDB
 # NIDB copies properties from each graph, including links, but also allows extra details to be added.
