@@ -250,24 +250,21 @@ class overlay_graph(OverlayBase):
     def add_edges_from(self, ebunch, retain=[], default={}):
         #TODO: need to test if given a (id, id) or an edge overlay pair... use try/except for speed
         print "ebunch", ebunch
+        print [type(e) for e in ebunch]
 
+        try:
+            if len(retain):
+                add_edges = []
+                for e in ebunch:
+                    data = dict( (key, e.get(key)) for key in retain)
+                    add_edges.append( (e.src.node_id, e.dst.node_id, data) )
+                ebunch = add_edges
+            else:
+                ebunch = [(e.src.node_id, e.dst.node_id) for e in ebunch]
+        except AttributeError:
+            ebunch = [(src.node_id, dst.node_id) for src, dst in ebunch]
 
-        return
-        if len(retain):
-            add_edges = []
-            for e in ebunch:
-                data = dict( (key, e.get(key)) for key in retain)
-                add_edges.append( (e.src.node_id, e.dst.node_id, data) )
-            ebunch = add_edges
-        else:
-            try:
-                ebunch = [(e.src.node_id, e.dst.node_id) for e in ebunch] # only store the id in overlay
-            except:
-                pass
-
-        print "ebunch", ebunch
         self._graph.add_edges_from(ebunch, **default)
-        print self._graph.edges(data=True)
 
     def subgraph(self, nbunch, name=None):
         nbunch = (n.node_id for n in nbunch) # only store the id in overlay
@@ -440,8 +437,6 @@ def plot(overlay_graph, edge_label_attribute = None, save = True, show = False):
                            edge_color=edge_color,
                            alpha=0.8)
     
-    """
-    TODO: fix this
     if edge_label_attribute:
         print "get ttpe", [edge.get(edge_label_attribute) for edge in overlay_graph.edges()]
         edge_labels = dict ( ( (edge.src.node_id, edge.dst.node_id), edge.get(edge_label_attribute))
@@ -452,8 +447,6 @@ def plot(overlay_graph, edge_label_attribute = None, save = True, show = False):
                             labels=edge_labels,
                             font_size = 12,
                             font_color = font_color)
-
-        """
 
 
 #TODO: where is anm from here? global? :/
@@ -530,15 +523,15 @@ for asn, devices in G_in.groupby("asn").items():
     routers = [d for d in devices if d.device_type == "router"]
     #print "routers are", routers
     #print "g in edges", list(G_in.edges(routers))
-    ibgp_edges = [ (s, t) for s in routers for t in routers]
+    ibgp_edges = [ (s, t) for s in routers for t in routers if s!=t]
     #print "ibgp edges", ibgp_edges
     G_bgp.add_edges_from(ibgp_edges, default={'type:': 'ibgp'})
     
 # full iBGP mesh
 
 
-#G_bgp.dump()
-#plot(G_bgp, edge_label_attribute="type")
+G_bgp.dump()
+plot(G_bgp, edge_label_attribute="type")
 
 # call platform compiler to build NIDB
 # NIDB copies properties from each graph, including links, but also allows extra details to be added.
