@@ -60,6 +60,10 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
         return overlay_node(self.anm, "phy", self.node_id)
 
     @property
+    def data(self):
+        return self._graph.node[self.node_id].keys()
+
+    @property
     def overlay(self):
         """Access node in another overlay graph"""
         return overlay_node_accessor(self.anm, self.node_id)
@@ -100,20 +104,24 @@ class overlay_edge(namedtuple('link', "anm, overlay_name, src_id, dst_id")):
     """API to access link in network"""
     __slots = ()
     def __repr__(self):
-        return "(%s, %s)" % (self._src, self._dst)
+        return "(%s, %s)" % (self.src, self.dst)
 
     @property
-    def _src(self):
+    def src(self):
         return overlay_node(self.anm, self.overlay_name, self.src_id)
 
     @property
-    def _dst(self):
+    def dst(self):
         return overlay_node(self.anm, self.overlay_name, self.dst_id)
+
+    @property
+    def data(self):
+        return self._graph[self.src_id][self.dst_id].keys()
 
     @property
     def _graph(self):
         """Return graph the node belongs to"""
-        return self.anm._overlays[self.overlay_id]
+        return self.anm._overlays[self.overlay_name]
 
     def __getattr__(self, key):
         """Returns edge property"""
@@ -185,7 +193,7 @@ class overlay_graph(object):
             nbunch = (n.node_id for n in nbunch) # only store the id in overlay
         self._graph.add_nodes_from(nbunch, **default)
 
-    def add_edges_from(self, nbunch, retain=[], default={}):
+    def add_edges_from(self, ebunch, retain=[], default={}):
         return
         if len(retain):
             add_nodes = []
@@ -208,12 +216,12 @@ class overlay_accessor(namedtuple('overlay_accessor', "anm")):
         """Access overlay graph"""
         return overlay_graph(self.anm, key)
 
-    def __setattr__(self, key, val):
-        """Set overlay graph
-        TODO: do we want to restrict this? Ie import explicit function?
-        """
-        self.anm._overlays[key] = val
-
+    #def __setattr__(self, key, val):
+   #     """Set overlay graph
+   #     TODO: do we want to restrict this? Ie import explicit function?
+   #     """
+   #     self.anm._overlays[key] = val
+#
 class AbstractNetworkModel(object):
     
     def __init__(self):
@@ -224,10 +232,11 @@ class AbstractNetworkModel(object):
     def _phy(self):
         return overlay_graph(self, "phy")
 
-    def add_overlay(self, name, directed=False, multi_edge=False):
+    def add_overlay(self, name, graph = None, directed=False, multi_edge=False):
         """Adds overlay graph of name name"""
-        graph = None
-        if not directed and not multi_edge:
+        if graph:
+            pass
+        elif not directed and not multi_edge:
             graph = nx.Graph()
         elif directed and not multi_edge:
             graph = nx.DiGraph()
@@ -237,6 +246,7 @@ class AbstractNetworkModel(object):
             graph = nx.MultiDiGraph()
 
         self._overlays[name] = graph
+        return overlay_graph(self, name)
 
     @property
     def overlay(self):
@@ -261,17 +271,17 @@ class AbstractNetworkModel(object):
 
     def dump_graph_data(self, graph):
         debug_data = dict( (key, val)
-                for key, val in sorted(self._overlays[graph].graph.items()))
+                for key, val in sorted(graph._graph.graph.items()))
         return pprint.pformat(debug_data)
 
     def dump_nodes(self, graph):
         debug_data = dict( (node, data)
-                for node, data in sorted(self._overlays[graph].nodes(data=True)))
+                for node, data in sorted(graph._graph.nodes(data=True)))
         return pprint.pformat(debug_data)
 
     def dump_edges(self, graph):
         debug_data = dict( ((src, dst), data
-            ) for src, dst, data in sorted(self._overlays[graph].edges(data=True)))
+            ) for src, dst, data in sorted(graph._graph.edges(data=True)))
         return pprint.pformat(debug_data)
 
 def load_graphml(filename):
@@ -362,10 +372,9 @@ and once done with overlays freeze them before nidb
 """
 
 anm = AbstractNetworkModel()
-G_in = load_graphml("example.graphml")
+input_graph = load_graphml("example.graphml")
 
-anm.add_overlay("input")
-anm.overlay.input = G_in
+anm.add_overlay("input", input_graph)
 
 #print anm.dump_graph("input")
 
@@ -379,19 +388,24 @@ routers = [d for d in anm.overlay.input if d.device_type=="router"]
 routers = anm.overlay.input.filter(device_type='router')
 
 G_phy.add_nodes_from(routers, retain=['label', 'device_type'], default={'color': 'red'})
-print anm.dump_graph("phy")
 
 #print list(anm.devices())
 
 #anm.add_overlay("ip")
 #anm.add_overlay("igp")
-#anm.add_overlay("bgp")
+G_bgp = anm.add_overlay("bgp")
 #print anm.overlay
 
 print "devices in phy", [n for n in anm.overlay.phy]
 
-edges = [edge for edge in anm.overlay.input.edges()]
+edges = [edge.data for edge in anm.overlay.input.edges()]
 print edges
+
+bgp_edges = [edge for edge in anm.overlay.input.edges()
+        if edge.src.asn != edge.dst.asn]
+print "bgp edges are", bgp_edges
+G_bgp.add_edges_from(bgp_edges)
+anm.dump_graph(G_bgp)
 
 #plot(anm, "phy")
 
