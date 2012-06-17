@@ -7,6 +7,13 @@ import pprint
 class AutoNetkitException(Exception):
     pass
 
+class OverlayNotFound(AutoNetkitException):
+    def __init__(self, Errors):
+        self.Errors = Errors
+
+    def __str__(self):
+        return "Overlay %s not found" % self.Errors
+
 class IntegrityException(AutoNetkitException):
     def __init__(self, Errors):
         self.Errors = Errors
@@ -39,12 +46,17 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
 # refer back to the physical node, to access attributes such as name
         return overlay_node(self.anm, "phy", self.node_id)
 
+    def overlay(self, key):
+        """Access node in another overlay graph"""
+        return overlay_node(self.anm, key, self.node_id)
+        
+
     def __repr__(self):
         #return "Overlay for %s in %s" % (self.node.fqdn, self.graph)
 #TODO: label should come from node in physical graph
         #return self.anm.overlay.phy.device(self.node).label
         try:
-            return self._phy_node.label
+            return self.overlay("phy").label
         except IntegrityException:
 # Node not in physical graph
             try:
@@ -74,7 +86,9 @@ class overlay_graph(object):
     """API to interact with an overlay graph in ANM"""
 
     def __init__(self, anm, overlay_name):
-        print "CREATING"
+        if overlay_name not in anm._overlays:
+            raise OverlayNotFound
+
 #TODO: check overlay exists
         self._anm = anm
         self._overlay_name = overlay_name
@@ -107,7 +121,7 @@ class overlay_graph(object):
         return (n for n in self if filter_func(n))
 
     # these work similar to their nx counterparts: just need to strip the node_id
-    def add_nodes_from(self, nbunch, default={}, retain=[]):
+    def add_nodes_from(self, nbunch, retain=[], default={}):
         if len(retain):
             add_nodes = []
             for n in nbunch:
@@ -224,9 +238,10 @@ G_phy = anm.overlay.phy
 # build physical graph
 routers = [d for d in anm.overlay.input if d.device_type=="router"]
 routers = anm.overlay.input.filter(device_type='router')
-print "routers are ", list(routers)
+for device in routers:
+    print device.overlay("bgp")
 
-G_phy.add_nodes_from(routers, default={'color': 'red'}, retain=['label', 'device_type'])
+G_phy.add_nodes_from(routers, retain=['label', 'device_type'], default={'color': 'red'})
 print anm.dump_graph("phy")
 
 print list(anm.devices())
