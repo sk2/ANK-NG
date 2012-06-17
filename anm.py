@@ -2,6 +2,7 @@ import networkx as nx
 from collections import namedtuple
 import itertools
 import pprint
+from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
 #TODO: add helper functions such as router, ie ank.router(device): return device.overlay.phys.device_type == "router"
 
@@ -457,23 +458,27 @@ def plot(overlay_graph, edge_label_attribute = None, save = True, show = False):
 
     plt.close()
 
+class MyHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        print("Just received a GET request")
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+
+        self.wfile.write('{"an": {"n0": {"label": "r1"}}}')
+
+        return
+
+    def log_request(self, code=None, size=None):
+        print('Request')
+
+    def log_message(self, format, *args):
+        print('Message')
+
+
 def stream(overlay_graph):
     import json
 
-    import urllib
-
-    url = 'http://127.0.0.1:8080/workspace0?operation=getGraph'
-    u = urllib.urlopen(url)
-# u is a file-like object
-    content = u.read()
-    print content
-
-
-# parse content with the json module
-    data = json.loads(content)
-    print data
-    return
-    
     graph = overlay_graph._graph.copy()
     for node in overlay_graph:
         graph.node[node.node_id]['label'] = node.overlay.input.label
@@ -484,6 +489,16 @@ def stream(overlay_graph):
         add_nodes = {'an': {node: {'label': data['label']}}}
         print json.dumps(add_nodes)
         print 'curl "http://localhost:8080/workspace0?operation=updateGraph" -d "%s"' % json.dumps(add_nodes)
+
+    while True:
+        try:
+            server = HTTPServer(('localhost', 8283), MyHandler)
+            print('Started http server')
+            server.serve_forever()
+        except KeyboardInterrupt:
+            print('^C received, shutting down server')
+            server.socket.close()
+            return
 
     #add_edges = {'ae':data['links']}
     #print 'curl "http://localhost:8080/workspace0?operation=updateGraph -d "%s"' % pprint.pformat(add_nodes)
