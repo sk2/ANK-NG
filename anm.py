@@ -96,14 +96,39 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
         This is useful for accesing attributes passed through from graphml"""
         self._graph[self.node][key] = val
 
+class overlay_edge(namedtuple('link', "anm, overlay_name, src_id, dst_id")):
+    """API to access link in network"""
+    __slots = ()
+    def __repr__(self):
+        return "(%s, %s)" % (self._src, self._dst)
+
+    @property
+    def _src(self):
+        return overlay_node(self.anm, self.overlay_name, self.src_id)
+
+    @property
+    def _dst(self):
+        return overlay_node(self.anm, self.overlay_name, self.dst_id)
+
+    @property
+    def _graph(self):
+        """Return graph the node belongs to"""
+        return self.anm._overlays[self.overlay_id]
+
+    def __getattr__(self, key):
+        """Returns edge property"""
+        return self._graph[self.src_id][self.dst_id].get(key)
+
+    def __setattr__(self, key, val):
+        """Sets edge property"""
+        self._graph[self.src_id][self.dst_id][key] = val
+
 class overlay_graph(object):
     """API to interact with an overlay graph in ANM"""
 
     def __init__(self, anm, overlay_name):
         if overlay_name not in anm._overlays:
             raise OverlayNotFound(overlay_name)
-
-#TODO: check overlay exists
         self._anm = anm
         self._overlay_name = overlay_name
 
@@ -143,21 +168,34 @@ class overlay_graph(object):
 
         return (n for n in self if filter_func(n))
 
+    def edges(self):
+        return iter(overlay_edge(self._anm, self._overlay_name, src, dst)
+                for src, dst in self._graph.edges())
+
+
     # these work similar to their nx counterparts: just need to strip the node_id
     def add_nodes_from(self, nbunch, retain=[], default={}):
-        print "adding with nbunch", nbunch
         if len(retain):
             add_nodes = []
             for n in nbunch:
-                print "n is in in nbubch", n
                 data = dict( (key, n.get(key)) for key in retain)
                 add_nodes.append( (n.node_id, data) )
             nbunch = add_nodes
         else:
             nbunch = (n.node_id for n in nbunch) # only store the id in overlay
-        print "nbunch", nbunch
         self._graph.add_nodes_from(nbunch, **default)
-        print "len after adding", len(self._graph)
+
+    def add_edges_from(self, nbunch, retain=[], default={}):
+        return
+        if len(retain):
+            add_nodes = []
+            for n in nbunch:
+                data = dict( (key, n.get(key)) for key in retain)
+                add_nodes.append( (n.node_id, data) )
+            nbunch = add_nodes
+        else:
+            nbunch = (n.node_id for n in nbunch) # only store the id in overlay
+        self._graph.add_nodes_from(nbunch, **default)
 
 class overlay_accessor(namedtuple('overlay_accessor', "anm")):
     """API to access overlay graphs in ANM"""
@@ -273,6 +311,7 @@ def load_graphml(filename):
     return graph
 
 def plot(anm, graph_name, save = True, show = False):
+    #TODO: use mapping of x,y from existing ank
     """ Plot a graph"""
     try:
         import matplotlib.pyplot as plt
@@ -291,8 +330,6 @@ def plot(anm, graph_name, save = True, show = False):
     node_color = "#336699"
     edge_color = "#888888"
 
-    print graph.nodes(data=True)
-
     nodes = nx.draw_networkx_nodes(graph, pos, 
                            node_size = 50, 
                            alpha = 0.8, linewidths = (0,0),
@@ -309,7 +346,6 @@ def plot(anm, graph_name, save = True, show = False):
                             font_size = 12,
                             font_color = font_color)
 
-    
     if show:
         plt.show()
     if save:
@@ -317,8 +353,6 @@ def plot(anm, graph_name, save = True, show = False):
         plt.savefig(filename)
 
     plt.close()
-
-    
 
 # probably want to create a graph from input with switches expanded to direct connections
 
@@ -333,18 +367,18 @@ G_in = load_graphml("example.graphml")
 anm.add_overlay("input")
 anm.overlay.input = G_in
 
-print anm.dump_graph("input")
+#print anm.dump_graph("input")
 
 G_phy = anm.overlay.phy
 
-print "grouped by", anm.overlay.input.groupby("device_type")
-print "grouped by", anm.overlay.input.groupby("asn")
+#print "grouped by", anm.overlay.input.groupby("device_type")
+#print "grouped by", anm.overlay.input.groupby("asn")
 
 # build physical graph
 routers = [d for d in anm.overlay.input if d.device_type=="router"]
 routers = anm.overlay.input.filter(device_type='router')
 
-anm.overlay.phy.add_nodes_from(routers, retain=['label', 'device_type'], default={'color': 'red'})
+G_phy.add_nodes_from(routers, retain=['label', 'device_type'], default={'color': 'red'})
 print anm.dump_graph("phy")
 
 #print list(anm.devices())
@@ -356,7 +390,10 @@ print anm.dump_graph("phy")
 
 print "devices in phy", [n for n in anm.overlay.phy]
 
-plot(anm, "phy")
+edges = [edge for edge in anm.overlay.input.edges()]
+print edges
+
+#plot(anm, "phy")
 
 # call platform compiler to build NIDB
 # NIDB copies properties from each graph, including links, but also allows extra details to be added.
