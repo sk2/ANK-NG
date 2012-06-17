@@ -1,5 +1,6 @@
 import networkx as nx
 from collections import namedtuple
+import pprint
 
 class AutoNetkitException(Exception):
     pass
@@ -63,44 +64,41 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
         This is useful for accesing attributes passed through from graphml"""
         self._graph[self.node][key] = val
 
-class overlay_graph(namedtuple('overlay_graph', "anm, overlay_name")):
+class overlay_graph(object):
     """API to interact with an overlay graph in ANM"""
-    __slots = ()
+
+    def __init__(self, anm, overlay_name):
+        self._anm = anm
+        self._overlay_name = overlay_name
 
     def __repr__(self):
-        return self.overlay_name
+        return self._overlay_name
 
     @property
     def _graph(self):
         #access underlying graph for this overlay_node
-        return self.anm._overlays[self.overlay_name]
+        return self._anm._overlays[self._overlay_name]
 
     def __iter__(self):
-        return iter(overlay_node(self.anm, self.overlay_name, node)
+        return iter(overlay_node(self._anm, self._overlay_name, node)
                 for node in self._graph)
 
     def nodes(self):
         return self.__iter__()
 
-    def __getattr__(self, key):
-        print "ACCESS NODE IN GRAPH"
-        """Access node in overlay graph"""
-        print "trying to access key %s in overlay %s" % (key, self.overlay_name)
-        if key in self._graph:
-            return overlay_node(self.anm, self.overlay_name, key)
-        else:
-            raise DeviceNotFoundException("Unable to find ", key)
-
     def device(self, key):
         """To access programatically"""
-        return overlay_node(self.anm, self.overlay_name, key)
+        return overlay_node(self._anm, self._overlay_name, key)
 
-    def __setattr__(self, key, val):
-        """Set overlay graph
-        TODO: do we want to restrict this? Ie import explicit function?
-        """
-        #self.node.network._graphs[self.graph].node[self.node][key] = val
-        self.anm._g_overlays[key] = val
+    def filter(self, **kwargs):
+        print "nodes in", self, "are", [n for n in self]
+
+        # need to allow filter_func to access these args
+        def filter_func(node):
+            return all(node.key == val for key, val in
+                            kwargs.items())
+
+        return (n for n in self if filter_func(n))
 
 class overlay_accessor(namedtuple('overlay_accessor', "anm")):
     """API to access overlay graphs in ANM"""
@@ -147,24 +145,30 @@ class AbstractNetworkModel(object):
     def overlay(self):
         return overlay_accessor(self)
 
-    def devices(self, **kwargs):
-        nodes = [n for n in self._phy]
-        print "nodes are", list(nodes)
-        nodes = self._phy.nodes() # All nodes in graph
-        print "nodes are", list(nodes)
-
-        # need to allow filter_func to access these args
-        def filter_func(n):
-            return all(self.graph.node[n].get(k) == v for k,v in
-                            kwargs.items())
-
-        return (n for n in nodes if filter_func(n))
-
-
     def group_by(self, nodes, **kwargs):
         """Groups nodes by argument, eg by asn, return as a dict... or as 
         itertools? can this be easily made into a dict?"""
         pass
+
+    def devices(self, **kwargs):
+        return self._phy.filter(**kwargs)
+
+    def dump_graph(self, graph):
+        print "Dumping graph", graph
+        print "Nodes"
+        print self.dump_nodes(graph)
+        print "Edges"
+        print self.dump_edges(graph)
+
+    def dump_nodes(self, graph):
+        debug_data = dict( (node, data)
+                for node, data in sorted(self._overlays[graph].nodes(data=True)))
+        return pprint.pformat(debug_data)
+
+    def dump_edges(self, graph):
+        debug_data = dict( ((src, dst), data
+            ) for src, dst, data in sorted(self._overlays[graph].edges(data=True)))
+        return pprint.pformat(debug_data)
 
 
 def load_graphml(filename):
@@ -174,12 +178,7 @@ def load_graphml(filename):
 #other handling... split this into seperate module!
     return graph
 
-def f_phy(G_in):
-    return G_in
-
-
 # probably want to create a graph from input with switches expanded to direct connections
-
 
 """TODO: allow graphs to be frozen for integrity, 
 eg load input, freeze, 
@@ -191,13 +190,23 @@ G_in = load_graphml("multias.graphml")
 
 anm.add_overlay("input")
 anm.overlay.input = G_in
-print anm.overlay.input
-print list(anm.devices())
+
+
+print anm.dump_graph("input")
 
 for device in anm.overlay.input:
     print device
 
 G_phy = anm.overlay.phy
+
+# build physical graph
+print "devices are", [d for d in anm.overlay.input]
+routers = [d for d in anm.overlay.input if d.device_type=="router"]
+print "routers are", routers
+
+
+print list(anm.devices())
+
 anm.add_overlay("ip")
 anm.add_overlay("igp")
 anm.add_overlay("bgp")
