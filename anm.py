@@ -3,7 +3,11 @@ from collections import namedtuple
 import itertools
 import pprint
 
+#TODO: add helper functions such as router, ie ank.router(device): return device.overlay.phys.device_type == "router"
+
 #Add plotting abilities, and allow legend attribute to be set: for both color and symbol
+
+# working with views allows us to spin off subgraphs, and work with them the same as a standard overlay
 
 class AutoNetkitException(Exception):
     pass
@@ -36,7 +40,7 @@ class overlay_node_accessor(namedtuple('overlay_accessor', "anm, node_id")):
 
     def __repr__(self):
         #TODO: make this list overlays the node is present in
-        return "Available overlay graphs: %s" % ", ".join(sorted(self.anm._overlays.keys()))
+        return "Overlay graphs: %s" % ", ".join(sorted(self.anm._overlays.keys()))
 
     def __getattr__(self, key):
         """Access overlay graph"""
@@ -53,6 +57,10 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
     def _graph(self):
         """Return graph the node belongs to"""
         return self.anm._overlays[self.overlay_id]
+
+    @property
+    def id(self):
+        return self.node_id
 
     @property
     def _phy_node(self):
@@ -123,6 +131,10 @@ class overlay_edge(namedtuple('link', "anm, overlay_name, src_id, dst_id")):
         """Return graph the node belongs to"""
         return self.anm._overlays[self.overlay_name]
 
+    def get(self, key):
+        """For consistency, edge.get(key) is neater than getattr(edge, key)"""
+        return self.__getattr__(key)
+
     def __getattr__(self, key):
         """Returns edge property"""
         return self._graph[self.src_id][self.dst_id].get(key)
@@ -131,8 +143,8 @@ class overlay_edge(namedtuple('link', "anm, overlay_name, src_id, dst_id")):
         """Sets edge property"""
         self._graph[self.src_id][self.dst_id][key] = val
 
-class overlay_graph(object):
-    """API to interact with an overlay graph in ANM"""
+class OverlayBase(object):
+    """Base class for overlays - overlay graphs, subgraphs, projections, etc"""
 
     def __init__(self, anm, overlay_name):
         if overlay_name not in anm._overlays:
@@ -146,6 +158,8 @@ class overlay_graph(object):
     def __contains__(self, n):
         return n.node_id in self._graph
 
+#TODO: Allow overlay data to be set/get, ie graph.graph eg for asn subnet allocations
+
     @property
     def name(self):
         return self._overlay_name
@@ -154,10 +168,12 @@ class overlay_graph(object):
         #TODO: map this to ank functions
         self._anm.dump_graph(self)
 
-    @property
-    def _graph(self):
-        #access underlying graph for this overlay_node
-        return self._anm._overlays[self._overlay_name]
+    def has_edge(self, edge):
+        """Tests if edge in graph"""
+#TODO: handle case of user creating edge, eg test tuples and ids directly
+        return self._graph.has_edge(edge.src, edge.dst)
+
+
 
     def __iter__(self):
         return iter(overlay_node(self._anm, self._overlay_name, node)
@@ -192,10 +208,27 @@ class overlay_graph(object):
 
         return (n for n in self if filter_func(n))
 
-    def edges(self):
+    def edges(self, nbunch = None):
+        if nbunch:
+            nbunch = (n.node_id for n in nbunch) # only store the id in overlay
         return iter(overlay_edge(self._anm, self._overlay_name, src, dst)
-                for src, dst in self._graph.edges())
+                for src, dst in self._graph.edges(nbunch))
 
+class overlay_subgraph(OverlayBase):
+
+    def __init__(self, anm, overlay_name, graph):
+        super(overlay_subgraph, self).__init__(anm, overlay_name)
+        self._graph = graph
+
+
+
+class overlay_graph(OverlayBase):
+    """API to interact with an overlay graph in ANM"""
+
+    @property
+    def _graph(self):
+        #access underlying graph for this overlay_node
+        return self._anm._overlays[self._overlay_name]
 
     # these work similar to their nx counterparts: just need to strip the node_id
     def add_nodes_from(self, nbunch, retain=[], default={}):
@@ -210,16 +243,21 @@ class overlay_graph(object):
         self._graph.add_nodes_from(nbunch, **default)
 
     def add_edges_from(self, ebunch, retain=[], default={}):
-        return
+        #TODO: need to test if given a (id, id) or an edge overlay pair... use try/except for speed
         if len(retain):
-            add_nodes = []
-            for n in nbunch:
-                data = dict( (key, n.get(key)) for key in retain)
-                add_nodes.append( (n.node_id, data) )
-            nbunch = add_nodes
+            add_edges = []
+            for e in ebunch:
+                data = dict( (key, e.get(key)) for key in retain)
+                add_edges.append( (e.src.node_id, e.dst.node_id, data) )
+            ebunch = add_edges
         else:
-            nbunch = (n.node_id for n in nbunch) # only store the id in overlay
-        self._graph.add_nodes_from(nbunch, **default)
+            ebunch = ((e.src.node_id, e.dst.node_id) for e in ebunch) # only store the id in overlay
+        ebunch = list(ebunch)
+        print "ebunch", ebunch
+        self._graph.add_edges_from(ebunch, **default)
+
+    def subgraph(self, nbunch):
+        return overlay_subgraph(self._anm, self._overlay_name, self._graph.subgraph(nbunch))
 
 class overlay_accessor(namedtuple('overlay_accessor', "anm")):
     """API to access overlay graphs in ANM"""
@@ -232,12 +270,6 @@ class overlay_accessor(namedtuple('overlay_accessor', "anm")):
         """Access overlay graph"""
         return overlay_graph(self.anm, key)
 
-    #def __setattr__(self, key, val):
-   #     """Set overlay graph
-   #     TODO: do we want to restrict this? Ie import explicit function?
-   #     """
-   #     self.anm._overlays[key] = val
-#
 class AbstractNetworkModel(object):
     
     def __init__(self):
@@ -277,7 +309,7 @@ class AbstractNetworkModel(object):
 
     #TODO: move this out into debug module
     def dump_graph(self, graph):
-        print "Dumping graph", graph
+        print "Dumping graph '%s'" % graph
         print "Graph"
         print self.dump_graph_data(graph)
         print "Nodes"
@@ -302,6 +334,7 @@ class AbstractNetworkModel(object):
 
 def load_graphml(filename):
     graph = nx.read_graphml(filename)
+#TODO: node labels if not set, need to set from a sequence, ensure unique... etc
 
 # set our own defaults if not set
 #TODO: store these in config file
@@ -340,8 +373,7 @@ def load_graphml(filename):
 #other handling... split this into seperate module!
     return graph
 
-def plot(overlay_graph, save = True, show = False):
-    #TODO: use mapping of x,y from existing ank
+def plot(overlay_graph, edge_label_attribute = None, save = True, show = False):
     """ Plot a graph"""
     try:
         import matplotlib.pyplot as plt
@@ -350,7 +382,31 @@ def plot(overlay_graph, save = True, show = False):
         return
     graph = overlay_graph._graph
     graph_name = overlay_graph.name
-    pos=nx.spring_layout(graph)
+
+    try:
+        import numpy
+    except ImportError:
+        print("Matplotlib plotting requires numpy for graph layout")
+        return
+    
+    try:
+        ids, x, y = zip(*[(node.id , node.overlay.input.x, node.overlay.input.y)
+                for node in overlay_graph])
+        x = numpy.asarray(x, dtype=float)
+        y = numpy.asarray(y, dtype=float)
+#TODO: combine these two operations together
+        x -= x.min()
+        x *= 1.0/x.max() 
+        y -= y.min()
+        y *= -1.0/y.max() # invert
+        y += 1 # rescale from 0->1 not 1->0
+#TODO: see if can use reshape-type commands here
+        co_ords = zip(list(x), list(y))
+        co_ords = [numpy.array([x, y]) for x, y in co_ords]
+        pos = dict( zip(ids, co_ords))
+    except KeyError:
+        pos=nx.spring_layout(graph)
+
     plt.clf()
     cf = plt.gcf()
     ax=cf.add_axes((0,0,1,1))
@@ -369,7 +425,24 @@ def plot(overlay_graph, save = True, show = False):
     nx.draw_networkx_edges(graph, pos, arrows=False,
                            edge_color=edge_color,
                            alpha=0.8)
+    
+    """
+    TODO: fix this
+    if edge_label_attribute:
+        print "get ttpe", [edge.get(edge_label_attribute) for edge in overlay_graph.edges()]
+        edge_labels = dict ( ( (edge.src.node_id, edge.dst.node_id), edge.get(edge_label_attribute))
+            for edge in overlay_graph.edges())
+        print "get ttpe", [edge.get(edge_label_attribute) for edge in overlay_graph.edges()]
+        print "edge labels", edge_labels
+        nx.draw_networkx_edge_labels(graph, pos, 
+                            labels=edge_labels,
+                            font_size = 12,
+                            font_color = font_color)
 
+        """
+
+
+#TODO: where is anm from here? global? :/
     labels = dict( (n, anm.node_label(n)) for n in graph)
     nx.draw_networkx_labels(graph, pos, 
                             labels=labels,
@@ -396,8 +469,6 @@ input_graph = load_graphml("example.graphml")
 
 G_in = anm.add_overlay("input", input_graph)
 
-#print anm.dump_graph("input")
-
 #G_phy created automatically by ank
 G_phy = anm.overlay.phy
 
@@ -412,10 +483,10 @@ G_phy.add_nodes_from(routers, retain=['label', 'device_type'], default={'color':
 
 #print list(anm.devices())
 
-#anm.add_overlay("ip")
-#anm.add_overlay("igp")
+G_ip = anm.add_overlay("ip")
+G_igp = anm.add_overlay("igp")
 G_bgp = anm.add_overlay("bgp")
-#print anm.overlay
+print anm.overlay
 
 print "devices in phy", [n for n in G_phy]
 
@@ -427,17 +498,33 @@ G_bgp.add_nodes_from([d for d in G_in if d.device_type == "router"])
 present_nodes = [n for n in G_in if n in G_bgp and n.asn == 1]
 print "present nodes", present_nodes
 
-bgp_edges = [edge for edge in G_in.edges()
-        if edge.src.asn != edge.dst.asn]
-print "bgp edges are", bgp_edges
-G_bgp.add_edges_from(bgp_edges)
-anm.dump_graph(G_bgp)
+
+#TODO: need to be able to create overlay subgraphs, that inherit from same base, but have _graph stored internally
+# ie properties are not stored, they are just a view...
+
+ebgp_edges = [edge for edge in G_in.edges() if edge.src.asn != edge.dst.asn]
+G_bgp.add_edges_from(ebgp_edges, default={'type:': 'ebgp'})
 # now iBGP
 for asn, devices in G_in.groupby("asn").items():
-    print asn, "has devices", devices
+    print "iBGP for asn", asn
+
+    asn_subgraph = G_in.subgraph(devices)
+    print "subgraph edges", list(asn_subgraph.edges())
+    for edge in asn_subgraph.edges():
+        print "asn subgraph has edge", edge
+
+    routers = [d for d in devices if d.device_type == "router"]
+    print "routers are", routers
+    print "g in edges", list(G_in.edges(routers))
+    ibgp_edges = [ edge for edge in G_in.edges(routers)]
+    print "ibgp edges", ibgp_edges
+    #G_bgp.add_edges_from(ibgp_edges, default={'type:': 'ibgp'})
+    
+# full iBGP mesh
+
 
 G_bgp.dump()
-plot(G_bgp)
+plot(G_bgp, edge_label_attribute="type")
 
 # call platform compiler to build NIDB
 # NIDB copies properties from each graph, including links, but also allows extra details to be added.
