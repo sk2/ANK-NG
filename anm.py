@@ -61,6 +61,10 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
         except KeyError:
             raise IntegrityException(self.node_id)
 
+    def get(self, key):
+        """For consistency, node.get(key) is neater than getattr(node, key)"""
+        return self.__getattr__(key)
+
     def __setattr__(self, key, val):
         """Sets node property
         This is useful for accesing attributes passed through from graphml"""
@@ -95,20 +99,24 @@ class overlay_graph(object):
         return overlay_node(self._anm, self._overlay_name, key)
 
     def filter(self, **kwargs):
-        print "self nodes", [type(n) for n in self]
-        print "nodes in", self, "are", [n for n in self]
-
         # need to allow filter_func to access these args
         def filter_func(node):
-            return all(node.key == val for key, val in
+            return all(node.get(key) == val for key, val in
                             kwargs.items())
 
         return (n for n in self if filter_func(n))
 
     # these work similar to their nx counterparts: just need to strip the node_id
-    def add_nodes_from(self, nbunch):
-        nbunch = (n.node_id for n in nbunch) # only store the id in overlay
-        self._graph.add_nodes_from(nbunch)
+    def add_nodes_from(self, nbunch, default={}, retain=[]):
+        if len(retain):
+            add_nodes = []
+            for n in nbunch:
+                data = dict( (key, n.get(key)) for key in retain)
+                add_nodes.append( (n.node_id, data) )
+            nbunch = add_nodes
+        else:
+            nbunch = (n.node_id for n in nbunch) # only store the id in overlay
+        self._graph.add_nodes_from(nbunch, **default)
 
 class overlay_accessor(namedtuple('overlay_accessor', "anm")):
     """API to access overlay graphs in ANM"""
@@ -163,7 +171,6 @@ class AbstractNetworkModel(object):
     def devices(self, **kwargs):
         return self._phy.filter(**kwargs)
 
-
     #TODO: move this out into debug module
     def dump_graph(self, graph):
         print "Dumping graph", graph
@@ -210,16 +217,16 @@ G_in = load_graphml("example.graphml")
 anm.add_overlay("input")
 anm.overlay.input = G_in
 
-print anm.dump_graph("input")
+#print anm.dump_graph("input")
 
 G_phy = anm.overlay.phy
 
 # build physical graph
-print "devices are", [d for d in anm.overlay.input]
 routers = [d for d in anm.overlay.input if d.device_type=="router"]
-print "routers are", routers
+routers = anm.overlay.input.filter(device_type='router')
+print "routers are ", list(routers)
 
-G_phy.add_nodes_from(routers)
+G_phy.add_nodes_from(routers, default={'color': 'red'}, retain=['label', 'device_type'])
 print anm.dump_graph("phy")
 
 print list(anm.devices())
