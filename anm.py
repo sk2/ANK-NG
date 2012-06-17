@@ -1,16 +1,46 @@
 import networkx as nx
 from collections import namedtuple
 
-class overlay_graph(namedtuple('overlay_graph', "anm, name")):
+
+class overlay_node(namedtuple('node', "anm, overlay_graph, node")):
+    """API to access overlay graph node in network"""
+    __slots = ()
+
+    def __repr__(self):
+        #return "Overlay for %s in %s" % (self.node.fqdn, self.graph)
+#TODO: label should come from node in physical graph
+        print "AAAAAA"
+        pass
+
+    def __getattr__(self, key):
+        """Returns node property
+        This is useful for accesing attributes passed through from graphml"""
+#TODO: make this log to debug on a miss, ie if key not found: do a try/except for KeyError for this
+        try:
+            return self.anm._g_overlays[self.overlay_graph][self.node].get(key)
+        except KeyError:
+            #LOG.warn("Node %s not present in overlay graph %s" % (self.node, self.graph))
+            print "Node not present"
+
+    def __setattr__(self, key, val):
+        """Sets node property
+        This is useful for accesing attributes passed through from graphml"""
+        self.anm._g_overlays[self.overlay_graph][self.node][key] = val
+
+class overlay_graph(namedtuple('overlay_graph', "anm, overlay_name")):
     """API to interact with an overlay graph in ANM"""
     __slots = ()
 
     def __repr__(self):
         return "AA"
 
+    def __iter__(self):
+        return self
+        return iter(self.anm._g_overlays[self.name])
+
     def __getattr__(self, key):
-        """Access overlay graph"""
-        return self.anm._g_overlays[key]
+        """Access node in overlay graph"""
+        return self.anm._g_overlays[self.name][key]
 
     def __setattr__(self, key, val):
         """Set overlay graph
@@ -40,12 +70,7 @@ class overlay_accessor(namedtuple('overlay_accessor', "anm")):
 class AbstractNetworkModel(object):
     
     def __init__(self):
-        self._g_sources = {}
         self._g_overlays = {}
-
-    def add_source(self, name, g_source=None):
-        """Adds a source graph of name name, graph optionally supplied"""
-        self._g_sources[name] = g_source
 
     def add_overlay(self, name, directed=False, multi_edge=False):
         """Adds overlay graph of name name"""
@@ -77,7 +102,13 @@ def f_phy(G_in):
 
 anm = AbstractNetworkModel()
 G_in = load_graphml("multias.graphml")
-anm.add_source(G_in)
+
+anm.add_overlay("input")
+anm.overlay.input = G_in
+print anm.overlay.input
+
+for device in anm.overlay.input:
+    print device
 
 
 anm.add_overlay("phy")
