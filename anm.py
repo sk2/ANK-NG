@@ -1,5 +1,6 @@
 import networkx as nx
 from collections import namedtuple
+import itertools
 import pprint
 
 #Add plotting abilities, and allow legend attribute to be set: for both color and symbol
@@ -112,6 +113,15 @@ class overlay_graph(object):
         """To access programatically"""
         return overlay_node(self._anm, self._overlay_name, key)
 
+    def groupby(self, attribute):
+        result={}
+
+        data = self.nodes()
+        data = sorted(data, key= lambda x: x.get(attribute))
+        for k, g in itertools.groupby(data, key= lambda x: x.get(attribute)):
+            result[k] = list(g)
+        return result
+
     def filter(self, **kwargs):
         # need to allow filter_func to access these args
         def filter_func(node):
@@ -177,11 +187,6 @@ class AbstractNetworkModel(object):
     def overlay(self):
         return overlay_accessor(self)
 
-    def group_by(self, nodes, **kwargs):
-        """Groups nodes by argument, eg by asn, return as a dict... or as 
-        itertools? can this be easily made into a dict?"""
-        pass
-
     def devices(self, **kwargs):
         return self._phy.filter(**kwargs)
 
@@ -213,6 +218,35 @@ class AbstractNetworkModel(object):
 
 def load_graphml(filename):
     graph = nx.read_graphml(filename)
+
+# set our own defaults if not set
+#TODO: store these in config file
+    ank_node_defaults = {
+            'asn': 1,
+            'device_type': 'router',
+            }
+    node_defaults = graph.graph['node_default']
+    for key, val in ank_node_defaults.items():
+        if key not in node_defaults or node_defaults[key] == "None":
+            node_defaults[key] = val
+
+    for node in graph:
+        for key, val in node_defaults.items():
+            if key not in graph.node[node]:
+                graph.node[node][key] = val
+
+    ank_edge_defaults = {
+            }
+    edge_defaults = graph.graph['edge_default']
+    for key, val in ank_edge_defaults.items():
+        if key not in edge_defaults or edge_defaults[key] == "None":
+            edge_defaults[key] = val
+
+    for src, dst in graph.edges():
+        for key, val in edge_defaults.items():
+            if key not in graph[src][dst]:
+                graph[src][dst][key] = val
+
 # apply defaults
 # relabel nodes
 #other handling... split this into seperate module!
@@ -231,9 +265,12 @@ G_in = load_graphml("example.graphml")
 anm.add_overlay("input")
 anm.overlay.input = G_in
 
-#print anm.dump_graph("input")
+print anm.dump_graph("input")
 
 G_phy = anm.overlay.phy
+
+print "grouped by", anm.overlay.input.groupby("device_type")
+print "grouped by", anm.overlay.input.groupby("asn")
 
 # build physical graph
 routers = [d for d in anm.overlay.input if d.device_type=="router"]
@@ -252,6 +289,9 @@ anm.add_overlay("bgp")
 print anm.overlay
 
 # call platform compiler to build NIDB
+# NIDB copies properties from each graph, including links, but also allows extra details to be added.
+# Does this by creating a dict for each copied in type, and an edge with edge type
+
 
 # pass each NIDB to renderer
 
