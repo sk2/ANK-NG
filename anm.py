@@ -80,6 +80,7 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
         return overlay_node_accessor(self.anm, self.node_id)
 
     def edges(self):
+        #TODO: want to add filter for *args and **kwargs here too
         return iter(overlay_edge(self.anm, self.overlay_id, src, dst)
                 for src, dst in self._graph.edges(self.node_id))
 
