@@ -2,7 +2,6 @@ import networkx as nx
 from collections import namedtuple
 import itertools
 import pprint
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
 #TODO: add helper functions such as router, ie ank.router(device): return device.overlay.phys.device_type == "router"
 
@@ -458,26 +457,16 @@ def plot(overlay_graph, edge_label_attribute = None, save = True, show = False):
 
     plt.close()
 
-class MyHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        print("Just received a GET request")
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-
-        self.wfile.write('{"an": {"n0": {"label": "r1"}}}')
-
-        return
-
-    def log_request(self, code=None, size=None):
-        print('Request')
-
-    def log_message(self, format, *args):
-        print('Message')
-
-
 def stream(overlay_graph):
     import json
+    import urllib2
+
+    proxy_handler = urllib2.ProxyHandler({})
+    opener = urllib2.build_opener(proxy_handler)
+    urllib2.install_opener(opener)
+    url = "http://localhost:8080/workspace0?operation=getGraph"
+    #req = urllib2.Request(url, data, {'Content-Type': 'application/json'})
+
 
     graph = overlay_graph._graph.copy()
     for node in overlay_graph:
@@ -487,18 +476,15 @@ def stream(overlay_graph):
 
     for node, data in graph.nodes(data=True):
         add_nodes = {'an': {node: {'label': data['label']}}}
-        print json.dumps(add_nodes)
-        print 'curl "http://localhost:8080/workspace0?operation=updateGraph" -d "%s"' % json.dumps(add_nodes)
+        data =  json.dumps(add_nodes)
+        print data
+        print 'curl "http://localhost:8080/workspace0?operation=updateGraph" -d "%s"' % data
+        req = urllib2.Request(url, data, {'Content-Type': 'application/json'})
+        f = urllib2.urlopen(req)
+        #response = f.read()
+        f.close()
+        #print response
 
-    while False:
-        try:
-            server = HTTPServer(('localhost', 8283), MyHandler)
-            print('Started http server')
-            server.serve_forever()
-        except KeyboardInterrupt:
-            print('^C received, shutting down server')
-            server.socket.close()
-            return
 
     #add_edges = {'ae':data['links']}
     #print 'curl "http://localhost:8080/workspace0?operation=updateGraph -d "%s"' % pprint.pformat(add_nodes)
@@ -553,11 +539,7 @@ G_igp = anm.add_overlay("igp")
 G_bgp = anm.add_overlay("bgp")
 print anm.overlay
 
-edges = [edge.data for edge in G_in.edges()]
-
 G_bgp.add_nodes_from([d for d in G_in if d.device_type == "router"])
-
-present_nodes = [n for n in G_in if n in G_bgp and n.asn == 1]
 
 #TODO: need to be able to create overlay subgraphs, that inherit from same base, but have _graph stored internally
 # ie properties are not stored, they are just a view...
@@ -587,7 +569,7 @@ for asn, devices in G_in.groupby("asn").items():
 #plot(G_bgp, edge_label_attribute="type")
 #plot(G_phy)
 #save(G_bgp)
-stream(G_bgp)
+#stream(G_bgp)
 
 # call platform compiler to build NIDB
 # NIDB copies properties from each graph, including links, but also allows extra details to be added.
