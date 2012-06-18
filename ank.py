@@ -111,6 +111,11 @@ def plot(overlay_graph, edge_label_attribute = None, save = True, show = False):
                             font_size = 12,
                             font_color = font_color)
 
+    title = "%s graph" % graph_name
+    ax.text(0.02, 0.98, title, horizontalalignment='left',
+                            weight='heavy', fontsize=16, color='k',
+                            verticalalignment='top', 
+                            transform=ax.transAxes)
     if show:
         plt.show()
     if save:
@@ -176,7 +181,57 @@ def wrap_edges(overlay_graph, edges):
     return ( overlay_edge(overlay_graph._anm, overlay_graph._overlay_id, src, dst)
             for src, dst in edges)
 
-def in_edges(overlay_graph, nodes):
+#TODO: use these wrap and unwrap functions inside overlays
+def unwrap_nodes(nodes):
+    return (node.node_id for node in nodes)
+
+def unwrap_graph(overlay_graph):
+    return overlay_graph._graph
+
+def in_edges(overlay_graph, nodes=None):
     graph = overlay_graph._graph
     edges = graph.in_edges(nodes)
     return wrap_edges(overlay_graph, edges)
+
+def explode(overlay_graph, nodes):
+    """Explodes all nodes in nodes
+    TODO: explain better
+    """
+    graph = unwrap_graph(overlay_graph)
+    nodes = unwrap_nodes(nodes)
+    added_edges = []
+    for node in nodes:
+        neighbors = graph.neighbors(node)
+        edges_to_add = [ (s,t) for s in neighbors for t in neighbors if s != t]
+        graph.add_edges_from(edges_to_add)
+        added_edges.append(edges_to_add)
+
+        graph.remove_node(node)
+
+    return wrap_edges(overlay_graph, added_edges)
+
+def label(overlay_graph, nodes):
+    return list(overlay_graph._anm.node_label(node) for node in nodes)
+
+def aggregate_nodes(overlay_graph, nodes):
+    """Combines connected into a single node"""
+    nodes = list(unwrap_nodes(nodes))
+    graph = unwrap_graph(overlay_graph)
+    subgraph = graph.subgraph(nodes)
+    added_edges = []
+    for component in nx.connected_components(subgraph):
+        if len(component) > 1:
+            external_nodes = nx.node_boundary(graph, component)
+# choose one base device to retain
+            base = component.pop()
+            edges_to_add = [ (base, s) for s in external_nodes]
+            added_edges.append(edges_to_add)
+            graph.add_edges_from(edges_to_add)
+            graph.remove_nodes_from(component)
+
+    return wrap_edges(overlay_graph, added_edges)
+
+# chain of two or more nodes
+
+
+

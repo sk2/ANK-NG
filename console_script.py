@@ -10,7 +10,8 @@ G_in = anm.add_overlay("input", input_graph)
 G_phy = anm.overlay.phy
 
 # build physical graph
-G_phy.add_nodes_from(G_in, retain=['label'])
+#TODO: add helper function to copy across label, device_type, x, y, etc
+G_phy.add_nodes_from(G_in, retain=['label', 'device_type'])
 G_phy.add_edges_from([edge for edge in G_in.edges() if edge.type == "physical"])
 
 #TODO: need way to select nodes, eg sw1->r3
@@ -21,7 +22,22 @@ G_phy.add_edge(G_phy.node("r1"), G_phy.node("r4"))
 #G_phy.dump()
 
 G_ip = anm.add_overlay("ip")
+G_ip.add_edges_from(G_in.edges(type="physical"))
+
+#print list(G_in.nodes())
+#print list(G_in.nodes(device_type="switch"))
+
+#explode_edges = ank.explode(G_ip, [n for n in G_ip if n.phy.device_type == "switch"])
+ank.aggregate_nodes(G_ip, [n for n in G_ip if n.phy.device_type == "switch"])
+#TODO: add function to update edge properties: can overload node update?
+
+G_ip.dump()
+ank.save(G_ip)
+ank.plot(G_ip)
+
+
 G_igp = anm.add_overlay("igp")
+
 G_bgp = anm.add_overlay("bgp", directed = True)
 
 G_bgp.add_nodes_from([d for d in G_in if d.device_type == "router"], color = 'red')
@@ -43,9 +59,9 @@ for asn, devices in G_in.groupby("asn").items():
 # mark nodes according to properties
 #print "high degree nodes", [d for d in G_in if d.degree() > 2]
 
-for n in G_bgp:
+#for n in G_bgp:
     #print n, "has edges", list(n.edges())
-    print "in edges", list(ank.in_edges(G_bgp, n))
+    #print "in edges", list(ank.in_edges(G_bgp, n))
 
 ebgp_nodes = [d for d in G_bgp if any(edge.type == 'ebgp' for edge in d.edges())]
 #print "ebgp nodes are", ebgp_nodes

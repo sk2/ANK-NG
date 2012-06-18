@@ -28,29 +28,11 @@
       <data key="d2">router</data>
       <data key="d3">r3</data>
     </node>
-    <node id="sw4">
-      <data key="d0">848.3136</data>
-      <data key="d1">694.7107056179775</data>
-      <data key="d2">switch</data>
-      <data key="d3">sw4</data>
-    </node>
-    <node id="sw1">
-      <data key="d0">586.3284</data>
-      <data key="d1">724.1776764044944</data>
-      <data key="d2">switch</data>
-      <data key="d3">sw1</data>
-    </node>
     <node id="sw3">
       <data key="d0">441.98519999999996</data>
       <data key="d1">824.5330292134831</data>
       <data key="d2">switch</data>
       <data key="d3">sw3</data>
-    </node>
-    <node id="sw2">
-      <data key="d0">448.6568</data>
-      <data key="d1">714.3553528089888</data>
-      <data key="d2">switch</data>
-      <data key="d3">sw2</data>
     </node>
     <node id="rtest">
       <data key="d0">468.6544</data>
@@ -58,17 +40,20 @@
       <data key="d2">router</data>
       <data key="d3">rtest</data>
     </node>
-    <edge source="r4" target="sw1" />
+    <node id="sw4">
+      <data key="d0">848.3136</data>
+      <data key="d1">694.7107056179775</data>
+      <data key="d2">switch</data>
+      <data key="d3">sw4</data>
+    </node>
+    <edge source="r4" target="sw3" />
     <edge source="r4" target="sw4" />
-    <edge source="r4" target="r1" />
     <edge source="r4" target="r2" />
     <edge source="r4" target="r3" />
+    <edge source="r1" target="sw3" />
     <edge source="r1" target="r3" />
-    <edge source="r1" target="sw1" />
-    <edge source="r2" target="sw1" />
+    <edge source="r2" target="sw3" />
     <edge source="r3" target="sw4" />
-    <edge source="sw1" target="sw2" />
-    <edge source="sw3" target="sw2" />
     <edge source="sw3" target="rtest" />
   </graph>
 </graphml>

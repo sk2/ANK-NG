@@ -66,8 +66,11 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
         return self._graph.degree(self.node_id)
 
     @property
-    def _phy_node(self):
-# refer back to the physical node, to access attributes such as name
+    def phy(self):
+        """Shortcut back to physical overlay_node
+        Same as node.overlay.phy
+        ie node.phy.x is same as node.overlay.phy.x
+        """
         return overlay_node(self.anm, "phy", self.node_id)
 
     @property
@@ -205,8 +208,11 @@ class OverlayBase(object):
     def __len__(self):
         return len(self._graph)
 
-    def nodes(self):
-        return self.__iter__()
+    def nodes(self, *args, **kwargs):
+        result = self.__iter__()
+        if len(args) or len(kwargs):
+            result = self.filter(result, *args, **kwargs)
+        return result
 
     def device(self, key):
         """To access programatically"""
@@ -227,19 +233,21 @@ class OverlayBase(object):
             result[k] = list(g)
         return result
 
-    def filter(self, *args, **kwargs):
+    def filter(self, nbunch = None, *args, **kwargs):
         #TODO: also allow nbunch to be passed in to subfilter on...?
         """TODO: expand this to allow args also, ie to test if value evaluates to True"""
         # need to allow filter_func to access these args
+        if not nbunch:
+            nbunch = self.nodes()
         def filter_func(node):
             return (
                     all(node.get(key) for key in args) and
                     all(node.get(key) == val for key, val in kwargs.items())
                     )
 
-        return (n for n in self if filter_func(n))
+        return (n for n in nbunch if filter_func(n))
 
-    def edges(self, nbunch = None):
+    def edges(self, nbunch = None, *args, **kwargs):
 # nbunch may be single node
         if nbunch:
             try:
@@ -298,6 +306,7 @@ class overlay_graph(OverlayBase):
         except AttributeError:
             ebunch = [(src.node_id, dst.node_id) for src, dst in ebunch]
 
+        #TODO: decide if want to allow nodes to be created when adding edge if not already in graph
         self._graph.add_edges_from(ebunch, **kwargs)
 
     def update(self, nbunch, **kwargs):
