@@ -25,6 +25,7 @@ def load_graphml(filename):
         graph.node[node]['asn'] = int(graph.node[node]['asn'])
 
     ank_edge_defaults = {
+            'type': 'physical',
             }
     edge_defaults = graph.graph['edge_default']
     for key, val in ank_edge_defaults.items():
@@ -155,7 +156,9 @@ def save(overlay_graph):
 
 # and put in basic attributes
     for node in overlay_graph:
+        #TODO: make these come from G_phy instead
         graph.node[node.node_id]['label'] = node.overlay.input.label
+        graph.node[node.node_id]['device_type'] = node.overlay.input.device_type
         graph.node[node.node_id]['x'] = node.overlay.input.x
         graph.node[node.node_id]['y'] = node.overlay.input.y
 

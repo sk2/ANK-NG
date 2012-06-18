@@ -11,6 +11,12 @@ G_phy = anm.overlay.phy
 
 # build physical graph
 G_phy.add_nodes_from(G_in, retain=['label'])
+G_phy.add_edges_from([edge for edge in G_in.edges() if edge.type == "physical"])
+
+#TODO: need way to select nodes, eg sw1->r3
+G_phy.add_edge(G_phy.node("r1"), G_phy.node("r4"))
+
+G_phy.dump()
 
 #G_phy.dump()
 
@@ -45,8 +51,10 @@ print [d.ebgp for d in G_bgp]
 G_bgp.update([d for d in G_bgp if d.ebgp], ram = 64)
 
 print "big ram", list(G_bgp.filter(ram=64))
+G_phy.add_edge(G_phy.node("r3"), G_phy.node("r2"), speed=500)
     
 G_bgp.dump()
 #ank.plot(G_bgp, edge_label_attribute="type")
 #plot(G_phy)
-#save(G_bgp)
+ank.save(G_bgp)
+ank.save(G_phy)

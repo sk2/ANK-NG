@@ -169,6 +169,16 @@ class OverlayBase(object):
     def __contains__(self, n):
         return n.node_id in self._graph
 
+    def node(self, key):
+        """Returns node based on name
+        This is currently O(N). Could use a lookup table"""
+# returns node based on name
+        for node in self:
+            if str(node) == key:
+                return node
+        print "Unable to find node", key, "in", self
+        return None
+
 #TODO: Allow overlay data to be set/get, ie graph.graph eg for asn subnet allocations
 
     def degree(self, node):
@@ -269,6 +279,9 @@ class overlay_graph(OverlayBase):
         else:
             nbunch = (n.node_id for n in nbunch) # only store the id in overlay
         self._graph.add_nodes_from(nbunch, **kwargs)
+
+    def add_edge(self, src, dst, retain=[], **kwargs):
+        self.add_edges_from([(src, dst)], retain, **kwargs)
 
     def add_edges_from(self, ebunch, retain=[], **kwargs):
         #TODO: need to test if given a (id, id) or an edge overlay pair... use try/except for speed
