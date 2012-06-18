@@ -1,5 +1,6 @@
 from anm import AbstractNetworkModel
 import ank
+import itertools
 
 anm = AbstractNetworkModel()
 input_graph = ank.load_graphml("example.graphml")
@@ -28,8 +29,22 @@ G_ip.add_edges_from(G_in.edges(type="physical"))
 #print list(G_in.nodes(device_type="switch"))
 
 #explode_edges = ank.explode(G_ip, [n for n in G_ip if n.phy.device_type == "switch"])
-ank.aggregate_nodes(G_ip, [n for n in G_ip if n.phy.device_type == "switch"])
+switch_nodes = [n for n in G_ip if n.phy.device_type == "switch"]
+ank.aggregate_nodes(G_ip, switch_nodes)
 #TODO: add function to update edge properties: can overload node update?
+
+edges_to_split = [edge for edge in G_ip.edges()
+        if edge.src.phy.device_type == edge.dst.phy.device_type == "router"]
+split_created_nodes = ank.split(G_ip, edges_to_split)
+
+switch_nodes = [n for n in G_ip if n.phy.device_type == "switch"] # regenerate due to aggregated
+G_ip.update(split_created_nodes, collision_domain=True)
+
+collision_domain_id = (i for i in itertools.count(0))
+for node in G_ip.nodes("collision_domain"):
+    cd_id = collision_domain_id.next()
+    node.cd_id = cd_id
+    node.label = "cd_%s" % cd_id
 
 G_ip.dump()
 ank.save(G_ip)

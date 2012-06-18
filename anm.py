@@ -71,6 +71,7 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
         Same as node.overlay.phy
         ie node.phy.x is same as node.overlay.phy.x
         """
+# refer back to the physical node, to access attributes such as name
         return overlay_node(self.anm, "phy", self.node_id)
 
     @property
@@ -93,13 +94,14 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
 #TODO: label should come from node in physical graph
         #return self.anm.overlay.phy.device(self.node).label
         try:
-            return self.overlay.phy.label
+            retval =  self.overlay.phy.label
         except IntegrityException:
 # Node not in physical graph
-            try:
-                return self._graph.node[self.node_id]['label']
-            except KeyError:
-                return self.node_id # No label set for this node, return node id
+            print "HERE"
+            retval =  self._graph.node[self.node_id]['label']
+        if not retval:
+            retval =  self.node_id # No label set for this node, return node id
+        return retval
 
     def __getattr__(self, key):
         """Returns node property
@@ -108,7 +110,7 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
         try:
             return self._graph.node[self.node_id].get(key)
         except KeyError:
-            raise IntegrityException(self.node_id)
+            return
 
     def get(self, key):
         """For consistency, node.get(key) is neater than getattr(node, key)"""
@@ -191,6 +193,9 @@ class OverlayBase(object):
     @property
     def name(self):
         return self.__repr__()
+
+    def node_label(self, node):
+        return repr(overlay_node(self._anm, self._overlay_id, node))
 
     def dump(self):
         #TODO: map this to ank functions
@@ -365,7 +370,10 @@ class AbstractNetworkModel(object):
 
     def node_label(self, node):
         """Returns node label from physical graph"""
-        return overlay_node(self, "phy", node).label
+        try:
+            return overlay_node(self, "phy", node).label
+        except IntegrityException:
+            return node # not in physical graph
 
     #TODO: move this out into debug module
     def dump_graph(self, graph):
@@ -383,12 +391,12 @@ class AbstractNetworkModel(object):
         return pprint.pformat(debug_data)
 
     def dump_nodes(self, graph):
-        debug_data = dict( (self.node_label(node), data)
+        debug_data = dict( (graph.node_label(node), data)
                 for node, data in (graph._graph.nodes(data=True)))
         return pprint.pformat(debug_data)
 
     def dump_edges(self, graph):
-        debug_data = dict( ((self.node_label(src), self.node_label(dst)), data
+        debug_data = dict( ((graph.node_label(src), graph.node_label(dst)), data
             ) for src, dst, data in (graph._graph.edges(data=True)))
         return pprint.pformat(debug_data)
 

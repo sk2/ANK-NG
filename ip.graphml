@@ -4,12 +4,14 @@
   <key attr.name="x" attr.type="string" for="node" id="d1" />
   <key attr.name="y" attr.type="string" for="node" id="d0" />
   <graph edgedefault="undirected">
+    <node id="02754f85b95711e1904d001e5272d001" />
     <node id="r4">
       <data key="d0">732.3088</data>
       <data key="d1">874.2248695652174</data>
       <data key="d2">router</data>
       <data key="d3">r4</data>
     </node>
+    <node id="02754de1b95711e1886c001e5272d001" />
     <node id="r1">
       <data key="d0">578.1544</data>
       <data key="d1">563.6182028985506</data>
@@ -28,6 +30,12 @@
       <data key="d2">router</data>
       <data key="d3">r3</data>
     </node>
+    <node id="sw4">
+      <data key="d0">848.3136</data>
+      <data key="d1">694.7107056179775</data>
+      <data key="d2">switch</data>
+      <data key="d3">sw4</data>
+    </node>
     <node id="sw3">
       <data key="d0">441.98519999999996</data>
       <data key="d1">824.5330292134831</data>
@@ -40,19 +48,17 @@
       <data key="d2">router</data>
       <data key="d3">rtest</data>
     </node>
-    <node id="sw4">
-      <data key="d0">848.3136</data>
-      <data key="d1">694.7107056179775</data>
-      <data key="d2">switch</data>
-      <data key="d3">sw4</data>
-    </node>
+    <node id="0274310ab95711e19c89001e5272d001" />
+    <edge source="02754f85b95711e1904d001e5272d001" target="r4" />
+    <edge source="02754f85b95711e1904d001e5272d001" target="r3" />
     <edge source="r4" target="sw3" />
+    <edge source="r4" target="02754de1b95711e1886c001e5272d001" />
     <edge source="r4" target="sw4" />
-    <edge source="r4" target="r2" />
-    <edge source="r4" target="r3" />
+    <edge source="02754de1b95711e1886c001e5272d001" target="r2" />
     <edge source="r1" target="sw3" />
-    <edge source="r1" target="r3" />
+    <edge source="r1" target="0274310ab95711e19c89001e5272d001" />
     <edge source="r2" target="sw3" />
+    <edge source="r3" target="0274310ab95711e19c89001e5272d001" />
     <edge source="r3" target="sw4" />
     <edge source="sw3" target="rtest" />
   </graph>

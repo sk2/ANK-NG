@@ -106,6 +106,7 @@ def plot(overlay_graph, edge_label_attribute = None, save = True, show = False):
 
 #TODO: where is anm from here? global? :/
     labels = dict( (n.node_id, n) for n in overlay_graph)
+#TODO: need to strip out 
     nx.draw_networkx_labels(graph, pos, 
                             labels=labels,
                             font_size = 12,
@@ -165,11 +166,12 @@ def save(overlay_graph):
         #TODO: make these come from G_phy instead
         graph.node[node.node_id]['label'] = node.overlay.input.label
         graph.node[node.node_id]['device_type'] = node.overlay.input.device_type
-        graph.node[node.node_id]['x'] = node.overlay.input.x
-        graph.node[node.node_id]['y'] = node.overlay.input.y
+        graph.node[node.node_id]['x'] = node.overlay.input.x or 0
+        graph.node[node.node_id]['y'] = node.overlay.input.y or 0
 
     mapping = dict( (n.node_id, str(n)) for n in overlay_graph) 
     nx.relabel_nodes( graph, mapping, copy=False)
+#TODO: See why getting networkx.exception.NetworkXError: GraphML writer does not support <type 'NoneType'> as data values.
     filename = "%s.graphml" % overlay_graph.name
     nx.write_graphml(graph, filename)
 
@@ -181,17 +183,47 @@ def wrap_edges(overlay_graph, edges):
     return ( overlay_edge(overlay_graph._anm, overlay_graph._overlay_id, src, dst)
             for src, dst in edges)
 
+def wrap_nodes(overlay_graph, nodes):
+    """ wraps node id into node overlay """
+    return ( overlay_node(overlay_graph._anm, overlay_graph._overlay_id, node)
+            for node in nodes)
+
+
 #TODO: use these wrap and unwrap functions inside overlays
 def unwrap_nodes(nodes):
     return (node.node_id for node in nodes)
+
+def unwrap_edges(edges):
+    return ( (edge.src_id, edge.dst_id) for edge in edges)
 
 def unwrap_graph(overlay_graph):
     return overlay_graph._graph
 
 def in_edges(overlay_graph, nodes=None):
-    graph = overlay_graph._graph
+    graph = unwrap_graph(overlay_graph)
     edges = graph.in_edges(nodes)
     return wrap_edges(overlay_graph, edges)
+
+def split(overlay_graph, edges):
+    from networkx.utils.misc import generate_unique_node
+    print "splitting", edges
+    graph = unwrap_graph(overlay_graph)
+    edges = list(unwrap_edges(edges))
+    graph.remove_edges_from(edges)
+    edges_to_add = []
+    added_nodes = []
+    for (src, dst) in edges:
+        uuid = generate_unique_node().replace("-", "")
+        edges_to_add += [(src, uuid), (dst, uuid)]
+        added_nodes.append(uuid)
+
+    graph.add_edges_from(edges_to_add)
+
+    return wrap_nodes(overlay_graph, added_nodes)
+
+
+
+
 
 def explode(overlay_graph, nodes):
     """Explodes all nodes in nodes
