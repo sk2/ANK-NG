@@ -490,7 +490,7 @@ def stream(overlay_graph):
         print json.dumps(add_nodes)
         print 'curl "http://localhost:8080/workspace0?operation=updateGraph" -d "%s"' % json.dumps(add_nodes)
 
-    while True:
+    while False:
         try:
             server = HTTPServer(('localhost', 8283), MyHandler)
             print('Started http server')
