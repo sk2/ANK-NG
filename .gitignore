@@ -1,2 +1,4 @@
 
-.anm.py.swp
+*.swp
+
+*.pyc
