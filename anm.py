@@ -62,6 +62,9 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
     def id(self):
         return self.node_id
 
+    def degree(self):
+        return self._graph.degree(self.node_id)
+
     @property
     def _phy_node(self):
 # refer back to the physical node, to access attributes such as name
@@ -167,6 +170,9 @@ class OverlayBase(object):
         return n.node_id in self._graph
 
 #TODO: Allow overlay data to be set/get, ie graph.graph eg for asn subnet allocations
+
+    def degree(self, node):
+        return node.degree()
 
     @property
     def name(self):

@@ -35,6 +35,7 @@ for asn, devices in G_in.groupby("asn").items():
     G_bgp.add_edges_from(ibgp_edges, type = 'ibgp')
 
 # mark nodes according to properties
+print "high degree nodes", [d for d in G_in if d.degree() > 2]
 
 ebgp_nodes = [d for d in G_bgp if any(edge.type == 'ebgp' for edge in d.edges())]
 print "ebgp nodes are", ebgp_nodes
