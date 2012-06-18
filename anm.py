@@ -210,6 +210,7 @@ class OverlayBase(object):
         return result
 
     def filter(self, **kwargs):
+        """TODO: expand this to allow args also, ie to test if value evaluates to True"""
         # need to allow filter_func to access these args
         def filter_func(node):
             return all(node.get(key) == val for key, val in
@@ -248,7 +249,7 @@ class overlay_graph(OverlayBase):
         return self._anm._overlays[self._overlay_name]
 
     # these work similar to their nx counterparts: just need to strip the node_id
-    def add_nodes_from(self, nbunch, retain=[], default={}):
+    def add_nodes_from(self, nbunch, retain=[], **kwargs):
         if len(retain):
             add_nodes = []
             for n in nbunch:
@@ -257,9 +258,9 @@ class overlay_graph(OverlayBase):
             nbunch = add_nodes
         else:
             nbunch = (n.node_id for n in nbunch) # only store the id in overlay
-        self._graph.add_nodes_from(nbunch, **default)
+        self._graph.add_nodes_from(nbunch, **kwargs)
 
-    def add_edges_from(self, ebunch, retain=[], default={}):
+    def add_edges_from(self, ebunch, retain=[], **kwargs):
         #TODO: need to test if given a (id, id) or an edge overlay pair... use try/except for speed
         try:
             if len(retain):
@@ -273,7 +274,7 @@ class overlay_graph(OverlayBase):
         except AttributeError:
             ebunch = [(src.node_id, dst.node_id) for src, dst in ebunch]
 
-        self._graph.add_edges_from(ebunch, **default)
+        self._graph.add_edges_from(ebunch, **kwargs)
 
     def update(self, nbunch, **kwargs):
         """Sets property defined in kwargs to all nodes in nbunch"""
