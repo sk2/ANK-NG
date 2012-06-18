@@ -197,6 +197,7 @@ class OverlayBase(object):
 
     def groupby(self, attribute):
         """Returns a dictionary sorted by attribute
+#TODO: Also want to be able to return list of subgraphs based on groupby, eg per ASN subgraphs
         
         >>> G_in.groupby("asn")
         {u'1': [r1, r2, r3, sw1], u'2': [r4]}
@@ -209,12 +210,15 @@ class OverlayBase(object):
             result[k] = list(g)
         return result
 
-    def filter(self, **kwargs):
+    def filter(self, *args, **kwargs):
+        #TODO: also allow nbunch to be passed in to subfilter on...?
         """TODO: expand this to allow args also, ie to test if value evaluates to True"""
         # need to allow filter_func to access these args
         def filter_func(node):
-            return all(node.get(key) == val for key, val in
-                            kwargs.items())
+            return (
+                    all(node.get(key) for key in args) and
+                    all(node.get(key) == val for key, val in kwargs.items())
+                    )
 
         return (n for n in self if filter_func(n))
 
@@ -280,7 +284,6 @@ class overlay_graph(OverlayBase):
         """Sets property defined in kwargs to all nodes in nbunch"""
         for node in nbunch:
             for key, value in kwargs.items():
-                print "setting", key, "to", value, "for", node
                 node.set(key, value)
 
     def subgraph(self, nbunch, name=None):
@@ -328,8 +331,8 @@ class AbstractNetworkModel(object):
     def overlay(self):
         return overlay_accessor(self)
 
-    def devices(self, **kwargs):
-        return self._phy.filter(**kwargs)
+    def devices(self, *args, **kwargs):
+        return self._phy.filter(*args, **kwargs)
 
     def node_label(self, node):
         """Returns node label from physical graph"""

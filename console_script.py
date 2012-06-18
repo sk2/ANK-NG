@@ -42,6 +42,8 @@ G_bgp.update(ebgp_nodes, ebgp=True)
 print [d.ebgp for d in G_bgp]
 
 G_bgp.update([d for d in G_bgp if d.ebgp], ram = 64)
+
+print "big ram", list(G_bgp.filter(ram=64))
     
 G_bgp.dump()
 #ank.plot(G_bgp, edge_label_attribute="type")
