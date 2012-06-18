@@ -1,4 +1,5 @@
 import networkx as nx
+from anm import overlay_node, overlay_edge
 
 def load_graphml(filename):
     graph = nx.read_graphml(filename)
@@ -168,3 +169,14 @@ def save(overlay_graph):
     nx.write_graphml(graph, filename)
 
 # probably want to create a graph from input with switches expanded to direct connections
+
+#TODO: make edges own module
+def wrap_edges(overlay_graph, edges):
+    """ wraps node ids into edge overlay """
+    return ( overlay_edge(overlay_graph._anm, overlay_graph._overlay_id, src, dst)
+            for src, dst in edges)
+
+def in_edges(overlay_graph, nodes):
+    graph = overlay_graph._graph
+    edges = graph.in_edges(nodes)
+    return wrap_edges(overlay_graph, edges)

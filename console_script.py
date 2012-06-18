@@ -16,13 +16,13 @@ G_phy.add_edges_from([edge for edge in G_in.edges() if edge.type == "physical"])
 #TODO: need way to select nodes, eg sw1->r3
 G_phy.add_edge(G_phy.node("r1"), G_phy.node("r4"))
 
-G_phy.dump()
+#G_phy.dump()
 
 #G_phy.dump()
 
 G_ip = anm.add_overlay("ip")
 G_igp = anm.add_overlay("igp")
-G_bgp = anm.add_overlay("bgp")
+G_bgp = anm.add_overlay("bgp", directed = True)
 
 G_bgp.add_nodes_from([d for d in G_in if d.device_type == "router"], color = 'red')
 
@@ -41,19 +41,23 @@ for asn, devices in G_in.groupby("asn").items():
     G_bgp.add_edges_from(ibgp_edges, type = 'ibgp')
 
 # mark nodes according to properties
-print "high degree nodes", [d for d in G_in if d.degree() > 2]
+#print "high degree nodes", [d for d in G_in if d.degree() > 2]
+
+for n in G_bgp:
+    #print n, "has edges", list(n.edges())
+    print "in edges", list(ank.in_edges(G_bgp, n))
 
 ebgp_nodes = [d for d in G_bgp if any(edge.type == 'ebgp' for edge in d.edges())]
-print "ebgp nodes are", ebgp_nodes
+#print "ebgp nodes are", ebgp_nodes
 G_bgp.update(ebgp_nodes, ebgp=True)
-print [d.ebgp for d in G_bgp]
+#print [d.ebgp for d in G_bgp]
 
 G_bgp.update([d for d in G_bgp if d.ebgp], ram = 64)
 
-print "big ram", list(G_bgp.filter(ram=64))
-G_phy.add_edge(G_phy.node("r3"), G_phy.node("r2"), speed=500)
+#print "big ram", list(G_bgp.filter(ram=64))
+#G_phy.add_edge(G_phy.node("r3"), G_phy.node("r2"), speed=500)
     
-G_bgp.dump()
+#G_bgp.dump()
 #ank.plot(G_bgp, edge_label_attribute="type")
 #plot(G_phy)
 ank.save(G_bgp)

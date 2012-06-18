@@ -120,7 +120,7 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
         """For consistency, node.set(key, value) is neater than setattr(node, key, value)"""
         return self.__setattr__(key, val)
 
-class overlay_edge(namedtuple('link', "anm, overlay_name, src_id, dst_id")):
+class overlay_edge(namedtuple('link', "anm, overlay_id, src_id, dst_id")):
     """API to access link in network"""
     __slots = ()
     def __repr__(self):
@@ -128,11 +128,11 @@ class overlay_edge(namedtuple('link', "anm, overlay_name, src_id, dst_id")):
 
     @property
     def src(self):
-        return overlay_node(self.anm, self.overlay_name, self.src_id)
+        return overlay_node(self.anm, self.overlay_id, self.src_id)
 
     @property
     def dst(self):
-        return overlay_node(self.anm, self.overlay_name, self.dst_id)
+        return overlay_node(self.anm, self.overlay_id, self.dst_id)
 
     @property
     def data(self):
@@ -141,7 +141,7 @@ class overlay_edge(namedtuple('link', "anm, overlay_name, src_id, dst_id")):
     @property
     def _graph(self):
         """Return graph the node belongs to"""
-        return self.anm._overlays[self.overlay_name]
+        return self.anm._overlays[self.overlay_id]
 
     def get(self, key):
         """For consistency, edge.get(key) is neater than getattr(edge, key)"""
@@ -158,14 +158,14 @@ class overlay_edge(namedtuple('link', "anm, overlay_name, src_id, dst_id")):
 class OverlayBase(object):
     """Base class for overlays - overlay graphs, subgraphs, projections, etc"""
 
-    def __init__(self, anm, overlay_name):
-        if overlay_name not in anm._overlays:
-            raise OverlayNotFound(overlay_name)
+    def __init__(self, anm, overlay_id):
+        if overlay_id not in anm._overlays:
+            raise OverlayNotFound(overlay_id)
         self._anm = anm
-        self._overlay_name = overlay_name
+        self._overlay_id = overlay_id
 
     def __repr__(self):
-        return self._overlay_name
+        return self._overlay_id
 
     def __contains__(self, n):
         return n.node_id in self._graph
@@ -199,7 +199,7 @@ class OverlayBase(object):
         return self._graph.has_edge(edge.src, edge.dst)
 
     def __iter__(self):
-        return iter(overlay_node(self._anm, self._overlay_name, node)
+        return iter(overlay_node(self._anm, self._overlay_id, node)
                 for node in self._graph)
 
     def __len__(self):
@@ -210,7 +210,7 @@ class OverlayBase(object):
 
     def device(self, key):
         """To access programatically"""
-        return overlay_node(self._anm, self._overlay_name, key)
+        return overlay_node(self._anm, self._overlay_id, key)
 
     def groupby(self, attribute):
         """Returns a dictionary sorted by attribute
@@ -246,13 +246,13 @@ class OverlayBase(object):
                 nbunch = nbunch.node_id
             except AttributeError:
                 nbunch = (n.node_id for n in nbunch) # only store the id in overlay
-        return iter(overlay_edge(self._anm, self._overlay_name, src, dst)
+        return iter(overlay_edge(self._anm, self._overlay_id, src, dst)
                 for src, dst in self._graph.edges(nbunch))
 
 class overlay_subgraph(OverlayBase):
 
-    def __init__(self, anm, overlay_name, graph, name = None):
-        super(overlay_subgraph, self).__init__(anm, overlay_name)
+    def __init__(self, anm, overlay_id, graph, name = None):
+        super(overlay_subgraph, self).__init__(anm, overlay_id)
         self._graph = graph
         self._subgraph_name = name
 
@@ -267,7 +267,7 @@ class overlay_graph(OverlayBase):
     @property
     def _graph(self):
         #access underlying graph for this overlay_node
-        return self._anm._overlays[self._overlay_name]
+        return self._anm._overlays[self._overlay_id]
 
     # these work similar to their nx counterparts: just need to strip the node_id
     def add_nodes_from(self, nbunch, retain=[], **kwargs):
@@ -308,7 +308,7 @@ class overlay_graph(OverlayBase):
 
     def subgraph(self, nbunch, name=None):
         nbunch = (n.node_id for n in nbunch) # only store the id in overlay
-        return overlay_subgraph(self._anm, self._overlay_name, self._graph.subgraph(nbunch), name)
+        return overlay_subgraph(self._anm, self._overlay_id, self._graph.subgraph(nbunch), name)
 
 class overlay_accessor(namedtuple('overlay_accessor', "anm")):
     """API to access overlay graphs in ANM"""
@@ -360,7 +360,7 @@ class AbstractNetworkModel(object):
 
     #TODO: move this out into debug module
     def dump_graph(self, graph):
-        print "Dumping graph '%s'" % graph
+        print "----Graph %s----" % graph
         print "Graph"
         print self.dump_graph_data(graph)
         print "Nodes"
@@ -374,13 +374,13 @@ class AbstractNetworkModel(object):
         return pprint.pformat(debug_data)
 
     def dump_nodes(self, graph):
-        debug_data = dict( (node, data)
-                for node, data in sorted(graph._graph.nodes(data=True)))
+        debug_data = dict( (self.node_label(node), data)
+                for node, data in (graph._graph.nodes(data=True)))
         return pprint.pformat(debug_data)
 
     def dump_edges(self, graph):
-        debug_data = dict( ((src, dst), data
-            ) for src, dst, data in sorted(graph._graph.edges(data=True)))
+        debug_data = dict( ((self.node_label(src), self.node_label(dst)), data
+            ) for src, dst, data in (graph._graph.edges(data=True)))
         return pprint.pformat(debug_data)
 
 

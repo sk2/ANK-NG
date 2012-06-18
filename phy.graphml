@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
-  <key attr.name="speed" attr.type="int" for="edge" id="d4" />
   <key attr.name="label" attr.type="string" for="node" id="d3" />
   <key attr.name="device_type" attr.type="string" for="node" id="d2" />
   <key attr.name="x" attr.type="string" for="node" id="d1" />
@@ -29,18 +28,6 @@
       <data key="d2">router</data>
       <data key="d3">r3</data>
     </node>
-    <node id="7">
-      <data key="d0">850.5493218750001</data>
-      <data key="d1">857.9202472826088</data>
-      <data key="d2">router</data>
-      <data key="d3">7</data>
-    </node>
-    <node id="6">
-      <data key="d0">824.949321875</data>
-      <data key="d1">710.7202472826087</data>
-      <data key="d2">router</data>
-      <data key="d3">6</data>
-    </node>
     <node id="sw1">
       <data key="d0">586.3284</data>
       <data key="d1">724.1776764044944</data>
@@ -50,14 +37,8 @@
     <edge source="r4" target="r1" />
     <edge source="r4" target="r2" />
     <edge source="r4" target="r3" />
-    <edge source="r4" target="7" />
-    <edge source="r4" target="6" />
     <edge source="r1" target="r3" />
     <edge source="r1" target="sw1" />
-    <edge source="r2" target="r3">
-      <data key="d4">500</data>
-    </edge>
     <edge source="r2" target="sw1" />
-    <edge source="r3" target="6" />
   </graph>
 </graphml>
