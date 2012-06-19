@@ -19,6 +19,10 @@ G_phy.add_edges_from([edge for edge in G_in.edges() if edge.type == "physical"])
 G_phy.add_edge(G_phy.node("r1"), G_phy.node("r4"))
 
 #G_phy.dump()
+G_graphics = anm.add_overlay("graphics") # plotting data
+G_graphics.add_nodes_from(G_in, retain=['x', 'y'])
+
+#TODO: add graphics interpolated for collision domain nodes
 
 #G_phy.dump()
 
@@ -36,6 +40,15 @@ ank.aggregate_nodes(G_ip, switch_nodes)
 edges_to_split = [edge for edge in G_ip.edges()
         if edge.src.phy.device_type == edge.dst.phy.device_type == "router"]
 split_created_nodes = ank.split(G_ip, edges_to_split)
+for node in split_created_nodes:
+    node.overlay.graphics.x = ank.neigh_average(G_ip, node, "x", G_graphics)
+    node.overlay.graphics.y = ank.neigh_average(G_ip, node, "y", G_graphics)
+
+""" Averaging non numeric property
+for node in G_phy:
+    print ank.neigh_average(G_phy, node, "device_type", G_phy)
+
+"""
 
 switch_nodes = [n for n in G_ip if n.phy.device_type == "switch"] # regenerate due to aggregated
 G_ip.update(split_created_nodes, collision_domain=True)

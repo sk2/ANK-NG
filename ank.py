@@ -1,5 +1,6 @@
 import networkx as nx
 from anm import overlay_node, overlay_edge
+from collections import defaultdict
 
 def load_graphml(filename):
     graph = nx.read_graphml(filename)
@@ -60,8 +61,11 @@ def plot(overlay_graph, edge_label_attribute = None, save = True, show = False):
         return
     
     try:
-        ids, x, y = zip(*[(node.id , node.overlay.input.x, node.overlay.input.y)
+        ids, x, y = zip(*[(node.id , node.overlay.graphics.x, node.overlay.graphics.y)
                 for node in overlay_graph])
+        print "ids are", ids
+        print "x is", x
+        print "y is", y
         x = numpy.asarray(x, dtype=float)
         y = numpy.asarray(y, dtype=float)
 #TODO: combine these two operations together
@@ -85,6 +89,7 @@ def plot(overlay_graph, edge_label_attribute = None, save = True, show = False):
     font_color = "k"
     node_color = "#336699"
     edge_color = "#888888"
+    print pos
 
     nodes = nx.draw_networkx_nodes(graph, pos, 
                            node_size = 50, 
@@ -165,7 +170,6 @@ def save(overlay_graph):
     for node in overlay_graph:
         data = {}
         data['label'] = node.label
-        print "data is", data
         #TODO: make these come from G_phy instead
         #graph.node[node.node_id]['label'] = node.overlay.input.label
         #graph.node[node.node_id]['device_type'] = node.overlay.input.device_type
@@ -197,7 +201,10 @@ def wrap_nodes(overlay_graph, nodes):
 
 #TODO: use these wrap and unwrap functions inside overlays
 def unwrap_nodes(nodes):
-    return (node.node_id for node in nodes)
+    try:
+        return nodes.node_id # treat as single node
+    except AttributeError:
+        return (node.node_id for node in nodes) # treat as list
 
 def unwrap_edges(edges):
     return ( (edge.src_id, edge.dst_id) for edge in edges)
@@ -226,10 +233,6 @@ def split(overlay_graph, edges):
     graph.add_edges_from(edges_to_add)
 
     return wrap_nodes(overlay_graph, added_nodes)
-
-
-
-
 
 def explode(overlay_graph, nodes):
     """Explodes all nodes in nodes
@@ -270,6 +273,30 @@ def aggregate_nodes(overlay_graph, nodes):
     return wrap_edges(overlay_graph, added_edges)
 
 # chain of two or more nodes
+
+def neigh_average(overlay_graph, node, attribute, attribute_graph = None):
+    """ averages out attribute from neighbors in specified overlay_graph
+    attribute_graph is the graph to read the attribute from
+    if property is numeric, then return mean
+        else return most frequently occuring value
+    """
+    graph = unwrap_graph(overlay_graph)
+    if attribute_graph:
+        attribute_graph = unwrap_graph(attribute_graph)
+    else:
+        attribute_graph = graph # use input graph
+    node_wrapped = node
+    node = unwrap_nodes(node)
+    values = [attribute_graph.node[n].get(attribute) for n in graph.neighbors(node)]
+    try:
+        values = [float(val) for val in values]
+        return sum(values)/len(values)
+    except ValueError:
+        unique = set(values)
+        sorted_values = [val for val in sorted(unique, key = values.count, reverse = True)]
+        return sorted_values.pop() # most frequent is at top of sorted list
+    
+
 
 
 

@@ -101,6 +101,8 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
                 label =  self.phy.label
             except IntegrityException:
                 label = self.node_id # node not in physical graph
+            except KeyError:
+                label = self.node_id # node not in physical graph
 
         return label
 
@@ -120,7 +122,11 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
     def __setattr__(self, key, val):
         """Sets node property
         This is useful for accesing attributes passed through from graphml"""
-        self._graph.node[self.node_id][key] = val
+        try:
+            self._graph.node[self.node_id][key] = val
+        except KeyError:
+            self._graph.add_node(self.node_id)
+            self.set(key, val)
 
     def set(self, key, val):
         """For consistency, node.set(key, value) is neater than setattr(node, key, value)"""
@@ -179,6 +185,7 @@ class OverlayBase(object):
     def node(self, key):
         """Returns node based on name
         This is currently O(N). Could use a lookup table"""
+#TODO: check if node.node_id in graph, if so return wrapped node for this...
 # returns node based on name
         for node in self:
             if str(node) == key:
@@ -190,6 +197,10 @@ class OverlayBase(object):
 
     def degree(self, node):
         return node.degree()
+
+    def neighbors(self, node):
+        iter(overlay_node(self._anm, self._overlay_id, node)
+                for node in self._graph.neighbors(node.node_id))
 
     @property
     def name(self):

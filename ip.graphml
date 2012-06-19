@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
-  <key attr.name="collision_domain" attr.type="boolean" for="node" id="d7" />
-  <key attr.name="x" attr.type="int" for="node" id="d6" />
-  <key attr.name="y" attr.type="int" for="node" id="d5" />
-  <key attr.name="cd_id" attr.type="int" for="node" id="d4" />
   <key attr.name="label" attr.type="string" for="node" id="d3" />
   <key attr.name="device_type" attr.type="string" for="node" id="d2" />
   <key attr.name="x" attr.type="string" for="node" id="d1" />
   <key attr.name="y" attr.type="string" for="node" id="d0" />
   <graph edgedefault="undirected">
+    <node id="f7786511b9cb11e19e20001e5272d001" />
     <node id="r4">
       <data key="d0">732.3088</data>
       <data key="d1">874.2248695652174</data>
       <data key="d2">router</data>
       <data key="d3">r4</data>
     </node>
+    <node id="f7765947b9cb11e1b624001e5272d001" />
     <node id="r1">
       <data key="d0">578.1544</data>
       <data key="d1">563.6182028985506</data>
@@ -32,26 +30,7 @@
       <data key="d2">router</data>
       <data key="d3">r3</data>
     </node>
-    <node id="cd_0">
-      <data key="d4">0</data>
-      <data key="d5">0</data>
-      <data key="d6">0</data>
-      <data key="d7">True</data>
-      <data key="d3">cd_0</data>
-    </node>
-    <node id="sw4">
-      <data key="d0">848.3136</data>
-      <data key="d1">694.7107056179775</data>
-      <data key="d2">switch</data>
-      <data key="d3">sw4</data>
-    </node>
-    <node id="cd_2">
-      <data key="d4">2</data>
-      <data key="d5">0</data>
-      <data key="d6">0</data>
-      <data key="d7">True</data>
-      <data key="d3">cd_2</data>
-    </node>
+    <node id="f77862c5b9cb11e1b3f3001e5272d001" />
     <node id="sw3">
       <data key="d0">441.98519999999996</data>
       <data key="d1">824.5330292134831</data>
@@ -64,23 +43,22 @@
       <data key="d2">router</data>
       <data key="d3">rtest</data>
     </node>
-    <node id="cd_1">
-      <data key="d4">1</data>
-      <data key="d5">0</data>
-      <data key="d6">0</data>
-      <data key="d7">True</data>
-      <data key="d3">cd_1</data>
+    <node id="sw4">
+      <data key="d0">848.3136</data>
+      <data key="d1">694.7107056179775</data>
+      <data key="d2">switch</data>
+      <data key="d3">sw4</data>
     </node>
-    <edge source="r4" target="cd_2" />
+    <edge source="f7786511b9cb11e19e20001e5272d001" target="r4" />
+    <edge source="f7786511b9cb11e19e20001e5272d001" target="r3" />
     <edge source="r4" target="sw3" />
+    <edge source="r4" target="f77862c5b9cb11e1b3f3001e5272d001" />
     <edge source="r4" target="sw4" />
-    <edge source="r4" target="cd_1" />
+    <edge source="f7765947b9cb11e1b624001e5272d001" target="r1" />
+    <edge source="f7765947b9cb11e1b624001e5272d001" target="r3" />
     <edge source="r1" target="sw3" />
-    <edge source="r1" target="cd_0" />
     <edge source="r2" target="sw3" />
-    <edge source="r2" target="cd_2" />
-    <edge source="r3" target="cd_0" />
-    <edge source="r3" target="cd_1" />
+    <edge source="r2" target="f77862c5b9cb11e1b3f3001e5272d001" />
     <edge source="r3" target="sw4" />
     <edge source="sw3" target="rtest" />
   </graph>
