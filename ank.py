@@ -22,9 +22,11 @@ def load_graphml(filename):
             if key not in graph.node[node]:
                 graph.node[node][key] = val
 
-    # and ensure asn is integer
+    # and ensure asn is integer, x and y are floats
     for node in graph:
         graph.node[node]['asn'] = int(graph.node[node]['asn'])
+        graph.node[node]['x'] = float(graph.node[node]['x'])
+        graph.node[node]['y'] = float(graph.node[node]['y'])
 
     ank_edge_defaults = {
             'type': 'physical',
@@ -63,9 +65,6 @@ def plot(overlay_graph, edge_label_attribute = None, save = True, show = False):
     try:
         ids, x, y = zip(*[(node.id , node.overlay.graphics.x, node.overlay.graphics.y)
                 for node in overlay_graph])
-        print "ids are", ids
-        print "x is", x
-        print "y is", y
         x = numpy.asarray(x, dtype=float)
         y = numpy.asarray(y, dtype=float)
 #TODO: combine these two operations together
@@ -89,7 +88,6 @@ def plot(overlay_graph, edge_label_attribute = None, save = True, show = False):
     font_color = "k"
     node_color = "#336699"
     edge_color = "#888888"
-    print pos
 
     nodes = nx.draw_networkx_nodes(graph, pos, 
                            node_size = 50, 
@@ -144,8 +142,8 @@ def stream(overlay_graph):
     graph = overlay_graph._graph.copy()
     for node in overlay_graph:
         graph.node[node.node_id]['label'] = node.overlay.input.label
-        graph.node[node.node_id]['x'] = node.overlay.input.x
-        graph.node[node.node_id]['y'] = node.overlay.input.y
+        graph.node[node.node_id]['x'] = node.overlay.graphics.x
+        graph.node[node.node_id]['y'] = node.overlay.graphics.y
 
     for node, data in graph.nodes(data=True):
         add_nodes = {'an': {node: {'label': data['label']}}}
@@ -175,8 +173,8 @@ def save(overlay_graph):
         #graph.node[node.node_id]['device_type'] = node.overlay.input.device_type
         if node.phy.device_type:
             data['device_type'] = node.phy.device_type
-        graph.node[node.node_id]['x'] = node.overlay.input.x or 0
-        graph.node[node.node_id]['y'] = node.overlay.input.y or 0
+        graph.node[node.node_id]['x'] = node.overlay.graphics.x
+        graph.node[node.node_id]['y'] = node.overlay.graphics.y
         graph.node[node.node_id].update(data)
 
     mapping = dict( (n.node_id, str(n)) for n in overlay_graph) 
@@ -285,7 +283,6 @@ def neigh_average(overlay_graph, node, attribute, attribute_graph = None):
         attribute_graph = unwrap_graph(attribute_graph)
     else:
         attribute_graph = graph # use input graph
-    node_wrapped = node
     node = unwrap_nodes(node)
     values = [attribute_graph.node[n].get(attribute) for n in graph.neighbors(node)]
     try:

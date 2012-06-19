@@ -18,13 +18,10 @@ G_phy.add_edges_from([edge for edge in G_in.edges() if edge.type == "physical"])
 #TODO: need way to select nodes, eg sw1->r3
 G_phy.add_edge(G_phy.node("r1"), G_phy.node("r4"))
 
-#G_phy.dump()
 G_graphics = anm.add_overlay("graphics") # plotting data
 G_graphics.add_nodes_from(G_in, retain=['x', 'y'])
 
 #TODO: add graphics interpolated for collision domain nodes
-
-#G_phy.dump()
 
 G_ip = anm.add_overlay("ip")
 G_ip.add_edges_from(G_in.edges(type="physical"))
@@ -39,7 +36,7 @@ ank.aggregate_nodes(G_ip, switch_nodes)
 
 edges_to_split = [edge for edge in G_ip.edges()
         if edge.src.phy.device_type == edge.dst.phy.device_type == "router"]
-split_created_nodes = ank.split(G_ip, edges_to_split)
+split_created_nodes = list(ank.split(G_ip, edges_to_split))
 for node in split_created_nodes:
     node.overlay.graphics.x = ank.neigh_average(G_ip, node, "x", G_graphics)
     node.overlay.graphics.y = ank.neigh_average(G_ip, node, "y", G_graphics)
@@ -59,9 +56,12 @@ for node in G_ip.nodes("collision_domain"):
     node.cd_id = cd_id
     node.label = "cd_%s" % cd_id
 
+
 G_ip.dump()
 ank.save(G_ip)
 ank.plot(G_ip)
+
+G_graphics.dump()
 
 G_igp = anm.add_overlay("igp")
 

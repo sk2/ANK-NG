@@ -1,61 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
   <key attr.name="label" attr.type="string" for="node" id="d3" />
-  <key attr.name="x" attr.type="string" for="node" id="d2" />
-  <key attr.name="y" attr.type="string" for="node" id="d1" />
+  <key attr.name="x" attr.type="double" for="node" id="d2" />
+  <key attr.name="y" attr.type="double" for="node" id="d1" />
   <key attr.name="device_type" attr.type="string" for="node" id="d0" />
   <graph edgedefault="undirected">
     <node id="r4">
       <data key="d0">router</data>
       <data key="d1">732.3088</data>
-      <data key="d2">874.2248695652174</data>
+      <data key="d2">874.224869565</data>
       <data key="d3">r4</data>
     </node>
     <node id="r1">
       <data key="d0">router</data>
       <data key="d1">578.1544</data>
-      <data key="d2">563.6182028985506</data>
+      <data key="d2">563.618202899</data>
       <data key="d3">r1</data>
     </node>
     <node id="r2">
       <data key="d0">router</data>
       <data key="d1">600.1544</data>
-      <data key="d2">868.1124347826087</data>
+      <data key="d2">868.112434783</data>
       <data key="d3">r2</data>
     </node>
     <node id="r3">
       <data key="d0">router</data>
-      <data key="d1">704.3543999999999</data>
-      <data key="d2">540.1124347826087</data>
+      <data key="d1">704.3544</data>
+      <data key="d2">540.112434783</data>
       <data key="d3">r3</data>
     </node>
     <node id="sw4">
       <data key="d0">switch</data>
       <data key="d1">848.3136</data>
-      <data key="d2">694.7107056179775</data>
+      <data key="d2">694.710705618</data>
       <data key="d3">sw4</data>
     </node>
     <node id="sw1">
       <data key="d0">switch</data>
       <data key="d1">586.3284</data>
-      <data key="d2">724.1776764044944</data>
+      <data key="d2">724.177676404</data>
       <data key="d3">sw1</data>
     </node>
     <node id="sw3">
       <data key="d0">switch</data>
-      <data key="d1">441.98519999999996</data>
-      <data key="d2">824.5330292134831</data>
+      <data key="d1">441.9852</data>
+      <data key="d2">824.533029213</data>
       <data key="d3">sw3</data>
     </node>
     <node id="sw2">
       <data key="d0">switch</data>
       <data key="d1">448.6568</data>
-      <data key="d2">714.3553528089888</data>
+      <data key="d2">714.355352809</data>
       <data key="d3">sw2</data>
     </node>
     <node id="rtest">
       <data key="d0">router</data>
       <data key="d1">468.6544</data>
-      <data key="d2">935.6124347826087</data>
+      <data key="d2">935.612434783</data>
       <data key="d3">rtest</data>
     </node>
     <edge source="r4" target="sw1" />
