@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?><graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+  <key attr.name="asn" attr.type="int" for="node" id="d6" />
   <key attr.name="collision_domain" attr.type="boolean" for="node" id="d5" />
   <key attr.name="cd_id" attr.type="int" for="node" id="d4" />
   <key attr.name="label" attr.type="string" for="node" id="d3" />
@@ -32,17 +33,11 @@
     </node>
     <node id="cd_0">
       <data key="d4">0</data>
-      <data key="d0">718.3316</data>
-      <data key="d1">707.168652174</data>
       <data key="d5">True</data>
       <data key="d3">cd_0</data>
-    </node>
-    <node id="cd_1">
-      <data key="d4">1</data>
       <data key="d0">641.2544</data>
       <data key="d1">551.865318841</data>
-      <data key="d5">True</data>
-      <data key="d3">cd_1</data>
+      <data key="d6">1</data>
     </node>
     <node id="cd_2">
       <data key="d4">2</data>
@@ -62,10 +57,17 @@
     </node>
     <node id="cd_3">
       <data key="d4">3</data>
+      <data key="d0">718.3316</data>
+      <data key="d1">707.168652174</data>
+      <data key="d5">True</data>
+      <data key="d3">cd_3</data>
+    </node>
+    <node id="cd_1">
+      <data key="d4">1</data>
       <data key="d0">666.2316</data>
       <data key="d1">871.168652174</data>
       <data key="d5">True</data>
-      <data key="d3">cd_3</data>
+      <data key="d3">cd_1</data>
     </node>
     <node id="rtest">
       <data key="d0">468.6544</data>
@@ -73,17 +75,17 @@
       <data key="d2">router</data>
       <data key="d3">rtest</data>
     </node>
+    <edge source="r4" target="cd_1" />
     <edge source="r4" target="cd_4" />
-    <edge source="r4" target="cd_0" />
     <edge source="r4" target="cd_2" />
     <edge source="r4" target="cd_3" />
     <edge source="r1" target="cd_4" />
-    <edge source="r1" target="cd_1" />
+    <edge source="r1" target="cd_0" />
     <edge source="r2" target="cd_4" />
-    <edge source="r2" target="cd_3" />
+    <edge source="r2" target="cd_1" />
     <edge source="r3" target="cd_0" />
-    <edge source="r3" target="cd_1" />
     <edge source="r3" target="cd_2" />
+    <edge source="r3" target="cd_3" />
     <edge source="cd_4" target="rtest" />
   </graph>
 </graphml>
