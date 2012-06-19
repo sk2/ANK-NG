@@ -325,6 +325,18 @@ def subnet_size(host_count):
     import math
     host_count += 2 # network and broadcast
     return int(2**math.ceil(math.log(host_count, 2)))
+
+class TreeNode:
+    def __init__(self,data,left=None,right=None):
+        self.data=data
+        self.left=left
+        self.right=right
+
+    def __unicode__(self):
+        return '%s %s %s' % (
+                self.left.data if self.left else "",
+                self.data, 
+                self.right.data if self.right else '-')
     
 def allocate_ips(G_ip):
     G_phy = G_ip.overlay.phy
@@ -332,7 +344,7 @@ def allocate_ips(G_ip):
     asns = unique_attr(G_phy, "asn")
 
     routers_by_asn = G_phy.groupby("asn", G_phy.nodes(device_type="router"))
-    print "loopbacks", [(asn, len(routers)) for asn, routers in routers_by_asn.items()]
+    loopbacks = dict((asn, len(routers)) for asn, routers in routers_by_asn.items())
 
     for collision_domain in collision_domains:
         neigh_asn = list(neigh_attr(G_ip, collision_domain, "asn", G_phy)) #asn of neighbors
@@ -345,10 +357,27 @@ def allocate_ips(G_ip):
     cds_by_asn = G_ip.groupby("asn", G_ip.nodes("collision_domain"))
     print cds_by_asn
     for asn, cds in cds_by_asn.items():
+#tree by ASN
+#TODO: Add in loopbacks as a subnet also
+        print "subnet tree for asn", asn
         cd_sizes =  [subnet_size(cd.degree()) for cd in cds]
-        print cd_sizes
-        total_cd_size = sum(cd_sizes)
-        print total_cd_size
+
+        # Build list of collision domains sorted by size
+        size_list = defaultdict(list)
+        for cd in cds:
+            sn_size = subnet_size(cd.degree()) # Size of this collision domain
+            size_list[sn_size].append(cd)
+
+        loopback_size = loopbacks[asn]
+        size_list[loopback_size].append('loopbacks')
+
+        #print size_list
+
+        for size, cds in sorted(size_list.items()):
+            print size, cds
+
+
+
 
 
 
