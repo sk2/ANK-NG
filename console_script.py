@@ -50,6 +50,8 @@ for node in G_phy:
 
 """
 
+#TODO: add sanity checks like only routers can cross ASes: can't have an eBGP server
+
 switch_nodes = [n for n in G_ip if n.phy.device_type == "switch"] # regenerate due to aggregated
 G_ip.update(switch_nodes, collision_domain=True) # switches are part of collision domain
 G_ip.update(split_created_nodes, collision_domain=True)
@@ -66,6 +68,7 @@ for node in G_ip.nodes("collision_domain"):
 
 
 ank.allocate_ips(G_ip)
+print G_ip.data.asn_blocks
 
 #G_ip.dump()
 ank.save(G_ip)

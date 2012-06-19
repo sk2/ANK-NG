@@ -438,6 +438,7 @@ def allocate_ips(G_ip):
 #tree by ASN
 #TODO: Add in loopbacks as a subnet also
         asn_address_block = subnet_address_blocks.next()
+        G_ip.data.asn_blocks[asn] = asn_address_block
 #TODO: record this in G_ip graph data not node/edge data
 
         # Build list of collision domains sorted by size
