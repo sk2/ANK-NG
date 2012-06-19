@@ -3,6 +3,7 @@ from anm import overlay_node, overlay_edge
 from collections import defaultdict
 import itertools
 
+
 def load_graphml(filename):
     graph = nx.read_graphml(filename)
 #TODO: node labels if not set, need to set from a sequence, ensure unique... etc
@@ -158,13 +159,12 @@ def stream(overlay_graph):
         #response = f.read()
         f.close()
         #print response
-
-
     #add_edges = {'ae':data['links']}
     #print 'curl "http://localhost:8080/workspace0?operation=updateGraph -d "%s"' % pprint.pformat(add_nodes)
     #pprint.pformat(add_edges)
 
 def save(overlay_graph):
+    import netaddr
     graph = overlay_graph._graph.copy()
 
 # and put in basic attributes
@@ -180,9 +180,27 @@ def save(overlay_graph):
         graph.node[node.node_id]['y'] = node.overlay.graphics.y
         graph.node[node.node_id].update(data)
 
+    replace_as_string = set([netaddr.ip.IPAddress, netaddr.ip.IPNetwork, dict])
+#TODO: see if should handle dict specially, eg expand to __ ?
+
+    for key, val in graph.graph.items():
+        if type(val) in replace_as_string:
+            graph.graph[key] = str(val)
+
+    for node, data in graph.nodes(data=True):
+        for key, val in data.items():
+            if type(val) in replace_as_string:
+                graph.node[node][key] = str(val)
+
+    for src, dst, data in graph.edges(data=True):
+        for key, val in data.items():
+            if type(val) in replace_as_string:
+                graph[src][dst][key] = str(val)
+
     mapping = dict( (n.node_id, str(n)) for n in overlay_graph) 
     nx.relabel_nodes( graph, mapping, copy=False)
 #TODO: See why getting networkx.exception.NetworkXError: GraphML writer does not support <type 'NoneType'> as data values.
+#TODO: process writer to allow writing of IPnetwork class values
     filename = "%s.graphml" % overlay_graph.name
     nx.write_graphml(graph, filename)
 
@@ -323,20 +341,23 @@ def unique_attr(overlay_graph, attribute):
     graph = unwrap_graph(overlay_graph)
     return set(graph.node[node].get(attribute) for node in graph)
 
+
+#TODO: move subnet to another module
+
 def subnet_size(host_count):
     """Returns subnet size"""
     import math
     host_count += 2 # network and broadcast
     return int(math.ceil(math.log(host_count, 2)))
 
-
 class TreeNode:
     """Adapted from http://stackoverflow.com/questions/2078669"""
-    def __init__(self,data,left=None,right=None):
-        self.data=data
+    def __init__(self,label=None,left=None,right=None, cd = None):
+        self.label=label
         self.left=left
         self.right=right
         self.subnet = None
+        self.cd = cd
 
     @property
     def leaf(self):
@@ -347,17 +368,59 @@ class TreeNode:
 
     def __repr__(self):
         return '(%s %s %s)' % (
-                self.left.data if self.left else "-",
-                self.data if self.data else "", 
-                self.right.data if self.right else '-')
+                self.left.label if self.left else "-",
+                self.label if self.label else "", 
+                self.right.label if self.right else '-')
+
+def allocate_to_tree_node(node):
+    node_subnet = node.subnet
+    #print "node", node, "has subnet", node_subnet
+# divide into two
+    child_subnets = node_subnet.subnet(node_subnet.prefixlen+1)
+    if node.left:
+        node.left.subnet = child_subnets.next()
+        allocate_to_tree_node(node.left)
+    if node.right:
+        node.right.subnet = child_subnets.next()
+        allocate_to_tree_node(node.right)
+
+def walk_tree(node):
+    if node.left:
+        walk_tree(node.left)
+    print node
+    if node.right:
+        walk_tree(node.right)
+
+def allocate_ips_to_cds(node):
+    if node.left:
+        allocate_ips_to_cds(node.left)
+    if node.right:
+        allocate_ips_to_cds(node.right)
+
+    if node.cd:
+        #print "node", node, "has cd", node.cd
+        try:
+            node.cd.subnet = node.subnet
+        except AttributeError:
+            if node.cd == "loopback":
+                pass # expected, this is the loopback placeholder, handled seperately
+            else:
+                raise # something else went wrong
+
     
 def allocate_ips(G_ip):
-    import math
+    from netaddr import IPNetwork
+    address_block = IPNetwork("10.0.0.0/8")
+    subnet_address_blocks = address_block.subnet(16)
+#TODO: need to divide this up per AS
+
+    G_ip.data.asn_blocks = {}
+    #print G_ip._graph
+    
     G_phy = G_ip.overlay.phy
     collision_domains = list(G_ip.nodes("collision_domain"))
 
     routers_by_asn = G_phy.groupby("asn", G_phy.nodes(device_type="router"))
-    loopbacks = dict((asn, len(routers)) for asn, routers in routers_by_asn.items())
 
     for collision_domain in collision_domains:
         neigh_asn = list(neigh_attr(G_ip, collision_domain, "asn", G_phy)) #asn of neighbors
@@ -371,58 +434,33 @@ def allocate_ips(G_ip):
 
 # if node or subnet has IP already allocated, then skip from this tree
 
-    for asn, cds in cds_by_asn.items():
+    for asn, asn_cds in cds_by_asn.items():
 #tree by ASN
 #TODO: Add in loopbacks as a subnet also
-        print
-        print "subnet tree for asn", asn
+        asn_address_block = subnet_address_blocks.next()
+#TODO: record this in G_ip graph data not node/edge data
 
         # Build list of collision domains sorted by size
         size_list = defaultdict(list)
-        for cd in cds:
+        for cd in asn_cds:
             sn_size = subnet_size(cd.degree()) # Size of this collision domain
             size_list[sn_size].append(cd)
 
-        loopback_size = subnet_size(loopbacks[asn])
-        size_list[loopback_size].append('loopbacks')
+        loopback_size = subnet_size(len(routers_by_asn[asn])) # calculate from number of routers in asn
 
-        #print size_list
-        level = 0
-        print "size list", size_list.items()
-
-        tree_nodes_per_level = defaultdict(int)
-        for size, cds in sorted(size_list.items()):
-            # Nodes at this level
-            tree_nodes_per_level[size] += len(cds)
-            # and parent is the ceiling of these /2 (ceil as may have odd number)
-            # eg 4 at this level -> 2 at parent, 5 at this level -> 3 at parent
-            nodes_at_this_level = tree_nodes_per_level[size] # from children + cds at this level
-            nodes_at_parent_level = int(math.ceil(nodes_at_this_level/2.0))
-            tree_nodes_per_level[size+1] += nodes_at_parent_level
-
-        # See if need to add any higher levels on
-        top_level = max(tree_nodes_per_level)
-        nodes_at_this_level = tree_nodes_per_level[top_level]
-        levels_to_add = int(math.ceil(math.log(nodes_at_this_level, 2)))
-        for index in range(levels_to_add):
-            nodes_at_this_level = levels_to_add - index
-            level = top_level + (index+1)
-            tree_nodes_per_level[level] = nodes_at_this_level
-
-        print list(size_list.items())
-        # Now map collision domains back
-
-# initialise tree with leaf nodes
-
-        ip_tree = defaultdict(list)
+        ip_tree = defaultdict(list) # index by level to simplify creation of tree
         current_level = min(size_list) # start at base
+        asn_loopback_tree_node = None
         while True:
             cds = size_list[current_level]
 # initialse with leaves
-            ip_tree[current_level] += list(TreeNode(cd) for cd in cds)
-    
+            ip_tree[current_level] += list(TreeNode(label=cd, cd=cd) for cd in sorted(cds))
+            if current_level == loopback_size:
+                asn_loopback_tree_node = TreeNode(label = "loopback", cd = "loopback")
+                ip_tree[current_level].append(asn_loopback_tree_node)
+
             # now connect up at parent level
-            tree_nodes = ip_tree[current_level] # both leaves and parents of lower level
+            tree_nodes = sorted(ip_tree[current_level]) # both leaves and parents of lower level
             pairs = list(itertools.izip(tree_nodes[::2], tree_nodes[1::2]))
             for left, right in pairs:
                 ip_tree[current_level+1].append(TreeNode(None, left, right))
@@ -431,25 +469,34 @@ def allocate_ips(G_ip):
                 ip_tree[current_level+1].append(TreeNode(None, final_tree_node, None))
 
             current_level += 1
-            print current_level, ":", ip_tree[current_level]
             if len(ip_tree[current_level]) < 2:
                 # Reached top of tree
                 break
 
-
+            #if leaf, assign back to collision domain
 
         # allocate to tree
+        subnet_bits = 32 - max(ip_tree)
+        tree_subnet = asn_address_block.subnet(subnet_bits)
+        tree_root = ip_tree[max(ip_tree)].pop() # only one node at highest level (root)
+        tree_root.subnet = tree_subnet.next()
+        allocate_to_tree_node(tree_root)
+        #walk_tree(tree_root)
+        allocate_ips_to_cds(tree_root)
+
+        # Get loopback from loopback tree node
+        loopback_hosts = asn_loopback_tree_node.subnet.iter_hosts()
+        #router.loopback = loopback_hosts.next()
+        for router in routers_by_asn[asn]:
+            router.overlay.ip.loopback = loopback_hosts.next()
+
+        # now allocate to the links of each cd
+        for cd in asn_cds:
+            hosts = cd.subnet.iter_hosts()
+            for edge in cd.edges():
+                edge.ip_address = hosts.next()
 
         # traverse tree, allocate back to loopbacks, and to nodes
         # TODO: should loopbacks be a sentinel type node for faster traversal rather than checking each time?
-
-
-
-
-
-
-
-
-
 
 

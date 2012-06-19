@@ -34,8 +34,11 @@ switch_nodes = [n for n in G_ip if n.phy.device_type == "switch"]
 ank.aggregate_nodes(G_ip, switch_nodes)
 #TODO: add function to update edge properties: can overload node update?
 
+#TODO: abstract this better
+l3_devices = set(['router', 'server'])
 edges_to_split = [edge for edge in G_ip.edges()
-        if edge.src.phy.device_type == edge.dst.phy.device_type == "router"]
+        if edge.src.phy.device_type in l3_devices
+        and edge.dst.phy.device_type in l3_devices]
 split_created_nodes = list(ank.split(G_ip, edges_to_split))
 for node in split_created_nodes:
     node.overlay.graphics.x = ank.neigh_average(G_ip, node, "x", G_graphics)
@@ -65,8 +68,8 @@ for node in G_ip.nodes("collision_domain"):
 ank.allocate_ips(G_ip)
 
 #G_ip.dump()
-#ank.save(G_ip)
-#ank.plot(G_ip)
+ank.save(G_ip)
+#ank.plot(G_ip, edge_label_attribute="ip_address")
 
 G_igp = anm.add_overlay("igp")
 

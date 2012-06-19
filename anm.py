@@ -181,6 +181,26 @@ class overlay_edge(namedtuple('link', "anm, overlay_id, src_id, dst_id")):
         """Sets edge property"""
         self._graph[self.src_id][self.dst_id][key] = val
 
+class overlay_graph_data(namedtuple('overlay_graph_data', "anm, overlay_id")):
+    __slots = ()
+
+    def __repr__(self):
+        return "Data for (%s, %s)" % (self.anm, self.overlay_id)
+
+    @property
+    def _graph(self):
+        #access underlying graph for this overlay_node
+        return self.anm._overlays[self.overlay_id]
+
+    def __getattr__(self, key):
+        """Returns edge property"""
+        return self._graph.graph.get(key)
+
+    def __setattr__(self, key, val):
+        """Sets edge property"""
+        self._graph.graph[key] = val
+
+
 class OverlayBase(object):
     """Base class for overlays - overlay graphs, subgraphs, projections, etc"""
 
@@ -192,6 +212,10 @@ class OverlayBase(object):
 
     def __repr__(self):
         return self._overlay_id
+
+    @property
+    def data(self):
+        return overlay_graph_data(self._anm, self._overlay_id)
 
     def __contains__(self, n):
         return n.node_id in self._graph

@@ -282,186 +282,337 @@
         </y:SVGNode>
       </data>
     </node>
+    <node id="n12">
+      <data key="d4"><![CDATA[server]]></data>
+      <data key="d6"/>
+      <data key="d8">
+        <y:SVGNode>
+          <y:Geometry height="56.778051282051365" width="40.26080000000006" x="901.4714686704377" y="864.9805256167633"/>
+          <y:Fill color="#CCCCFF" transparent="false"/>
+          <y:BorderStyle color="#000000" type="line" width="1.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="custom" textColor="#000000" visible="true" width="31.73828125" x="4.261259375000009" y="60.778051282051365">www<y:LabelModel>
+              <y:SmartNodeLabelModel distance="4.0"/>
+            </y:LabelModel>
+            <y:ModelParameter>
+              <y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="-0.5" nodeRatioX="0.0" nodeRatioY="0.5" offsetX="0.0" offsetY="4.0" upX="0.0" upY="-1.0"/>
+            </y:ModelParameter>
+          </y:NodeLabel>
+          <y:SVGNodeProperties usingVisualBounds="true"/>
+          <y:SVGModel svgBoundsPolicy="0">
+            <y:SVGContent refid="3"/>
+          </y:SVGModel>
+        </y:SVGNode>
+      </data>
+    </node>
+    <node id="n13">
+      <data key="d6"/>
+      <data key="d8">
+        <y:SVGNode>
+          <y:Geometry height="38.691199999999995" width="56.7751304347826" x="651.2143034530466" y="367.02395125778924"/>
+          <y:Fill color="#CCCCFF" transparent="false"/>
+          <y:BorderStyle color="#000000" type="line" width="1.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="19.17578125" x="18.799674592391284" y="10.27919374999999">14</y:NodeLabel>
+          <y:SVGNodeProperties usingVisualBounds="true"/>
+          <y:SVGModel svgBoundsPolicy="0">
+            <y:SVGContent refid="1"/>
+          </y:SVGModel>
+        </y:SVGNode>
+      </data>
+    </node>
+    <node id="n14">
+      <data key="d6"/>
+      <data key="d8">
+        <y:SVGNode>
+          <y:Geometry height="38.691199999999995" width="56.7751304347826" x="845.2143034530465" y="359.02395125778924"/>
+          <y:Fill color="#CCCCFF" transparent="false"/>
+          <y:BorderStyle color="#000000" type="line" width="1.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="19.17578125" x="18.799674592391284" y="10.27919374999999">15</y:NodeLabel>
+          <y:SVGNodeProperties usingVisualBounds="true"/>
+          <y:SVGModel svgBoundsPolicy="0">
+            <y:SVGContent refid="1"/>
+          </y:SVGModel>
+        </y:SVGNode>
+      </data>
+    </node>
+    <node id="n15">
+      <data key="d6"/>
+      <data key="d8">
+        <y:SVGNode>
+          <y:Geometry height="38.691199999999995" width="56.7751304347826" x="752.2143034530465" y="359.02395125778924"/>
+          <y:Fill color="#CCCCFF" transparent="false"/>
+          <y:BorderStyle color="#000000" type="line" width="1.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="19.17578125" x="18.799674592391284" y="10.27919374999999">16</y:NodeLabel>
+          <y:SVGNodeProperties usingVisualBounds="true"/>
+          <y:SVGModel svgBoundsPolicy="0">
+            <y:SVGContent refid="1"/>
+          </y:SVGModel>
+        </y:SVGNode>
+      </data>
+    </node>
     <edge id="e0" source="n0" target="n2">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="-52.60758766129413" y="88.06546953124985"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
     </edge>
     <edge id="e1" source="n0" target="n3">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="28.402938423086198" y="12.6192253834231"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
     </edge>
     <edge id="e2" source="n3" target="n1">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="38.09213504843228" y="2.3896498228209566"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
     </edge>
     <edge id="e3" source="n1" target="n4">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="0.162357528023108" y="44.75090605468745"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
     </edge>
     <edge id="e4" source="n4" target="n2">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="-167.6773641516644" y="3.568923632812357"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
     </edge>
     <edge id="e5" source="n4" target="n3">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="-56.84949804646067" y="-58.39859394531254"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
     </edge>
     <edge id="e6" source="n3" target="n5">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="-5.613798516502811" y="-52.65214521484381"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
     </edge>
     <edge id="e7" source="n5" target="n6">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="17.770664997366566" y="-3.1971888183593933"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
     </edge>
     <edge id="e8" source="n7" target="n6">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="-22.20418757051084" y="-7.4016048325488555"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
     </edge>
     <edge id="e9" source="n2" target="n8">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="75.12072965596565" y="34.42016142605439"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
     </edge>
     <edge id="e10" source="n4" target="n8">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="-63.08653627781416" y="38.645747757660615"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
     </edge>
     <edge id="e11" source="n9" target="n0">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="33.99111278720602" y="-28.06443989844911"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
     </edge>
     <edge id="e12" source="n9" target="n2">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="-4.822381094468483" y="46.40846947655086"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
     </edge>
     <edge id="e13" source="n9" target="n10">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="-35.08931681800249" y="57.370832996070476"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
     </edge>
     <edge id="e14" source="n11" target="n9">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="22.118800706856064" y="20.913745648425902"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
     </edge>
     <edge id="e15" source="n0" target="n11">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="-71.5644928285833" y="-2.000030175781262"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
     </edge>
     <edge id="e16" source="n10" target="n11">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="417.6018686704381" y="613.3695512577892"/>
           </y:Path>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="-10.03617876655295" y="-83.5109880000233"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
     </edge>
     <edge id="e17" source="n2" target="n11">
+      <data key="d11"/>
       <data key="d12">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="665.6018686704379" y="629.1695512577893"/>
           </y:Path>
-          <y:LineStyle color="#808080" type="line" width="4.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
           <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="37.086395761000404" y="-154.3384172886881"/>
+          <y:BendStyle smoothed="false"/>
+        </y:PolyLineEdge>
+      </data>
+    </edge>
+    <edge id="e18" source="n12" target="n4">
+      <data key="d11"/>
+      <data key="d12">
+        <y:PolyLineEdge>
+          <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
+          <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="-8.294399440960092" y="-48.97397059005584"/>
+          <y:BendStyle smoothed="false"/>
+        </y:PolyLineEdge>
+      </data>
+    </edge>
+    <edge id="e19" source="n13" target="n5">
+      <data key="d11"/>
+      <data key="d12">
+        <y:PolyLineEdge>
+          <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
+          <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="17.79237887456827" y="20.724977093738346"/>
+          <y:BendStyle smoothed="false"/>
+        </y:PolyLineEdge>
+      </data>
+    </edge>
+    <edge id="e20" source="n5" target="n15">
+      <data key="d11"/>
+      <data key="d12">
+        <y:PolyLineEdge>
+          <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
+          <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="6.899896145610683" y="-27.458250445324154"/>
+          <y:BendStyle smoothed="false"/>
+        </y:PolyLineEdge>
+      </data>
+    </edge>
+    <edge id="e21" source="n6" target="n14">
+      <data key="d11"/>
+      <data key="d12">
+        <y:PolyLineEdge>
+          <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
+          <y:LineStyle color="#808080" type="line" width="1.0"/>
+          <y:Arrows source="none" target="none"/>
+          <y:EdgeLabel alignment="center" distance="2.0" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" hasText="false" height="4.0" modelName="centered" modelPosition="center" preferredPlacement="anywhere" ratio="0.5" textColor="#000000" visible="true" width="4.0" x="1.7205870315680158" y="-24.136121978527285"/>
           <y:BendStyle smoothed="false"/>
         </y:PolyLineEdge>
       </data>
@@ -729,6 +880,225 @@
            d="m 27.699,21.376 0.691,0.568 8.91,0 0.889,0.888 2.414,-1.052 -4.855,-1.388 0.859,0.984 -8.908,0"
            style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
            id="path3362" /&gt;&lt;/g&gt;&lt;/g&gt;&lt;/g&gt;&lt;/svg&gt;</y:Resource>
+      <y:Resource id="3">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;!-- Created with Inkscape (http://www.inkscape.org/) --&gt;
+
+&lt;svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg3084"
+   version="1.1"
+   inkscape:version="0.48.2 r9819"
+   width="27.5"
+   height="38.75"
+   xml:space="preserve"
+   sodipodi:docname="standard host.pdf"&gt;&lt;metadata
+     id="metadata3090"&gt;&lt;rdf:RDF&gt;&lt;cc:Work
+         rdf:about=""&gt;&lt;dc:format&gt;image/svg+xml&lt;/dc:format&gt;&lt;dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /&gt;&lt;dc:title&gt;&lt;/dc:title&gt;&lt;/cc:Work&gt;&lt;/rdf:RDF&gt;&lt;/metadata&gt;&lt;defs
+     id="defs3088"&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3100"&gt;&lt;path
+         d="M 0,0 22,0 22,31 0,31 0,0 z"
+         id="path3102" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3110"&gt;&lt;path
+         d="m 0.06,30.109 21.455,0 0,-30 -21.455,0 0,30 z"
+         id="path3112" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3116"&gt;&lt;path
+         d="M 0,0 22,0 22,31 0,31 0,0 z"
+         id="path3118" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3126"&gt;&lt;path
+         d="M 0,0 22,0 22,31 0,31 0,0 z"
+         id="path3128" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3136"&gt;&lt;path
+         d="m 0.06,30.109 21.455,0 0,-30 -21.455,0 0,30 z"
+         id="path3138" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3142"&gt;&lt;path
+         d="M 0,0 22,0 22,31 0,31 0,0 z"
+         id="path3144" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3152"&gt;&lt;path
+         d="M 0,0 22,0 22,31 0,31 0,0 z"
+         id="path3154" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3162"&gt;&lt;path
+         d="m 0.06,30.109 21.455,0 0,-30 -21.455,0 0,30 z"
+         id="path3164" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3168"&gt;&lt;path
+         d="M 0,0 22,0 22,31 0,31 0,0 z"
+         id="path3170" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3178"&gt;&lt;path
+         d="M 0,0 22,0 22,31 0,31 0,0 z"
+         id="path3180" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3188"&gt;&lt;path
+         d="m 0.06,30.109 21.455,0 0,-30 -21.455,0 0,30 z"
+         id="path3190" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3194"&gt;&lt;path
+         d="M 0,0 22,0 22,31 0,31 0,0 z"
+         id="path3196" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3204"&gt;&lt;path
+         d="M 0,0 22,0 22,31 0,31 0,0 z"
+         id="path3206" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3214"&gt;&lt;path
+         d="m 0.06,30.109 21.455,0 0,-30 -21.455,0 0,30 z"
+         id="path3216" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3220"&gt;&lt;path
+         d="M 0,0 22,0 22,31 0,31 0,0 z"
+         id="path3222" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3230"&gt;&lt;path
+         d="M 0,0 22,0 22,31 0,31 0,0 z"
+         id="path3232" /&gt;&lt;/clipPath&gt;&lt;/defs&gt;&lt;sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview3086"
+     showgrid="false"
+     inkscape:zoom="6.0903226"
+     inkscape:cx="13.75"
+     inkscape:cy="19.375"
+     inkscape:window-x="1890"
+     inkscape:window-y="120"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="g3092" /&gt;&lt;g
+     id="g3092"
+     inkscape:groupmode="layer"
+     inkscape:label="standard host"
+     transform="matrix(1.25,0,0,-1.25,0,38.75)"&gt;&lt;g
+       id="g3094" /&gt;&lt;g
+       id="g3096"&gt;&lt;g
+         id="g3098"
+         clip-path="url(#clipPath3100)"&gt;&lt;path
+           d="m 0.581,24.995 15.82,0 0,-24.512 -15.82,0 0,24.512 z"
+           style="fill:#026c9b;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path3104" /&gt;&lt;/g&gt;&lt;/g&gt;&lt;g
+       id="g3106"&gt;&lt;g
+         id="g3108"
+         clip-path="url(#clipPath3110)"&gt;&lt;g
+           id="g3114"
+           clip-path="url(#clipPath3116)"&gt;&lt;path
+             d="m 16.401,24.995 -15.82,0 0,-24.512 15.82,0"
+             style="fill:none;stroke:#ffffff;stroke-opacity:1;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
+             id="path3120" /&gt;&lt;/g&gt;&lt;/g&gt;&lt;/g&gt;&lt;g
+       id="g3122"&gt;&lt;g
+         id="g3124"
+         clip-path="url(#clipPath3126)"&gt;&lt;path
+           d="m 16.401,0.483 4.914,4.914 0,24.512 -14.445,0 -6.289,-4.914 15.82,0 0,-24.512"
+           style="fill:#026c9b;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path3130" /&gt;&lt;/g&gt;&lt;/g&gt;&lt;g
+       id="g3132"&gt;&lt;g
+         id="g3134"
+         clip-path="url(#clipPath3136)"&gt;&lt;g
+           id="g3140"
+           clip-path="url(#clipPath3142)"&gt;&lt;path
+             d="m 16.401,0.483 4.914,4.914 0,24.512 -14.445,0 -6.289,-4.914 15.82,0 0,-24.512 z"
+             style="fill:none;stroke:#ffffff;stroke-opacity:1;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
+             id="path3146" /&gt;&lt;/g&gt;&lt;/g&gt;&lt;/g&gt;&lt;g
+       id="g3148"&gt;&lt;g
+         id="g3150"
+         clip-path="url(#clipPath3152)"&gt;&lt;path
+           d="m 16.401,24.995 4.914,4.914"
+           style="fill:#026c9b;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path3156" /&gt;&lt;/g&gt;&lt;/g&gt;&lt;g
+       id="g3158"&gt;&lt;g
+         id="g3160"
+         clip-path="url(#clipPath3162)"&gt;&lt;g
+           id="g3166"
+           clip-path="url(#clipPath3168)"&gt;&lt;path
+             d="m 16.401,24.995 4.914,4.914"
+             style="fill:none;stroke:#ffffff;stroke-opacity:1;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
+             id="path3172" /&gt;&lt;/g&gt;&lt;/g&gt;&lt;/g&gt;&lt;g
+       id="g3174"&gt;&lt;g
+         id="g3176"
+         clip-path="url(#clipPath3178)"&gt;&lt;path
+           d="m 8.435,24.995 0,-24.512"
+           style="fill:#026c9b;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path3182" /&gt;&lt;/g&gt;&lt;/g&gt;&lt;g
+       id="g3184"&gt;&lt;g
+         id="g3186"
+         clip-path="url(#clipPath3188)"&gt;&lt;g
+           id="g3192"
+           clip-path="url(#clipPath3194)"&gt;&lt;path
+             d="m 8.435,24.995 0,-24.512"
+             style="fill:none;stroke:#ffffff;stroke-opacity:1;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
+             id="path3198" /&gt;&lt;/g&gt;&lt;/g&gt;&lt;/g&gt;&lt;g
+       id="g3200"&gt;&lt;g
+         id="g3202"
+         clip-path="url(#clipPath3204)"&gt;&lt;path
+           d="m 8.685,24.995 5.346,4.914"
+           style="fill:#026c9b;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path3208" /&gt;&lt;/g&gt;&lt;/g&gt;&lt;g
+       id="g3210"&gt;&lt;g
+         id="g3212"
+         clip-path="url(#clipPath3214)"&gt;&lt;g
+           id="g3218"
+           clip-path="url(#clipPath3220)"&gt;&lt;path
+             d="m 8.685,24.995 5.346,4.914"
+             style="fill:none;stroke:#ffffff;stroke-opacity:1;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
+             id="path3224" /&gt;&lt;/g&gt;&lt;/g&gt;&lt;/g&gt;&lt;g
+       id="g3226"&gt;&lt;g
+         id="g3228"
+         clip-path="url(#clipPath3230)"&gt;&lt;path
+           d="m 1.951,22.758 5.312,0 0,-3.25 -5.312,0 0,3.25 z"
+           style="fill:#026c9b;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path3234" /&gt;&lt;path
+           d="m 1.951,19.508 5.312,0 0,3.25 -5.312,0 0,-3.25 z"
+           style="fill:none;stroke:#ffffff;stroke-opacity:1;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
+           id="path3236" /&gt;&lt;path
+           d="m 9.57,22.758 5.312,0 0,-3.25 -5.312,0 0,3.25 z"
+           style="fill:#026c9b;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path3238" /&gt;&lt;path
+           d="m 9.57,19.508 5.312,0 0,3.25 -5.312,0 0,-3.25 z"
+           style="fill:none;stroke:#ffffff;stroke-opacity:1;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
+           id="path3240" /&gt;&lt;path
+           d="m 1.951,10.758 5.312,0 0,-3.25 -5.312,0 0,3.25 z"
+           style="fill:#026c9b;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path3242" /&gt;&lt;path
+           d="m 1.951,7.508 5.312,0 0,3.25 -5.312,0 0,-3.25 z"
+           style="fill:none;stroke:#ffffff;stroke-opacity:1;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
+           id="path3244" /&gt;&lt;path
+           d="m 9.57,10.758 5.312,0 0,-3.25 -5.312,0 0,3.25 z"
+           style="fill:#026c9b;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path3246" /&gt;&lt;path
+           d="m 9.57,7.508 5.312,0 0,3.25 -5.312,0 0,-3.25 z"
+           style="fill:none;stroke:#ffffff;stroke-opacity:1;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
+           id="path3248" /&gt;&lt;path
+           d="m 1.951,5.508 5.312,0 0,-3.25 -5.312,0 0,3.25 z"
+           style="fill:#026c9b;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path3250" /&gt;&lt;path
+           d="m 1.951,2.258 5.312,0 0,3.25 -5.312,0 0,-3.25 z"
+           style="fill:none;stroke:#ffffff;stroke-opacity:1;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
+           id="path3252" /&gt;&lt;path
+           d="m 9.57,5.508 5.312,0 0,-3.25 -5.312,0 0,3.25 z"
+           style="fill:#026c9b;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path3254" /&gt;&lt;path
+           d="m 9.57,2.258 5.312,0 0,3.25 -5.312,0 0,-3.25 z"
+           style="fill:none;stroke:#ffffff;stroke-opacity:1;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
+           id="path3256" /&gt;&lt;/g&gt;&lt;/g&gt;&lt;/g&gt;&lt;/svg&gt;</y:Resource>
     </y:Resources>
   </data>
 </graphml>
