@@ -32,29 +32,40 @@
     </node>
     <node id="cd_0">
       <data key="d4">0</data>
-      <data key="d0">641.2544</data>
-      <data key="d1">551.865318841</data>
-      <data key="d5">True</data>
-      <data key="d3">cd_0</data>
-    </node>
-    <node id="sw4">
-      <data key="d0">848.3136</data>
-      <data key="d1">694.710705618</data>
-      <data key="d2">switch</data>
-      <data key="d3">sw4</data>
-    </node>
-    <node id="cd_2">
-      <data key="d4">2</data>
       <data key="d0">718.3316</data>
       <data key="d1">707.168652174</data>
       <data key="d5">True</data>
+      <data key="d3">cd_0</data>
+    </node>
+    <node id="cd_1">
+      <data key="d4">1</data>
+      <data key="d0">641.2544</data>
+      <data key="d1">551.865318841</data>
+      <data key="d5">True</data>
+      <data key="d3">cd_1</data>
+    </node>
+    <node id="cd_2">
+      <data key="d4">2</data>
+      <data key="d2">switch</data>
+      <data key="d0">848.3136</data>
+      <data key="d1">694.710705618</data>
+      <data key="d5">True</data>
       <data key="d3">cd_2</data>
     </node>
-    <node id="sw3">
+    <node id="cd_4">
+      <data key="d4">4</data>
+      <data key="d2">switch</data>
       <data key="d0">441.9852</data>
       <data key="d1">824.533029213</data>
-      <data key="d2">switch</data>
-      <data key="d3">sw3</data>
+      <data key="d5">True</data>
+      <data key="d3">cd_4</data>
+    </node>
+    <node id="cd_3">
+      <data key="d4">3</data>
+      <data key="d0">666.2316</data>
+      <data key="d1">871.168652174</data>
+      <data key="d5">True</data>
+      <data key="d3">cd_3</data>
     </node>
     <node id="rtest">
       <data key="d0">468.6544</data>
@@ -62,24 +73,17 @@
       <data key="d2">router</data>
       <data key="d3">rtest</data>
     </node>
-    <node id="cd_1">
-      <data key="d4">1</data>
-      <data key="d0">666.2316</data>
-      <data key="d1">871.168652174</data>
-      <data key="d5">True</data>
-      <data key="d3">cd_1</data>
-    </node>
+    <edge source="r4" target="cd_4" />
+    <edge source="r4" target="cd_0" />
     <edge source="r4" target="cd_2" />
-    <edge source="r4" target="sw3" />
-    <edge source="r4" target="sw4" />
-    <edge source="r4" target="cd_1" />
-    <edge source="r1" target="sw3" />
-    <edge source="r1" target="cd_0" />
-    <edge source="r2" target="sw3" />
-    <edge source="r2" target="cd_1" />
+    <edge source="r4" target="cd_3" />
+    <edge source="r1" target="cd_4" />
+    <edge source="r1" target="cd_1" />
+    <edge source="r2" target="cd_4" />
+    <edge source="r2" target="cd_3" />
     <edge source="r3" target="cd_0" />
-    <edge source="r3" target="sw4" />
+    <edge source="r3" target="cd_1" />
     <edge source="r3" target="cd_2" />
-    <edge source="sw3" target="rtest" />
+    <edge source="cd_4" target="rtest" />
   </graph>
 </graphml>

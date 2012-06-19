@@ -203,6 +203,11 @@ class OverlayBase(object):
                 for node in self._graph.neighbors(node.node_id))
 
     @property
+    def overlay(self):
+        """Get to other overlay graphs in functions"""
+        return overlay_accessor(self._anm)
+
+    @property
     def name(self):
         return self.__repr__()
 

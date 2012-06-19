@@ -12,7 +12,7 @@ G_phy = anm.overlay.phy
 
 # build physical graph
 #TODO: add helper function to copy across label, device_type, x, y, etc
-G_phy.add_nodes_from(G_in, retain=['label', 'device_type'])
+G_phy.add_nodes_from(G_in, retain=['label', 'device_type', 'asn'])
 G_phy.add_edges_from([edge for edge in G_in.edges() if edge.type == "physical"])
 
 #TODO: need way to select nodes, eg sw1->r3
@@ -48,20 +48,22 @@ for node in G_phy:
 """
 
 switch_nodes = [n for n in G_ip if n.phy.device_type == "switch"] # regenerate due to aggregated
+G_ip.update(switch_nodes, collision_domain=True) # switches are part of collision domain
 G_ip.update(split_created_nodes, collision_domain=True)
 
+# set collision domain IPs
 collision_domain_id = (i for i in itertools.count(0))
 for node in G_ip.nodes("collision_domain"):
     cd_id = collision_domain_id.next()
     node.cd_id = cd_id
     node.label = "cd_%s" % cd_id
 
+ank.allocate_ips(G_ip)
 
 G_ip.dump()
 ank.save(G_ip)
 ank.plot(G_ip)
 
-G_graphics.dump()
 
 G_igp = anm.add_overlay("igp")
 

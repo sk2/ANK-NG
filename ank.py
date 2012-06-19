@@ -217,7 +217,6 @@ def in_edges(overlay_graph, nodes=None):
 
 def split(overlay_graph, edges):
     from networkx.utils.misc import generate_unique_node
-    print "splitting", edges
     graph = unwrap_graph(overlay_graph)
     edges = list(unwrap_edges(edges))
     graph.remove_edges_from(edges)
@@ -285,6 +284,7 @@ def neigh_average(overlay_graph, node, attribute, attribute_graph = None):
         attribute_graph = graph # use input graph
     node = unwrap_nodes(node)
     values = [attribute_graph.node[n].get(attribute) for n in graph.neighbors(node)]
+#TODO: use neigh_attr
     try:
         values = [float(val) for val in values]
         return sum(values)/len(values)
@@ -292,8 +292,37 @@ def neigh_average(overlay_graph, node, attribute, attribute_graph = None):
         unique = set(values)
         sorted_values = [val for val in sorted(unique, key = values.count, reverse = True)]
         return sorted_values.pop() # most frequent is at top of sorted list
+
+def neigh_attr(overlay_graph, node, attribute, attribute_graph = None):
+    #TODO: tidy up parameters to take attribute_graph first, and then evaluate if attribute_graph set, if not then use attribute_graph as attribute
+    """Boolean, True if neighbors in overlay_graph all have same attribute in attribute_graph"""
+    graph = unwrap_graph(overlay_graph)
+    node = unwrap_nodes(node)
+    if attribute_graph:
+        attribute_graph = unwrap_graph(attribute_graph)
+    else:
+        attribute_graph = graph # use input graph
+
+    #Only look at nodes which exist in attribute_graph
+    neighs = (n for n in graph.neighbors(node))
+    valid_nodes = (n for n in neighs if n in attribute_graph)
+    return (attribute_graph.node[node].get(attribute) for node in valid_nodes)
+
+def neigh_equal(overlay_graph, node, attribute, attribute_graph = None):
+    neigh_attrs = neigh_attr(overlay_graph, node, attribute, attribute_graph)
+    return len(set(neigh_attrs)) == 1
     
+def allocate_ips(overlay_graph):
+    collision_domains = list(overlay_graph.nodes("collision_domain"))
+    hosts_per_cd = [cd.degree() for cd in collision_domains]
+    for asn, devices in overlay_graph.overlay.phy.groupby("asn").items():
+        print asn, devices
 
-
+    for collision_domain in collision_domains:
+        same_asn = neigh_equal(overlay_graph, collision_domain, "asn", overlay_graph.overlay.phy)
+        if same_asn:
+            print collision_domain, "is same asn"
+        else:
+            print collision_domain, "is cross asn"
 
 
