@@ -352,8 +352,7 @@ def subnet_size(host_count):
 
 class TreeNode:
     """Adapted from http://stackoverflow.com/questions/2078669"""
-    def __init__(self,label=None,left=None,right=None, cd = None):
-        self.label=label
+    def __init__(self,left=None,right=None, cd = None):
         self.left=left
         self.right=right
         self.subnet = None
@@ -367,10 +366,8 @@ class TreeNode:
         return False
 
     def __repr__(self):
-        return '(%s %s %s)' % (
-                self.left.label if self.left else "-",
-                self.label if self.label else "", 
-                self.right.label if self.right else '-')
+        return '(%s %s)' % (
+                self.subnet, self.cd)
 
 def allocate_to_tree_node(node):
     node_subnet = node.subnet
@@ -451,23 +448,25 @@ def allocate_ips(G_ip):
 
         ip_tree = defaultdict(list) # index by level to simplify creation of tree
         current_level = min(size_list) # start at base
-        asn_loopback_tree_node = None
+        asn_loopback_tree_node = None #keep track of to allocate loopbacks at end
         while True:
             cds = size_list[current_level]
 # initialse with leaves
-            ip_tree[current_level] += list(TreeNode(label=cd, cd=cd) for cd in sorted(cds))
+#TODO: see if can get loopback on leftmost of tree -> then can have allocated with .1 .2 etc rather than .19 .20 etc
+            ip_tree[current_level] += list(TreeNode(cd=cd) for cd in sorted(cds))
             if current_level == loopback_size:
-                asn_loopback_tree_node = TreeNode(label = "loopback", cd = "loopback")
+                asn_loopback_tree_node = TreeNode(cd = "loopback")
                 ip_tree[current_level].append(asn_loopback_tree_node)
 
             # now connect up at parent level
             tree_nodes = sorted(ip_tree[current_level]) # both leaves and parents of lower level
             pairs = list(itertools.izip(tree_nodes[::2], tree_nodes[1::2]))
             for left, right in pairs:
-                ip_tree[current_level+1].append(TreeNode(None, left, right))
+                ip_tree[current_level+1].append(TreeNode(left, right))
             if len(tree_nodes) % 2 == 1:
+# odd number of tree nodes, add 
                 final_tree_node = tree_nodes[-1]
-                ip_tree[current_level+1].append(TreeNode(None, final_tree_node, None))
+                ip_tree[current_level+1].append(TreeNode(final_tree_node, None))
 
             current_level += 1
             if len(ip_tree[current_level]) < 2:
