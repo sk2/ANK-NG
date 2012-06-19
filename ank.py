@@ -1,6 +1,7 @@
 import networkx as nx
 from anm import overlay_node, overlay_edge
 from collections import defaultdict
+import itertools
 
 def load_graphml(filename):
     graph = nx.read_graphml(filename)
@@ -327,10 +328,18 @@ def subnet_size(host_count):
     return int(2**math.ceil(math.log(host_count, 2)))
 
 class TreeNode:
+    """Adapted from http://stackoverflow.com/questions/2078669"""
     def __init__(self,data,left=None,right=None):
         self.data=data
         self.left=left
         self.right=right
+
+    @property
+    def leaf(self):
+        """If this node has any children"""
+        if not self.left and not self.right:
+            return True
+        return False
 
     def __unicode__(self):
         return '%s %s %s' % (
@@ -368,13 +377,22 @@ def allocate_ips(G_ip):
             sn_size = subnet_size(cd.degree()) # Size of this collision domain
             size_list[sn_size].append(cd)
 
-        loopback_size = loopbacks[asn]
+        loopback_size = subnet_size(loopbacks[asn])
         size_list[loopback_size].append('loopbacks')
 
         #print size_list
 
         for size, cds in sorted(size_list.items()):
-            print size, cds
+            pairs = list(itertools.izip(cds[::2], cds[1::2]))
+#TODO: What about odd length list?
+            if len(cds) % 2 == 1:
+                pairs.append( (cds[-1], None))
+            print pairs
+
+        # allocate to tree
+
+        # traverse tree, allocate back to loopbacks, and to nodes
+        # TODO: should loopbacks be a sentinel type node for faster traversal rather than checking each time?
 
 
 
