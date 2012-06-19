@@ -2,3 +2,5 @@
 *.swp
 
 *.pyc
+*.pdf
+*.graphml
