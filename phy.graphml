@@ -5,17 +5,24 @@
   <key attr.name="y" attr.type="double" for="node" id="d1" />
   <key attr.name="device_type" attr.type="string" for="node" id="d0" />
   <graph edgedefault="undirected">
-    <node id="r4">
+    <node id="11">
       <data key="d0">router</data>
-      <data key="d1">732.3088</data>
-      <data key="d2">874.224869565</data>
-      <data key="d3">2</data>
-      <data key="d4">r4</data>
+      <data key="d1">767.223951258</data>
+      <data key="d2">406.290111187</data>
+      <data key="d3">1</data>
+      <data key="d4">11</data>
+    </node>
+    <node id="10">
+      <data key="d0">router</data>
+      <data key="d1">609.823951258</data>
+      <data key="d2">494.014303453</data>
+      <data key="d3">1</data>
+      <data key="d4">10</data>
     </node>
     <node id="r1">
       <data key="d0">router</data>
-      <data key="d1">578.1544</data>
-      <data key="d2">563.618202899</data>
+      <data key="d1">526.4828</data>
+      <data key="d2">609.095989929</data>
       <data key="d3">1</data>
       <data key="d4">r1</data>
     </node>
@@ -28,10 +35,17 @@
     </node>
     <node id="r3">
       <data key="d0">router</data>
-      <data key="d1">704.3544</data>
-      <data key="d2">540.112434783</data>
+      <data key="d1">745.3544</data>
+      <data key="d2">486.112434783</data>
       <data key="d3">1</data>
       <data key="d4">r3</data>
+    </node>
+    <node id="sw5">
+      <data key="d0">switch</data>
+      <data key="d1">527.6568</data>
+      <data key="d2">399.355352809</data>
+      <data key="d3">1</data>
+      <data key="d4">sw5</data>
     </node>
     <node id="sw4">
       <data key="d0">switch</data>
@@ -39,6 +53,13 @@
       <data key="d2">694.710705618</data>
       <data key="d3">1</data>
       <data key="d4">sw4</data>
+    </node>
+    <node id="r4">
+      <data key="d0">router</data>
+      <data key="d1">732.3088</data>
+      <data key="d2">874.224869565</data>
+      <data key="d3">2</data>
+      <data key="d4">r4</data>
     </node>
     <node id="sw1">
       <data key="d0">switch</data>
@@ -68,15 +89,22 @@
       <data key="d3">1</data>
       <data key="d4">rtest</data>
     </node>
-    <edge source="r4" target="sw1" />
-    <edge source="r4" target="sw4" />
-    <edge source="r4" target="r1" />
-    <edge source="r4" target="r2" />
-    <edge source="r4" target="r3" />
+    <edge source="11" target="10" />
+    <edge source="11" target="sw5" />
+    <edge source="10" target="r1" />
+    <edge source="10" target="r3" />
+    <edge source="10" target="sw5" />
+    <edge source="r1" target="r4" />
     <edge source="r1" target="r3" />
     <edge source="r1" target="sw1" />
+    <edge source="r1" target="sw5" />
     <edge source="r2" target="sw1" />
+    <edge source="r2" target="r4" />
+    <edge source="r3" target="r4" />
+    <edge source="r3" target="sw5" />
     <edge source="r3" target="sw4" />
+    <edge source="sw4" target="r4" />
+    <edge source="r4" target="sw1" />
     <edge source="sw1" target="sw2" />
     <edge source="sw3" target="sw2" />
     <edge source="sw3" target="rtest" />

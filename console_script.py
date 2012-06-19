@@ -56,12 +56,16 @@ collision_domain_id = (i for i in itertools.count(0))
 for node in G_ip.nodes("collision_domain"):
     cd_id = collision_domain_id.next()
     node.cd_id = cd_id
-    node.label = "cd_%s" % cd_id
+    label = "_".join(sorted(ank.neigh_attr(G_ip, node, "label", G_phy)))
+#TODO: Use this label
+    if not node.is_switch:
+        node.label = "cd_%s" % cd_id # switches keep their names
+
 
 ank.allocate_ips(G_ip)
 
-G_ip.dump()
-ank.save(G_ip)
+#G_ip.dump()
+#ank.save(G_ip)
 #ank.plot(G_ip)
 
 G_igp = anm.add_overlay("igp")

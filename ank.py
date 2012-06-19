@@ -7,6 +7,8 @@ def load_graphml(filename):
     graph = nx.read_graphml(filename)
 #TODO: node labels if not set, need to set from a sequence, ensure unique... etc
 
+#TODO: ensure unique node labels
+
 # set our own defaults if not set
 #TODO: store these in config file
     ank_node_defaults = {
@@ -348,6 +350,7 @@ class TreeNode:
                 self.right.data if self.right else '-')
     
 def allocate_ips(G_ip):
+    import math
     G_phy = G_ip.overlay.phy
     collision_domains = list(G_ip.nodes("collision_domain"))
     asns = unique_attr(G_phy, "asn")
@@ -365,9 +368,13 @@ def allocate_ips(G_ip):
 
     cds_by_asn = G_ip.groupby("asn", G_ip.nodes("collision_domain"))
     print cds_by_asn
+
+# if node or subnet has IP already allocated, then skip from this tree
+
     for asn, cds in cds_by_asn.items():
 #tree by ASN
 #TODO: Add in loopbacks as a subnet also
+        print
         print "subnet tree for asn", asn
         cd_sizes =  [subnet_size(cd.degree()) for cd in cds]
 
@@ -381,13 +388,37 @@ def allocate_ips(G_ip):
         size_list[loopback_size].append('loopbacks')
 
         #print size_list
+        level = 0
+        print "size list", size_list.items()
 
+        tree_nodes_per_level = defaultdict(int)
         for size, cds in sorted(size_list.items()):
-            pairs = list(itertools.izip(cds[::2], cds[1::2]))
-#TODO: What about odd length list?
-            if len(cds) % 2 == 1:
-                pairs.append( (cds[-1], None))
-            print pairs
+            node_count = 0
+            # Nodes at this level
+            tree_nodes_per_level[size] += len(cds)
+            # and parent is the ceiling of these /2 (ceil as may have odd number)
+            # eg 4 at this level -> 2 at parent, 5 at this level -> 3 at parent
+            nodes_at_this_level = tree_nodes_per_level[size]
+            print "total nodes at", size, "is", nodes_at_this_level
+            parent_level = size *2
+            nodes_at_parent_level = int(math.ceil(nodes_at_this_level/2.0))
+            print "parent of", size, "is", parent_level, "and has", nodes_at_parent_level
+            tree_nodes_per_level[size*2] += nodes_at_parent_level
+
+        # See if need to add any higher levels on
+        top_level = max(tree_nodes_per_level)
+        nodes_at_this_level = tree_nodes_per_level[top_level]
+        levels_to_add = int(math.ceil(math.log(nodes_at_this_level, 2)))
+        for index in range(levels_to_add):
+            nodes_at_this_level = levels_to_add - index
+            level = top_level * 2**(index+1)
+            tree_nodes_per_level[level] = nodes_at_this_level
+
+        print list(size_list.items())
+
+
+        #list( (size*2, math.ceil(len(cds)/2.0)) for size, cds in sorted(size_list.items()))
+        print "tnpl", sorted(tree_nodes_per_level.items())
 
         # allocate to tree
 
