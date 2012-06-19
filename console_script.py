@@ -62,8 +62,7 @@ ank.allocate_ips(G_ip)
 
 G_ip.dump()
 ank.save(G_ip)
-ank.plot(G_ip)
-
+#ank.plot(G_ip)
 
 G_igp = anm.add_overlay("igp")
 

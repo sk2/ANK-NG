@@ -316,23 +316,19 @@ def neigh_equal(overlay_graph, node, attribute, attribute_graph = None):
     neigh_attrs = neigh_attr(overlay_graph, node, attribute, attribute_graph)
     return len(set(neigh_attrs)) == 1
 
-
 def unique_attr(overlay_graph, attribute):
     graph = unwrap_graph(overlay_graph)
     return set(graph.node[node].get(attribute) for node in graph)
-
 
 def subnet_size(host_count):
     """Returns subnet size"""
     import math
     host_count += 2 # network and broadcast
-    return math.ceil(math.log(host_count, 2))
+    return int(2**math.ceil(math.log(host_count, 2)))
     
 def allocate_ips(G_ip):
     G_phy = G_ip.overlay.phy
     collision_domains = list(G_ip.nodes("collision_domain"))
-    hosts_per_cd = [cd.degree() for cd in collision_domains]
-
     asns = unique_attr(G_phy, "asn")
 
     routers_by_asn = G_phy.groupby("asn", G_phy.nodes(device_type="router"))
@@ -348,6 +344,12 @@ def allocate_ips(G_ip):
 
     cds_by_asn = G_ip.groupby("asn", G_ip.nodes("collision_domain"))
     print cds_by_asn
+    for asn, cds in cds_by_asn.items():
+        cd_sizes =  [subnet_size(cd.degree()) for cd in cds]
+        print cd_sizes
+        total_cd_size = sum(cd_sizes)
+        print total_cd_size
+
 
 
 

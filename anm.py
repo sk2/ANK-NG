@@ -270,6 +270,8 @@ class OverlayBase(object):
         data = sorted(data, key= lambda x: x.get(attribute))
         for k, g in itertools.groupby(data, key= lambda x: x.get(attribute)):
             result[k] = list(g)
+
+        #TODO: should this return .items() to be consistent with other iterables?
         return result
 
     def filter(self, nbunch = None, *args, **kwargs):
