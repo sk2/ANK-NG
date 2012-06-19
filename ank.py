@@ -327,7 +327,8 @@ def subnet_size(host_count):
     """Returns subnet size"""
     import math
     host_count += 2 # network and broadcast
-    return int(2**math.ceil(math.log(host_count, 2)))
+    return int(math.ceil(math.log(host_count, 2)))
+
 
 class TreeNode:
     """Adapted from http://stackoverflow.com/questions/2078669"""
@@ -335,6 +336,7 @@ class TreeNode:
         self.data=data
         self.left=left
         self.right=right
+        self.subnet = None
 
     @property
     def leaf(self):
@@ -343,17 +345,16 @@ class TreeNode:
             return True
         return False
 
-    def __unicode__(self):
-        return '%s %s %s' % (
-                self.left.data if self.left else "",
-                self.data, 
+    def __repr__(self):
+        return '(%s %s %s)' % (
+                self.left.data if self.left else "-",
+                self.data if self.data else "", 
                 self.right.data if self.right else '-')
     
 def allocate_ips(G_ip):
     import math
     G_phy = G_ip.overlay.phy
     collision_domains = list(G_ip.nodes("collision_domain"))
-    asns = unique_attr(G_phy, "asn")
 
     routers_by_asn = G_phy.groupby("asn", G_phy.nodes(device_type="router"))
     loopbacks = dict((asn, len(routers)) for asn, routers in routers_by_asn.items())
@@ -367,7 +368,6 @@ def allocate_ips(G_ip):
         collision_domain.asn = asn
 
     cds_by_asn = G_ip.groupby("asn", G_ip.nodes("collision_domain"))
-    print cds_by_asn
 
 # if node or subnet has IP already allocated, then skip from this tree
 
@@ -376,7 +376,6 @@ def allocate_ips(G_ip):
 #TODO: Add in loopbacks as a subnet also
         print
         print "subnet tree for asn", asn
-        cd_sizes =  [subnet_size(cd.degree()) for cd in cds]
 
         # Build list of collision domains sorted by size
         size_list = defaultdict(list)
@@ -393,17 +392,13 @@ def allocate_ips(G_ip):
 
         tree_nodes_per_level = defaultdict(int)
         for size, cds in sorted(size_list.items()):
-            node_count = 0
             # Nodes at this level
             tree_nodes_per_level[size] += len(cds)
             # and parent is the ceiling of these /2 (ceil as may have odd number)
             # eg 4 at this level -> 2 at parent, 5 at this level -> 3 at parent
-            nodes_at_this_level = tree_nodes_per_level[size]
-            print "total nodes at", size, "is", nodes_at_this_level
-            parent_level = size *2
+            nodes_at_this_level = tree_nodes_per_level[size] # from children + cds at this level
             nodes_at_parent_level = int(math.ceil(nodes_at_this_level/2.0))
-            print "parent of", size, "is", parent_level, "and has", nodes_at_parent_level
-            tree_nodes_per_level[size*2] += nodes_at_parent_level
+            tree_nodes_per_level[size+1] += nodes_at_parent_level
 
         # See if need to add any higher levels on
         top_level = max(tree_nodes_per_level)
@@ -411,14 +406,37 @@ def allocate_ips(G_ip):
         levels_to_add = int(math.ceil(math.log(nodes_at_this_level, 2)))
         for index in range(levels_to_add):
             nodes_at_this_level = levels_to_add - index
-            level = top_level * 2**(index+1)
+            level = top_level + (index+1)
             tree_nodes_per_level[level] = nodes_at_this_level
 
         print list(size_list.items())
+        # Now map collision domains back
+
+# initialise tree with leaf nodes
+
+        ip_tree = defaultdict(list)
+        current_level = min(size_list) # start at base
+        while True:
+            cds = size_list[current_level]
+# initialse with leaves
+            ip_tree[current_level] += list(TreeNode(cd) for cd in cds)
+    
+            # now connect up at parent level
+            tree_nodes = ip_tree[current_level] # both leaves and parents of lower level
+            pairs = list(itertools.izip(tree_nodes[::2], tree_nodes[1::2]))
+            for left, right in pairs:
+                ip_tree[current_level+1].append(TreeNode(None, left, right))
+            if len(tree_nodes) % 2 == 1:
+                final_tree_node = tree_nodes[-1]
+                ip_tree[current_level+1].append(TreeNode(None, final_tree_node, None))
+
+            current_level += 1
+            print current_level, ":", ip_tree[current_level]
+            if len(ip_tree[current_level]) < 2:
+                # Reached top of tree
+                break
 
 
-        #list( (size*2, math.ceil(len(cds)/2.0)) for size, cds in sorted(size_list.items()))
-        print "tnpl", sorted(tree_nodes_per_level.items())
 
         # allocate to tree
 
