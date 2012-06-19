@@ -59,6 +59,20 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
         return self.anm._overlays[self.overlay_id]
 
     @property
+    def is_router(self):
+        return self.phy.device_type == "router"
+
+    @property
+    def is_switch(self):
+        return self.phy.device_type == "switch"
+
+    @property
+    def is_server(self):
+        return self.phy.device_type == "server"
+
+#TODO: Add other base device_types
+
+    @property
     def id(self):
         return self.node_id
 
@@ -240,7 +254,7 @@ class OverlayBase(object):
         """To access programatically"""
         return overlay_node(self._anm, self._overlay_id, key)
 
-    def groupby(self, attribute):
+    def groupby(self, attribute, nodes = None):
         """Returns a dictionary sorted by attribute
 #TODO: Also want to be able to return list of subgraphs based on groupby, eg per ASN subgraphs
         
@@ -248,8 +262,11 @@ class OverlayBase(object):
         {u'1': [r1, r2, r3, sw1], u'2': [r4]}
         """
         result={}
-
-        data = self.nodes()
+    
+        if not nodes:
+            data = self.nodes()
+        else:
+            data = nodes
         data = sorted(data, key= lambda x: x.get(attribute))
         for k, g in itertools.groupby(data, key= lambda x: x.get(attribute)):
             result[k] = list(g)

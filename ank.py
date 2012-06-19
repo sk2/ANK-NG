@@ -275,7 +275,6 @@ def most_frequent(iterable):
     """returns most frequent item in iterable"""
     unique = set(iterable)
     sorted_values = [val for val in sorted(unique, key = iterable.count)]
-    print "sorted are", sorted_values
     return sorted_values.pop() # most frequent is at end of sorted list
 
 def neigh_average(overlay_graph, node, attribute, attribute_graph = None):
@@ -298,7 +297,6 @@ def neigh_average(overlay_graph, node, attribute, attribute_graph = None):
     except ValueError:
         return most_frequent(values)
 
-
 def neigh_attr(overlay_graph, node, attribute, attribute_graph = None):
     #TODO: tidy up parameters to take attribute_graph first, and then evaluate if attribute_graph set, if not then use attribute_graph as attribute
     """Boolean, True if neighbors in overlay_graph all have same attribute in attribute_graph"""
@@ -317,23 +315,43 @@ def neigh_attr(overlay_graph, node, attribute, attribute_graph = None):
 def neigh_equal(overlay_graph, node, attribute, attribute_graph = None):
     neigh_attrs = neigh_attr(overlay_graph, node, attribute, attribute_graph)
     return len(set(neigh_attrs)) == 1
+
+
+def unique_attr(overlay_graph, attribute):
+    graph = unwrap_graph(overlay_graph)
+    return set(graph.node[node].get(attribute) for node in graph)
+
+
+def subnet_size(host_count):
+    """Returns subnet size"""
+    import math
+    host_count += 2 # network and broadcast
+    return math.ceil(math.log(host_count, 2))
     
 def allocate_ips(G_ip):
+    G_phy = G_ip.overlay.phy
     collision_domains = list(G_ip.nodes("collision_domain"))
     hosts_per_cd = [cd.degree() for cd in collision_domains]
-    for asn, devices in G_ip.overlay.phy.groupby("asn").items():
-        print asn, devices
+
+    asns = unique_attr(G_phy, "asn")
+
+    routers_by_asn = G_phy.groupby("asn", G_phy.nodes(device_type="router"))
+    print "loopbacks", [(asn, len(routers)) for asn, routers in routers_by_asn.items()]
 
     for collision_domain in collision_domains:
-        neigh_asn = list(neigh_attr(G_ip, collision_domain, "asn", G_ip.overlay.phy)) #asn of neighbors
+        neigh_asn = list(neigh_attr(G_ip, collision_domain, "asn", G_phy)) #asn of neighbors
         if len(set(neigh_asn)) == 1:
-            asn = set(neigh_asn).pop()
-            print collision_domain, "is same asn"
-            collision_domain.asn = asn
+            asn = set(neigh_asn).pop() # asn of any neigh, as all same
         else:
-            print collision_domain, "is cross asn"
-# need to allocate an ASN to the collision domain: arbitrary choice
-            print neigh_asn
-            print "choosing nost frequent", most_frequent(neigh_asn)
+            asn = most_frequent(neigh_asn) # allocate cd to asn with most neighbors in it
+        collision_domain.asn = asn
+
+    cds_by_asn = G_ip.groupby("asn", G_ip.nodes("collision_domain"))
+    print cds_by_asn
+
+
+
+
+
 
 
