@@ -163,11 +163,17 @@ def save(overlay_graph):
 
 # and put in basic attributes
     for node in overlay_graph:
+        data = {}
+        data['label'] = node.label
+        print "data is", data
         #TODO: make these come from G_phy instead
-        graph.node[node.node_id]['label'] = node.overlay.input.label
-        graph.node[node.node_id]['device_type'] = node.overlay.input.device_type
+        #graph.node[node.node_id]['label'] = node.overlay.input.label
+        #graph.node[node.node_id]['device_type'] = node.overlay.input.device_type
+        if node.phy.device_type:
+            data['device_type'] = node.phy.device_type
         graph.node[node.node_id]['x'] = node.overlay.input.x or 0
         graph.node[node.node_id]['y'] = node.overlay.input.y or 0
+        graph.node[node.node_id].update(data)
 
     mapping = dict( (n.node_id, str(n)) for n in overlay_graph) 
     nx.relabel_nodes( graph, mapping, copy=False)

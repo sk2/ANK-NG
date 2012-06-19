@@ -50,7 +50,6 @@ G_ip.dump()
 ank.save(G_ip)
 ank.plot(G_ip)
 
-
 G_igp = anm.add_overlay("igp")
 
 G_bgp = anm.add_overlay("bgp", directed = True)

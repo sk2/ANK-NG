@@ -66,6 +66,10 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
         return self._graph.degree(self.node_id)
 
     @property
+    def label(self):
+        return self.__repr__()
+
+    @property
     def phy(self):
         """Shortcut back to physical overlay_node
         Same as node.overlay.phy
@@ -90,18 +94,15 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
 
         
     def __repr__(self):
-        #return "Overlay for %s in %s" % (self.node.fqdn, self.graph)
-#TODO: label should come from node in physical graph
-        #return self.anm.overlay.phy.device(self.node).label
-        try:
-            retval =  self.overlay.phy.label
-        except IntegrityException:
-# Node not in physical graph
-            print "HERE"
-            retval =  self._graph.node[self.node_id]['label']
-        if not retval:
-            retval =  self.node_id # No label set for this node, return node id
-        return retval
+        """Try label if set in overlay, otherwise from physical, otherwise node id"""
+        label = self._graph.node[self.node_id].get("label")
+        if not label:
+            try:
+                label =  self.phy.label
+            except IntegrityException:
+                label = self.node_id # node not in physical graph
+
+        return label
 
     def __getattr__(self, key):
         """Returns node property
