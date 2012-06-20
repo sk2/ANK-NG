@@ -15,7 +15,6 @@ lookup = TemplateLookup(directories=[""],
 
 def render(nidb):
     for node in nidb:
-        print "rendering", node
 # check directory exists
         render_output_dir = node.render.dst_folder
 #TODO: may need to iterate if multiple parts of the directory need to be created

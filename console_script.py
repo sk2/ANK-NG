@@ -26,6 +26,7 @@ G_graphics.add_nodes_from(G_in, retain=['x', 'y', 'device_type'])
 #TODO: add graphics interpolated for collision domain nodes
 
 G_ip = anm.add_overlay("ip")
+G_ip.add_nodes_from(G_in)
 G_ip.add_edges_from(G_in.edges(type="physical"))
 
 #print list(G_in.nodes())
@@ -61,6 +62,7 @@ G_ip.update(split_created_nodes, collision_domain=True)
 # set collision domain IPs
 collision_domain_id = (i for i in itertools.count(0))
 for node in G_ip.nodes("collision_domain"):
+    G_graphics.node(node).device_type = "collision_domain"
     cd_id = collision_domain_id.next()
     node.cd_id = cd_id
     label = "_".join(sorted(ank.neigh_attr(G_ip, node, "label", G_phy)))
@@ -76,7 +78,6 @@ ank.allocate_ips(G_ip)
 ank.save(G_ip)
 #ank.plot(G_ip, edge_label_attribute="ip_address")
 
-G_igp = anm.add_overlay("igp")
 
 G_bgp = anm.add_overlay("bgp", directed = True)
 
@@ -119,7 +120,6 @@ G_bgp.update([d for d in G_bgp if d.ebgp], ram = 64)
 ank.save(G_bgp)
 ank.save(G_phy)
 
-
 nidb = NIDB() 
 
 #TODO: build this on a platform by platform basis
@@ -131,6 +131,13 @@ for node in nidb:
     node.graphics.device_type = graphics_node.device_type
 
 #TODO: provide abstraction to work on a list/dict easily to store/retrieve from nidb
+# build IP
+for node in nidb:
+    if node in G_ip:
+        ip_allocations = []
+        for ip_link in G_ip.edges(node):
+            ip_allocations.append(ip_link.ip_address)
+        node.ip.allocations = ip_allocations
 
 # build BGP
 for node in nidb:
@@ -153,10 +160,11 @@ for node in nidb:
     node.render.dst_file = "%s.conf" % node.label
 
 #ank.save(nidb)
-#print nidb
+#print nidb.dump()
 
 #TODO: perform a transform on NIDB, replacing all dicts with objects to make easy iteration
 
+#TODO: don't need to transform, just need to pass a view of the nidb which does the wrapping: iterates through returned data, recursively, and wraps accordingly. ie pass the data to return through a recursive formatter which wraps
 ank_render.render(nidb)
 
 # Now build the NIDB
