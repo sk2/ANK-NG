@@ -20,7 +20,7 @@ G_phy.add_edges_from([edge for edge in G_in.edges() if edge.type == "physical"])
 G_phy.add_edge(G_phy.node("r1"), G_phy.node("r4"))
 
 G_graphics = anm.add_overlay("graphics") # plotting data
-G_graphics.add_nodes_from(G_in, retain=['x', 'y'])
+G_graphics.add_nodes_from(G_in, retain=['x', 'y', 'device_type'])
 
 #TODO: add graphics interpolated for collision domain nodes
 
@@ -69,7 +69,7 @@ for node in G_ip.nodes("collision_domain"):
 
 
 ank.allocate_ips(G_ip)
-print G_ip.data.asn_blocks
+#print G_ip.data.asn_blocks
 
 #G_ip.dump()
 ank.save(G_ip)
@@ -120,3 +120,22 @@ ank.save(G_phy)
 
 
 nidb = NIDB() 
+nidb.data.blah = "aa"
+print nidb.data
+for node in G_graphics:
+    print "node has x", node.x
+
+nidb.add_nodes_from(G_phy, retain=['label'])
+print nidb._graph.nodes(data=True)
+for node in nidb:
+    graphics_node = G_graphics.node(node) #node from graphics graph
+    node.graphics.x = graphics_node.x
+    node.graphics.y = graphics_node.y
+    node.graphics.device_type = graphics_node.device_type
+
+print nidb._graph.nodes(data=True)
+print nidb._graph.edges(data=True)
+
+ank.save(nidb)
+
+# Now build the NIDB

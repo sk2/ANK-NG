@@ -46,7 +46,7 @@ class overlay_node_accessor(namedtuple('overlay_accessor', "anm, node_id")):
         """Access overlay graph"""
         return overlay_node(self.anm, key, self.node_id)
 
-class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
+class overlay_node(namedtuple('overlay_node', "anm, overlay_id, node_id")):
     """API to access overlay graph node in network"""
     __slots = ()
 
@@ -232,11 +232,16 @@ class OverlayBase(object):
         This is currently O(N). Could use a lookup table"""
 #TODO: check if node.node_id in graph, if so return wrapped node for this...
 # returns node based on name
-        for node in self:
-            if str(node) == key:
-                return node
-        print "Unable to find node", key, "in", self
-        return None
+        try:
+            if key.node_id in self._graph:
+                return overlay_node(self._anm, self._overlay_id, key.node_id)
+        except AttributeError:
+            # doesn't have node_id, likely a label string, search based on this label
+            for node in self:
+                if str(node) == key:
+                    return node
+            print "Unable to find node", key, "in", self
+            return None
 
 #TODO: Allow overlay data to be set/get, ie graph.graph eg for asn subnet allocations
 

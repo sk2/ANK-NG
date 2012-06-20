@@ -1,8 +1,122 @@
 import networkx as nx
+from collections import namedtuple
+
+class nidb_node_category(namedtuple('nidb_node_category', "nidb, node_id, category_id")):
+    """API to access overlay graph node category in network"""
+    __slots = ()
+
+    def __repr__(self):
+        return str(self._node_data)
+
+    @property
+    def _node_data(self):
+        return self.nidb._graph.node[self.node_id]
+
+    def __getattr__(self, key):
+        """Returns edge property"""
+        return self._node_data.get(key)
+
+    def __setattr__(self, key, val):
+        """Sets edge property"""
+        self._node_data[key] = val
+
+
+class nidb_node(namedtuple('nidb_node', "nidb, node_id")):
+    """API to access overlay graph node in network"""
+    __slots = ()
+
+    def __repr__(self):
+        return self._node_data['label']
+
+    @property
+    def _node_data(self):
+        return self.nidb._graph.node[self.node_id]
+
+    @property
+    def label(self):
+        return self.__repr__()
+
+    def __getattr__(self, key):
+        """Returns edge property"""
+        return nidb_node_category(self.nidb, self.node_id, key)
+
+    def __setattr__(self, key, val):
+        """Sets edge property"""
+        return nidb_node_category(self.nidb, self.node_id, key)
+
+class nidb_graph_data(namedtuple('nidb_graph_data', "nidb")):
+    __slots = ()
+
+    def __repr__(self):
+        return "NIDB data: %s" % self.nidb._graph.graph
+
+    def __getattr__(self, key):
+        """Returns edge property"""
+        return self.nidb._graph.graph.get(key)
+
+    def __setattr__(self, key, val):
+        """Sets edge property"""
+        self.nidb._graph.graph[key] = val
+
+#TODO: make this inherit same overlay base as overlay_graph for add nodes etc properties
+# but not the degree etc
 
 class NIDB(object):
 
     def __init__(self):
-        self._graph = nx.DiGraph() # directed to represent link data, initially just l3device -> switch
+        self._graph = nx.Graph() # only for connectivity, any other information stored on node
+
+    def __repr__(self):
+        return "NIDB"
+
+    @property
+    def name(self):
+        return self.__repr__()
+
+    @property
+    def data(self):
+        return nidb_graph_data(self)
+
+    def update(self, nbunch, **kwargs):
+        for node in nbunch:
+            for (category, key), value in kwargs.items():
+                node.category.set(key, value)
+
+
+    def add_nodes_from(self, nbunch, retain=[], **kwargs):
+        if len(retain):
+            add_nodes = []
+            for n in nbunch:
+                data = dict( (key, n.get(key)) for key in retain)
+                add_nodes.append( (n.node_id, data) )
+            nbunch = add_nodes
+        else:
+            nbunch = (n.node_id for n in nbunch) # only store the id in overlay
+        self._graph.add_nodes_from(nbunch, **kwargs)
+
+    def add_edge(self, src, dst, retain=[], **kwargs):
+        self.add_edges_from([(src, dst)], retain, **kwargs)
+
+    def add_edges_from(self, ebunch, retain=[], **kwargs):
+        #TODO: need to test if given a (id, id) or an edge overlay pair... use try/except for speed
+        try:
+            if len(retain):
+                add_edges = []
+                for e in ebunch:
+                    data = dict( (key, e.get(key)) for key in retain)
+                    add_edges.append( (e.src.node_id, e.dst.node_id, data) )
+                ebunch = add_edges
+            else:
+                ebunch = [(e.src.node_id, e.dst.node_id) for e in ebunch]
+        except AttributeError:
+            ebunch = [(src.node_id, dst.node_id) for src, dst in ebunch]
+
+        #TODO: decide if want to allow nodes to be created when adding edge if not already in graph
+        self._graph.add_edges_from(ebunch, **kwargs)
+
+    def __iter__(self):
+        return iter(nidb_node(self, node)
+                for node in self._graph)
+
 
 

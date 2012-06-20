@@ -165,22 +165,29 @@ def stream(overlay_graph):
 
 def save(overlay_graph):
     import netaddr
-    graph = overlay_graph._graph.copy()
+    graph = overlay_graph._graph.copy() # copy as want to annotate
 
 # and put in basic attributes
     for node in overlay_graph:
         data = {}
         data['label'] = node.label
-        #TODO: make these come from G_phy instead
-        #graph.node[node.node_id]['label'] = node.overlay.input.label
-        #graph.node[node.node_id]['device_type'] = node.overlay.input.device_type
-        if node.phy.device_type:
-            data['device_type'] = node.phy.device_type
-        graph.node[node.node_id]['x'] = node.overlay.graphics.x
-        graph.node[node.node_id]['y'] = node.overlay.graphics.y
+        try:
+            #TODO: make these come from G_phy instead
+            #graph.node[node.node_id]['label'] = node.overlay.input.label
+            #graph.node[node.node_id]['device_type'] = node.overlay.input.device_type
+            graph.node[node.node_id]['device_type'] = node.overlay.graphics.device_type
+            graph.node[node.node_id]['x'] = node.overlay.graphics.x
+            graph.node[node.node_id]['y'] = node.overlay.graphics.y
+        except AttributeError:
+            if node.phy.device_type:
+                data['device_type'] = node.device_type
+            graph.node[node.node_id]['x'] = node.graphics.x
+            graph.node[node.node_id]['y'] = node.graphics.y
+            pass # likely trying to access overlay graph for nidb
         graph.node[node.node_id].update(data)
+#TODO: tidy this up
 
-    replace_as_string = set([netaddr.ip.IPAddress, netaddr.ip.IPNetwork, dict])
+    replace_as_string = set([type(None), netaddr.ip.IPAddress, netaddr.ip.IPNetwork, dict])
 #TODO: see if should handle dict specially, eg expand to __ ?
 
     for key, val in graph.graph.items():
@@ -202,6 +209,7 @@ def save(overlay_graph):
 #TODO: See why getting networkx.exception.NetworkXError: GraphML writer does not support <type 'NoneType'> as data values.
 #TODO: process writer to allow writing of IPnetwork class values
     filename = "%s.graphml" % overlay_graph.name
+    print "writing", filename
     nx.write_graphml(graph, filename)
 
 # probably want to create a graph from input with switches expanded to direct connections
