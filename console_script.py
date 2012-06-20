@@ -124,7 +124,6 @@ nidb = NIDB()
 
 #TODO: build this on a platform by platform basis
 nidb.add_nodes_from(G_phy, retain=['label'])
-print nidb._graph.nodes(data=True)
 for node in nidb:
     graphics_node = G_graphics.node(node) #node from graphics graph
     node.graphics.x = graphics_node.x
@@ -137,20 +136,29 @@ for node in nidb:
 for node in nidb:
     if node in G_bgp:
         bgp_node = G_bgp.node(node)
-        print "bgp node is", bgp_node
         data = []
         for session in G_bgp.edges(bgp_node):
             session_data = {}
             session_data['type'] = session.type
-            node.bgp.session = session_data
+            data.append(session_data)
+        node.bgp.session = data
+
+
+for node in nidb:
+    print node.bgp
 
 for node in nidb:
     # allocate the renderer template
-    node.render.template = "test.mako"
-    print "render", node.render
+    node.render.template = "templates/test.mako"
+    node.render.dst_folder = "rendered"
+    node.render.dst_file = "%s.conf" % node.label
 
 #ank.save(nidb)
 #print nidb
+
+for node in nidb:
+    if node.bgp:
+        print node, "has bgp"
 
 ank_render.render(nidb)
 

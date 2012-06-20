@@ -22,6 +22,16 @@ class nidb_node_category(namedtuple('nidb_node_category', "nidb, node_id, catego
     def __repr__(self):
         return str(self._node_data.get(self.category_id))
 
+    def __nonzero__(self):
+        """Allows for accessing to set attributes
+        This simplifies templates
+        but also for easy check, eg if sw1.bgp can return False if category not set
+        but can later do r1.bgp.attr = value
+        """
+        if self.category_id in self._node_data:
+            return True
+        return False
+
     @property
     def _node_data(self):
         return self.nidb._graph.node[self.node_id]
@@ -37,7 +47,6 @@ class nidb_node_category(namedtuple('nidb_node_category', "nidb, node_id, catego
         except KeyError:
             self._node_data[self.category_id] = {} # create dict for this data category
             setattr(self, key, val)
-
 
 class nidb_node(namedtuple('nidb_node', "nidb, node_id")):
     """API to access overlay graph node in network"""
