@@ -1,5 +1,19 @@
 import networkx as nx
 from collections import namedtuple
+import pprint
+
+class overlay_node_accessor(namedtuple('overlay_accessor', "nidb, node_id")):
+    """API to access overlay nodes in ANM"""
+#Used for consistency with ANM, where can also do node.overlay.graphics as well as node.graphics directly
+    __slots = ()
+
+    def __repr__(self):
+        #TODO: make this list overlays the node is present in
+        return "Overlay accessor for: %s" % self.nidb
+
+    def __getattr__(self, key):
+        """Access category"""
+        return nidb_node_category(self.nidb, self.node_id, key)
 
 class nidb_node_category(namedtuple('nidb_node_category', "nidb, node_id, category_id")):
     """API to access overlay graph node category in network"""
@@ -14,11 +28,15 @@ class nidb_node_category(namedtuple('nidb_node_category', "nidb, node_id, catego
 
     def __getattr__(self, key):
         """Returns edge property"""
-        return self._node_data.get(key)
+        return self._node_data[self.category_id].get(key)
 
     def __setattr__(self, key, val):
         """Sets edge property"""
-        self._node_data[key] = val
+        try:
+            self._node_data[self.category_id][key] = val
+        except KeyError:
+            self._node_data[self.category_id] = {} # create dict for this data category
+            setattr(self, key, val)
 
 
 class nidb_node(namedtuple('nidb_node', "nidb, node_id")):
@@ -44,6 +62,10 @@ class nidb_node(namedtuple('nidb_node', "nidb, node_id")):
         """Sets edge property"""
         return nidb_node_category(self.nidb, self.node_id, key)
 
+    @property
+    def overlay(self):
+        return overlay_node_accessor(self.nidb, self.node_id)
+
 class nidb_graph_data(namedtuple('nidb_graph_data', "nidb")):
     __slots = ()
 
@@ -58,6 +80,8 @@ class nidb_graph_data(namedtuple('nidb_graph_data', "nidb")):
         """Sets edge property"""
         self.nidb._graph.graph[key] = val
 
+
+
 #TODO: make this inherit same overlay base as overlay_graph for add nodes etc properties
 # but not the degree etc
 
@@ -67,7 +91,16 @@ class NIDB(object):
         self._graph = nx.Graph() # only for connectivity, any other information stored on node
 
     def __repr__(self):
-        return "NIDB"
+        return "nidb"
+
+    def dump(self):
+        return "%s %s %s" % (
+                pprint.pformat(self._graph.graph),
+                pprint.pformat(self._graph.nodes(data=True)),
+                pprint.pformat(self._graph.edges(data=True))
+                )
+
+
 
     @property
     def name(self):
@@ -81,7 +114,6 @@ class NIDB(object):
         for node in nbunch:
             for (category, key), value in kwargs.items():
                 node.category.set(key, value)
-
 
     def add_nodes_from(self, nbunch, retain=[], **kwargs):
         if len(retain):

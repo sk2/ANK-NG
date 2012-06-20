@@ -79,10 +79,11 @@ G_igp = anm.add_overlay("igp")
 
 G_bgp = anm.add_overlay("bgp", directed = True)
 
-G_bgp.add_nodes_from([d for d in G_in if d.device_type == "router"], color = 'red')
+G_bgp.add_nodes_from([d for d in G_in if d.is_router], color = 'red')
 
 # eBGP
 ebgp_edges = [edge for edge in G_in.edges() if edge.src.asn != edge.dst.asn]
+print "ADDING EBGP EDGES"
 G_bgp.add_edges_from(ebgp_edges, type = 'ebgp')
 
 # now iBGP
@@ -122,20 +123,35 @@ ank.save(G_phy)
 nidb = NIDB() 
 nidb.data.blah = "aa"
 print nidb.data
-for node in G_graphics:
-    print "node has x", node.x
 
+#TODO: build this on a platform by platform basis
 nidb.add_nodes_from(G_phy, retain=['label'])
 print nidb._graph.nodes(data=True)
 for node in nidb:
     graphics_node = G_graphics.node(node) #node from graphics graph
+    print "graphics ndoe is", graphics_node
     node.graphics.x = graphics_node.x
     node.graphics.y = graphics_node.y
     node.graphics.device_type = graphics_node.device_type
 
-print nidb._graph.nodes(data=True)
-print nidb._graph.edges(data=True)
+#TODO: provide abstraction to work on a list/dict easily to store/retrieve from nidb
+
+# build BGP
+for node in nidb:
+    if node in G_bgp:
+        bgp_node = G_bgp.node(node)
+        print "bgp node is", bgp_node
+        data = []
+        for session in G_bgp.edges(bgp_node):
+            session_data = {}
+            session_data['type'] = session.type
+            print "session", session, "dst", session.dst.phy.asn
+            node.bgp.session = session_data
+
+for node in nidb:
+    print node.data
 
 ank.save(nidb)
+#print nidb
 
 # Now build the NIDB

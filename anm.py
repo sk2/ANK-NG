@@ -113,7 +113,6 @@ class overlay_node(namedtuple('overlay_node', "anm, overlay_id, node_id")):
         return iter(overlay_edge(self.anm, self.overlay_id, src, dst)
                 for src, dst in self._graph.edges(self.node_id))
 
-        
     def __repr__(self):
         """Try label if set in overlay, otherwise from physical, otherwise node id"""
         label = self._graph.node[self.node_id].get("label")
@@ -249,7 +248,7 @@ class OverlayBase(object):
         return node.degree()
 
     def neighbors(self, node):
-        iter(overlay_node(self._anm, self._overlay_id, node)
+        return iter(overlay_node(self._anm, self._overlay_id, node)
                 for node in self._graph.neighbors(node.node_id))
 
     @property
@@ -370,6 +369,8 @@ class overlay_graph(OverlayBase):
         self.add_edges_from([(src, dst)], retain, **kwargs)
 
     def add_edges_from(self, ebunch, retain=[], **kwargs):
+        """Add edges. Unlike NetworkX, can only add an edge if both src and dst in graph already.
+        If they are not, then they will not be added (silently ignored)"""
         #TODO: need to test if given a (id, id) or an edge overlay pair... use try/except for speed
         try:
             if len(retain):
@@ -382,6 +383,9 @@ class overlay_graph(OverlayBase):
                 ebunch = [(e.src.node_id, e.dst.node_id) for e in ebunch]
         except AttributeError:
             ebunch = [(src.node_id, dst.node_id) for src, dst in ebunch]
+
+        ebunch = [(src, dst) for src, dst in ebunch if src in self._graph and dst in self._graph]
+#TODO: log to debug any filtered out nodes... if if lengths not the same
 
         #TODO: decide if want to allow nodes to be created when adding edge if not already in graph
         self._graph.add_edges_from(ebunch, **kwargs)

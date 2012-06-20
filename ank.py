@@ -171,19 +171,13 @@ def save(overlay_graph):
     for node in overlay_graph:
         data = {}
         data['label'] = node.label
-        try:
-            #TODO: make these come from G_phy instead
-            #graph.node[node.node_id]['label'] = node.overlay.input.label
-            #graph.node[node.node_id]['device_type'] = node.overlay.input.device_type
-            graph.node[node.node_id]['device_type'] = node.overlay.graphics.device_type
-            graph.node[node.node_id]['x'] = node.overlay.graphics.x
-            graph.node[node.node_id]['y'] = node.overlay.graphics.y
-        except AttributeError:
-            if node.phy.device_type:
-                data['device_type'] = node.device_type
-            graph.node[node.node_id]['x'] = node.graphics.x
-            graph.node[node.node_id]['y'] = node.graphics.y
-            pass # likely trying to access overlay graph for nidb
+        #TODO: make these come from G_phy instead
+        #graph.node[node.node_id]['label'] = node.overlay.input.label
+        #graph.node[node.node_id]['device_type'] = node.overlay.input.device_type
+        graph.node[node.node_id]['device_type'] = node.overlay.graphics.device_type
+        graph.node[node.node_id]['x'] = node.overlay.graphics.x
+        graph.node[node.node_id]['y'] = node.overlay.graphics.y
+
         graph.node[node.node_id].update(data)
 #TODO: tidy this up
 
