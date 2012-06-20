@@ -8,7 +8,8 @@ IP ${allocation}
 % endif
 
 %if node.bgp:
---BGP--                      
+--BGP--       
+IP blocks: ${node.bgp.asn_sn_blocks}              
 % for session in node.bgp.session:
 session ${session['peer']} type ${session['type']}
 % endfor     

@@ -120,6 +120,8 @@ G_bgp.update([d for d in G_bgp if d.ebgp], ram = 64)
 ank.save(G_bgp)
 ank.save(G_phy)
 
+#TODO: set fqdn property
+
 nidb = NIDB() 
 
 #TODO: build this on a platform by platform basis
@@ -144,6 +146,9 @@ for node in nidb:
     if node in G_bgp:
         bgp_node = G_bgp.node(node)
         data = []
+        asn = G_phy.node(node).asn
+        asn_sn_blocks = G_ip.data.asn_blocks[asn]
+        node.bgp.asn_sn_blocks = asn_sn_blocks
         for session in G_bgp.edges(bgp_node):
             session_data = {}
             session_data['type'] = session.type
