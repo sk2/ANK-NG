@@ -70,6 +70,13 @@ class overlay_node(namedtuple('node', "anm, overlay_id, node_id")):
     def is_server(self):
         return self.phy.device_type == "server"
 
+    @property
+    def is_l3device(self):
+        """Layer 3 devices: router, server, cloud, host
+        ie not switch
+        """
+        return self.is_router or self.is_server
+
 #TODO: Add other base device_types
 
     @property

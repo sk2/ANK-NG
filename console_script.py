@@ -1,6 +1,7 @@
 from anm import AbstractNetworkModel
 import ank
 import itertools
+from nidb import NIDB
 
 anm = AbstractNetworkModel()
 input_graph = ank.load_graphml("example.graphml")
@@ -116,3 +117,6 @@ G_bgp.update([d for d in G_bgp if d.ebgp], ram = 64)
 #plot(G_phy)
 ank.save(G_bgp)
 ank.save(G_phy)
+
+
+nidb = NIDB() 
