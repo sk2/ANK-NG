@@ -140,12 +140,11 @@ for node in nidb:
         for session in G_bgp.edges(bgp_node):
             session_data = {}
             session_data['type'] = session.type
+            session_data['peer'] = session.dst
             data.append(session_data)
         node.bgp.session = data
 
-
-for node in nidb:
-    print node.bgp
+        #print node.bgp['session']
 
 for node in nidb:
     # allocate the renderer template
@@ -156,9 +155,7 @@ for node in nidb:
 #ank.save(nidb)
 #print nidb
 
-for node in nidb:
-    if node.bgp:
-        print node, "has bgp"
+#TODO: perform a transform on NIDB, replacing all dicts with objects to make easy iteration
 
 ank_render.render(nidb)
 

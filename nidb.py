@@ -15,9 +15,33 @@ class overlay_node_accessor(namedtuple('overlay_accessor', "nidb, node_id")):
         """Access category"""
         return nidb_node_category(self.nidb, self.node_id, key)
 
-class nidb_node_category(namedtuple('nidb_node_category', "nidb, node_id, category_id")):
-    """API to access overlay graph node category in network"""
-    __slots = ()
+#class nidb_node_category(namedtuple('nidb_node_category', "nidb, node_id, category_id")):
+    #"""API to access overlay graph node category in network"""
+    #__slots = ()
+class nidb_node_subcategory(object):
+    def __init__(self, nidb, node_id, category_id, subcategory_id):
+#Set using this method to bypass __setattr__ 
+        object.__setattr__(self, 'nidb', nidb)
+        object.__setattr__(self, 'node_id', node_id)
+        object.__setattr__(self, 'category_id', category_id)
+        object.__setattr__(self, 'subcategory_id', subcategory_id)
+
+    @property
+    def _data(self):
+        return 
+
+    def __repr__(self):
+        print "here"
+        return self.nidb._graph.node[self.node_id][self.category_id][self.subcategory_id]
+             
+
+class nidb_node_category(object):
+
+    def __init__(self, nidb, node_id, category_id):
+#Set using this method to bypass __setattr__ 
+        object.__setattr__(self, 'nidb', nidb)
+        object.__setattr__(self, 'node_id', node_id)
+        object.__setattr__(self, 'category_id', category_id)
 
     def __repr__(self):
         return str(self._node_data.get(self.category_id))
@@ -32,6 +56,10 @@ class nidb_node_category(namedtuple('nidb_node_category', "nidb, node_id, catego
             return True
         return False
 
+    def __getitem__(self, key):
+        """Used to access the data directly. calling node.key returns wrapped data for templates"""
+        return self._node_data[self.category_id][key]
+    
     @property
     def _node_data(self):
         return self.nidb._graph.node[self.node_id]
