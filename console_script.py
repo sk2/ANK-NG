@@ -2,6 +2,7 @@ from anm import AbstractNetworkModel
 import ank
 import itertools
 from nidb import NIDB
+import ank_render
 
 anm = AbstractNetworkModel()
 input_graph = ank.load_graphml("example.graphml")
@@ -83,7 +84,6 @@ G_bgp.add_nodes_from([d for d in G_in if d.is_router], color = 'red')
 
 # eBGP
 ebgp_edges = [edge for edge in G_in.edges() if edge.src.asn != edge.dst.asn]
-print "ADDING EBGP EDGES"
 G_bgp.add_edges_from(ebgp_edges, type = 'ebgp')
 
 # now iBGP
@@ -121,15 +121,12 @@ ank.save(G_phy)
 
 
 nidb = NIDB() 
-nidb.data.blah = "aa"
-print nidb.data
 
 #TODO: build this on a platform by platform basis
 nidb.add_nodes_from(G_phy, retain=['label'])
 print nidb._graph.nodes(data=True)
 for node in nidb:
     graphics_node = G_graphics.node(node) #node from graphics graph
-    print "graphics ndoe is", graphics_node
     node.graphics.x = graphics_node.x
     node.graphics.y = graphics_node.y
     node.graphics.device_type = graphics_node.device_type
@@ -145,13 +142,16 @@ for node in nidb:
         for session in G_bgp.edges(bgp_node):
             session_data = {}
             session_data['type'] = session.type
-            print "session", session, "dst", session.dst.phy.asn
             node.bgp.session = session_data
 
 for node in nidb:
-    print node.data
+    # allocate the renderer template
+    node.render.template = "test.mako"
+    print "render", node.render
 
-ank.save(nidb)
+#ank.save(nidb)
 #print nidb
+
+ank_render.render(nidb)
 
 # Now build the NIDB

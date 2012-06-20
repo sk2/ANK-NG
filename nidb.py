@@ -20,7 +20,7 @@ class nidb_node_category(namedtuple('nidb_node_category', "nidb, node_id, catego
     __slots = ()
 
     def __repr__(self):
-        return str(self._node_data)
+        return str(self._node_data.get(self.category_id))
 
     @property
     def _node_data(self):
