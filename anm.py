@@ -1,5 +1,4 @@
 import networkx as nx
-from collections import namedtuple
 import itertools
 import pprint
 
@@ -34,9 +33,12 @@ class DeviceNotFoundException(AutoNetkitException):
     def __str__(self):
         return "Unable to find %s" % self.Errors
 
-class overlay_node_accessor(namedtuple('overlay_accessor', "anm, node_id")):
+class overlay_node_accessor(object):
     """API to access overlay nodes in ANM"""
-    __slots = ()
+    def __init__(self, anm,  node_id):
+#Set using this method to bypass __setattr__ 
+        object.__setattr__(self, 'anm', anm)
+        object.__setattr__(self, 'node_id', node_id)
 
     def __repr__(self):
         #TODO: make this list overlays the node is present in
@@ -46,9 +48,14 @@ class overlay_node_accessor(namedtuple('overlay_accessor', "anm, node_id")):
         """Access overlay graph"""
         return overlay_node(self.anm, key, self.node_id)
 
-class overlay_node(namedtuple('overlay_node', "anm, overlay_id, node_id")):
-    """API to access overlay graph node in network"""
-    __slots = ()
+class overlay_node(object):
+    def __init__(self, anm, overlay_id, node_id):
+#Set using this method to bypass __setattr__ 
+        object.__setattr__(self, 'anm', anm)
+        object.__setattr__(self, 'overlay_id', overlay_id)
+#TODO: check node_id is in graph, otherwise return NodeNotFoundException
+# should be able to use _graph from here as anm and overlay_id are defined
+        object.__setattr__(self, 'node_id', node_id)
 
 #TODO: allow access back up to overlays from this
 # eg self.ip.property self.bgp.property etc
@@ -152,9 +159,15 @@ class overlay_node(namedtuple('overlay_node', "anm, overlay_id, node_id")):
         """For consistency, node.set(key, value) is neater than setattr(node, key, value)"""
         return self.__setattr__(key, val)
 
-class overlay_edge(namedtuple('link', "anm, overlay_id, src_id, dst_id")):
+class overlay_edge(object):
     """API to access link in network"""
-    __slots = ()
+    def __init__(self, anm, overlay_id, src_id, dst_id):
+#Set using this method to bypass __setattr__ 
+        object.__setattr__(self, 'anm', anm)
+        object.__setattr__(self, 'overlay_id', overlay_id)
+        object.__setattr__(self, 'src_id', src_id)
+        object.__setattr__(self, 'dst_id', dst_id)
+
     def __repr__(self):
         return "(%s, %s)" % (self.src, self.dst)
 
@@ -187,8 +200,12 @@ class overlay_edge(namedtuple('link', "anm, overlay_id, src_id, dst_id")):
         """Sets edge property"""
         self._graph[self.src_id][self.dst_id][key] = val
 
-class overlay_graph_data(namedtuple('overlay_graph_data', "anm, overlay_id")):
-    __slots = ()
+class overlay_graph_data(object):
+    """API to access link in network"""
+    def __init__(self, anm, overlay_id):
+#Set using this method to bypass __setattr__ 
+        object.__setattr__(self, 'anm', anm)
+        object.__setattr__(self, 'overlay_id', overlay_id)
 
     def __repr__(self):
         return "Data for (%s, %s)" % (self.anm, self.overlay_id)
@@ -400,9 +417,11 @@ class overlay_graph(OverlayBase):
         nbunch = (n.node_id for n in nbunch) # only store the id in overlay
         return overlay_subgraph(self._anm, self._overlay_id, self._graph.subgraph(nbunch), name)
 
-class overlay_accessor(namedtuple('overlay_accessor', "anm")):
+class overlay_accessor(object):
     """API to access overlay graphs in ANM"""
-    __slots = ()
+    def __init__(self, anm):
+#Set using this method to bypass __setattr__ 
+        object.__setattr__(self, 'anm', anm)
 
     def __repr__(self):
         return "Available overlay graphs: %s" % ", ".join(sorted(self.anm._overlays.keys()))

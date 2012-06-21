@@ -84,6 +84,15 @@ ank.save(G_phy)
 nidb = NIDB() 
 #TODO: build this on a platform by platform basis
 nidb.add_nodes_from(G_phy, retain=['label'])
+
+print nidb.dump()
+for node in nidb:
+    phy_node = G_phy.node(node)
+    print "phys node", phy_node
+    print phy_node.overlay
+    print type(phy_node.overlay.bgp)
+    print "bgp edges", phy_node.overlay.bgp.edge()
+
 for node in nidb:
     graphics_node = G_graphics.node(node) #node from graphics graph
     node.graphics.x = graphics_node.x
@@ -120,9 +129,10 @@ for node in nidb:
     node.render.dst_folder = "rendered"
     node.render.dst_file = "%s.conf" % node.label
 
+# and setup interfaces
+
+
 #TODO: don't need to transform, just need to pass a view of the nidb which does the wrapping: iterates through returned data, recursively, and wraps accordingly. ie pass the data to return through a recursive formatter which wraps
 ank_render.render(nidb)
-ank.plot_dot(G_ip)
-ank.plot_dot(G_bgp)
 
 # Now build the NIDB
