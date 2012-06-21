@@ -50,7 +50,32 @@ def load_graphml(filename):
 #other handling... split this into seperate module!
     return graph
 
-def plot(overlay_graph, edge_label_attribute = None, save = True, show = False):
+def plot_dot(overlay_graph, edge_label_attribute = None, save = True, show = False):
+    #TODO: turn off rescaling
+    import subprocess
+    graph = overlay_graph._graph.copy()
+    graph_name = overlay_graph.name
+
+    graph = graph.to_undirected()
+
+    for node in overlay_graph:
+        graph.node[node.node_id]['label'] = node.overlay.graphics.label
+        (x, y) = node.overlay.graphics.x, node.overlay.graphics.y
+        (x, y) = x/4, -1*y/4
+        graph.node[node.node_id]['pos'] = "%s,%s" % (x, y)
+        graph.node[node.node_id]['image'] = "icons/%s.png" % node.overlay.graphics.device_type
+        graph.node[node.node_id]['shape'] = 'none'
+        graph.node[node.node_id]['fontsize'] = 25
+        graph.node[node.node_id]['labelloc'] = 'b' 
+        graph.node[node.node_id]['fontcolor'] = 'white' 
+
+    filename = "%s.dot" % graph_name
+    nx.to_dot(graph, filename) 
+    cmd = ["dot", "-Kfdp", filename, "-Tpdf", "-o", "%s.pdf" % graph_name]
+    subprocess.call(cmd)
+
+
+def plot_pylab(overlay_graph, edge_label_attribute = None, save = True, show = False):
     """ Plot a graph"""
     try:
         import matplotlib.pyplot as plt

@@ -47,13 +47,15 @@ G_ip.update(split_created_nodes, collision_domain=True)
 # set collision domain IPs
 collision_domain_id = (i for i in itertools.count(0))
 for node in G_ip.nodes("collision_domain"):
-    G_graphics.node(node).device_type = "collision_domain"
+    graphics_node = G_graphics.node(node)
+    graphics_node.device_type = "collision_domain"
     cd_id = collision_domain_id.next()
     node.cd_id = cd_id
     label = "_".join(sorted(ank.neigh_attr(G_ip, node, "label", G_phy)))
 #TODO: Use this label
     if not node.is_switch:
         node.label = "cd_%s" % cd_id # switches keep their names
+        graphics_node.label = label
 
 ank.allocate_ips(G_ip)
 ank.save(G_ip)
@@ -120,5 +122,7 @@ for node in nidb:
 
 #TODO: don't need to transform, just need to pass a view of the nidb which does the wrapping: iterates through returned data, recursively, and wraps accordingly. ie pass the data to return through a recursive formatter which wraps
 ank_render.render(nidb)
+ank.plot_dot(G_ip)
+ank.plot_dot(G_bgp)
 
 # Now build the NIDB

@@ -5,3 +5,10 @@
 *.pdf
 *.graphml
 rendered/*
+*.eps
+*.pdf
+*.png
+*.jpg
+*.DS_Store
+*.dot
+*.ps
