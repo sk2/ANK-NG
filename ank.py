@@ -2,7 +2,7 @@ import networkx as nx
 from anm import overlay_node, overlay_edge
 from collections import defaultdict
 import itertools
-
+from networkx.utils.misc import generate_unique_node
 
 def load_graphml(filename):
     graph = nx.read_graphml(filename)
@@ -44,6 +44,11 @@ def load_graphml(filename):
         for key, val in edge_defaults.items():
             if key not in graph[src][dst]:
                 graph[src][dst][key] = val
+
+    # allocate edge_ids
+    for src, dst in graph.edges():
+        uuid = generate_unique_node().replace("-", "")
+        graph[src][dst]['edge_id'] = uuid
 
 # apply defaults
 # relabel nodes

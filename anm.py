@@ -33,6 +33,22 @@ class DeviceNotFoundException(AutoNetkitException):
     def __str__(self):
         return "Unable to find %s" % self.Errors
 
+class NodeNotFoundException(AutoNetkitException):
+    def __init__(self, message, Errors):
+        Exception.__init__(self, message)
+        self.Errors = Errors
+
+    def __str__(self):
+        return "Unable to find %s" % self.Errors
+
+class EdgeNotFound(AutoNetkitException):
+    def __init__(self, message, Errors):
+        Exception.__init__(self, message)
+        self.Errors = Errors
+
+    def __str__(self):
+        return "Unable to find %s" % self.Errors
+
 class overlay_node_accessor(object):
     """API to access overlay nodes in ANM"""
     def __init__(self, anm,  node_id):
@@ -59,6 +75,15 @@ class overlay_node(object):
 
 #TODO: allow access back up to overlays from this
 # eg self.ip.property self.bgp.property etc
+
+    def __nonzero__(self):
+        """Allows for checking if node exists
+        """
+        try:
+            self._graph.node[self.node_id]
+            return True
+        except KeyError:
+            return False
 
     @property
     def _graph(self):
@@ -107,7 +132,7 @@ class overlay_node(object):
         return overlay_node(self.anm, "phy", self.node_id)
 
     @property
-    def data(self):
+    def dump(self):
         return self._graph.node[self.node_id].keys()
 
     @property
@@ -179,9 +204,17 @@ class overlay_edge(object):
     def dst(self):
         return overlay_node(self.anm, self.overlay_id, self.dst_id)
 
-    @property
-    def data(self):
+    def dump(self):
         return self._graph[self.src_id][self.dst_id].keys()
+
+    def __nonzero__(self):
+        """Allows for checking if edge exists
+        """
+        try:
+            self._graph[self.src_id][self.dst_id]
+            return True
+        except KeyError:
+            return False
 
     @property
     def _graph(self):
@@ -242,6 +275,13 @@ class OverlayBase(object):
 
     def __contains__(self, n):
         return n.node_id in self._graph
+
+    def edge(self, edge_to_find):
+        """returns edge in this graph with same src and same edge_id"""
+        src = edge_to_find.src
+        for edge in src.edges():
+            if edge_to_find.edge_id == edge.edge_id:
+                return edge
 
     def node(self, key):
         """Returns node based on name
@@ -389,19 +429,21 @@ class overlay_graph(OverlayBase):
         """Add edges. Unlike NetworkX, can only add an edge if both src and dst in graph already.
         If they are not, then they will not be added (silently ignored)"""
         #TODO: need to test if given a (id, id) or an edge overlay pair... use try/except for speed
+        retain.append("edge_id")
         try:
             if len(retain):
+                #TODO: cleanup this logic: will always at least retain edge_id
                 add_edges = []
                 for e in ebunch:
                     data = dict( (key, e.get(key)) for key in retain)
                     add_edges.append( (e.src.node_id, e.dst.node_id, data) )
                 ebunch = add_edges
             else:
-                ebunch = [(e.src.node_id, e.dst.node_id) for e in ebunch]
+                ebunch = [(e.src.node_id, e.dst.node_id, {}) for e in ebunch]
         except AttributeError:
-            ebunch = [(src.node_id, dst.node_id) for src, dst in ebunch]
+            ebunch = [(src.node_id, dst.node_id, {}) for src, dst in ebunch]
 
-        ebunch = [(src, dst) for src, dst in ebunch if src in self._graph and dst in self._graph]
+        ebunch = [(src, dst, data) for (src, dst, data) in ebunch if src in self._graph and dst in self._graph]
 #TODO: log to debug any filtered out nodes... if if lengths not the same
 
         #TODO: decide if want to allow nodes to be created when adding edge if not already in graph

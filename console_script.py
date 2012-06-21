@@ -85,13 +85,17 @@ nidb = NIDB()
 #TODO: build this on a platform by platform basis
 nidb.add_nodes_from(G_phy, retain=['label'])
 
-print nidb.dump()
+#print G_ip.dump()
+print G_ip._graph.edges(data=True)
+
 for node in nidb:
     phy_node = G_phy.node(node)
     print "phys node", phy_node
-    print phy_node.overlay
-    print type(phy_node.overlay.bgp)
-    print "bgp edges", phy_node.overlay.bgp.edge()
+    for edge in G_phy.edges():
+        ip_edge = G_ip.edge(edge)
+        if ip_edge:
+            print ip_edge.dump()
+
 
 for node in nidb:
     graphics_node = G_graphics.node(node) #node from graphics graph
