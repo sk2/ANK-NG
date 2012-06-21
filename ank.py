@@ -2,7 +2,14 @@ import networkx as nx
 from anm import overlay_node, overlay_edge
 from collections import defaultdict
 import itertools
-from networkx.utils.misc import generate_unique_node
+
+def unique_id(length = 5):
+    """Generates a unique ID. TODO: want shorter unique ids"""
+    import uuid
+    return str(uuid.uuid4()).split("-")[0]
+
+#TODO: have function that goes over a list, edge edges_to_add and sets edge_id if not set
+#this cleans up the manual edge adding process
 
 def load_graphml(filename):
     graph = nx.read_graphml(filename)
@@ -47,7 +54,7 @@ def load_graphml(filename):
 
     # allocate edge_ids
     for src, dst in graph.edges():
-        uuid = generate_unique_node().replace("-", "")
+        uuid = unique_id()
         graph[src][dst]['edge_id'] = uuid
 
 # apply defaults
@@ -268,17 +275,18 @@ def in_edges(overlay_graph, nodes=None):
     return wrap_edges(overlay_graph, edges)
 
 def split(overlay_graph, edges):
-    from networkx.utils.misc import generate_unique_node
     graph = unwrap_graph(overlay_graph)
     edges = list(unwrap_edges(edges))
-    graph.remove_edges_from(edges)
     edges_to_add = []
     added_nodes = []
     for (src, dst) in edges:
-        uuid = generate_unique_node().replace("-", "")
-        edges_to_add += [(src, uuid), (dst, uuid)]
-        added_nodes.append(uuid)
+        edge_id = graph[src][dst]['edge_id']
+        cd_id = "cd_%s_%s" % (src, dst)
+        edges_to_add.append( (src, cd_id, {'edge_id': edge_id}))
+        edges_to_add.append( (dst, cd_id, {'edge_id': edge_id}))
+        added_nodes.append(cd_id)
 
+    graph.remove_edges_from(edges)
     graph.add_edges_from(edges_to_add)
 
     return wrap_nodes(overlay_graph, added_nodes)
@@ -290,9 +298,10 @@ def explode(overlay_graph, nodes):
     graph = unwrap_graph(overlay_graph)
     nodes = unwrap_nodes(nodes)
     added_edges = []
+#TODO: need to keep track of edge_ids here also?
     for node in nodes:
         neighbors = graph.neighbors(node)
-        edges_to_add = [ (s,t) for s in neighbors for t in neighbors if s != t]
+        edges_to_add = [ (s,t, {"edge_id": unique_id}) for s in neighbors for t in neighbors if s != t]
         graph.add_edges_from(edges_to_add)
         added_edges.append(edges_to_add)
 

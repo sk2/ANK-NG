@@ -147,6 +147,7 @@ class overlay_node(object):
 
     def __repr__(self):
         """Try label if set in overlay, otherwise from physical, otherwise node id"""
+#TODO: make access direct from phy, and can then do "%s: %s" % (overlay_id, label)
         label = self._graph.node[self.node_id].get("label")
         if not label:
             try:
@@ -194,7 +195,7 @@ class overlay_edge(object):
         object.__setattr__(self, 'dst_id', dst_id)
 
     def __repr__(self):
-        return "(%s, %s)" % (self.src, self.dst)
+        return "%s: (%s, %s)" % (self.overlay_id, self.src, self.dst)
 
     @property
     def src(self):
@@ -278,10 +279,14 @@ class OverlayBase(object):
 
     def edge(self, edge_to_find):
         """returns edge in this graph with same src and same edge_id"""
-        src = edge_to_find.src
-        for edge in src.edges():
-            if edge_to_find.edge_id == edge.edge_id:
-                return edge
+        src_id = edge_to_find.src_id
+
+        for src, dst, data in self._graph.edges(src_id, data=True):
+            try:
+                if data['edge_id'] == edge_to_find.edge_id:
+                    return overlay_edge(self._anm, self._overlay_id, src, dst)
+            except KeyError:
+                pass # no edge_id for this edge
 
     def node(self, key):
         """Returns node based on name

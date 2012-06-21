@@ -39,6 +39,8 @@ for node in split_created_nodes:
     node.overlay.graphics.y = ank.neigh_average(G_ip, node, "y", G_graphics)
 
 #TODO: add sanity checks like only routers can cross ASes: can't have an eBGP server
+G_igp = anm.add_overlay("igp")
+G_igp.add_nodes_from(G_in, retain=['asn'])
 
 switch_nodes = [n for n in G_ip if n.is_switch] # regenerate due to aggregated
 G_ip.update(switch_nodes, collision_domain=True) # switches are part of collision domain
@@ -86,15 +88,15 @@ nidb = NIDB()
 nidb.add_nodes_from(G_phy, retain=['label'])
 
 #print G_ip.dump()
-print G_ip._graph.edges(data=True)
 
 for node in nidb:
     phy_node = G_phy.node(node)
-    print "phys node", phy_node
     for edge in G_phy.edges():
         ip_edge = G_ip.edge(edge)
         if ip_edge:
-            print ip_edge.dump()
+            #print ip_edge.ip_address
+            #print ip_edge.dump()
+            pass
 
 
 for node in nidb:
