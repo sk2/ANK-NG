@@ -282,21 +282,6 @@
         </y:SVGNode>
       </data>
     </node>
-    <node id="n12">
-      <data key="d6"/>
-      <data key="d8">
-        <y:SVGNode>
-          <y:Geometry height="38.691199999999995" width="56.7751304347826" x="404.1124347826087" y="363.1544"/>
-          <y:Fill color="#CCCCFF" transparent="false"/>
-          <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="19.17578125" x="18.799674592391284" y="10.27919374999999">13</y:NodeLabel>
-          <y:SVGNodeProperties usingVisualBounds="true"/>
-          <y:SVGModel svgBoundsPolicy="0">
-            <y:SVGContent refid="1"/>
-          </y:SVGModel>
-        </y:SVGNode>
-      </data>
-    </node>
     <edge id="e0" source="n0" target="n2">
       <data key="d12">
         <y:PolyLineEdge>

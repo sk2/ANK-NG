@@ -3,6 +3,28 @@ from collections import namedtuple
 import pprint
 
 
+class overlay_data_dict(object):
+    def __init__(self, data):
+        self.data = data
+
+    def __repr__(self):
+        return "aa" + str(self.data)
+
+    def __getitem__(self, key):
+        """To act as a dict eg self['item']"""
+        return self.data.get(key)
+
+    def __getattr__(self, key):
+        """Access category"""
+        return self.data.get(key)
+
+class overlay_data_list_of_dicts(object):
+    def __init__(self, data):
+        self.data = data
+
+    def __iter__(self):
+        return iter(overlay_data_dict(item) for item in self.data)
+
 class overlay_node_accessor(namedtuple('overlay_accessor', "nidb, node_id")):
     """API to access overlay nodes in ANM"""
 #Used for consistency with ANM, where can also do node.overlay.graphics as well as node.graphics directly
@@ -32,7 +54,6 @@ class nidb_node_subcategory(object):
         return 
 
     def __repr__(self):
-        print "here"
         return self.nidb._graph.node[self.node_id][self.category_id][self.subcategory_id]
 
 class nidb_node_category(object):
@@ -58,6 +79,7 @@ class nidb_node_category(object):
 
     def __getitem__(self, key):
         """Used to access the data directly. calling node.key returns wrapped data for templates"""
+        print "returning", key
         return self._node_data[self.category_id][key]
     
     @property
@@ -66,7 +88,17 @@ class nidb_node_category(object):
 
     def __getattr__(self, key):
         """Returns edge property"""
-        return self._node_data[self.category_id].get(key)
+        data = self._node_data[self.category_id].get(key)
+        try:
+            [item.keys() for item in data]
+            return overlay_data_list_of_dicts(data)
+        except AttributeError:
+            pass # not a dict
+        return data
+
+
+# check if list
+
 
     def __setattr__(self, key, val):
         """Sets edge property"""

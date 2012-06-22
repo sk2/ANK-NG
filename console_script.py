@@ -6,8 +6,8 @@ import ank_render
 import time
 
 anm = AbstractNetworkModel()
-#input_graph = ank.load_graphml("example.graphml")
-input_graph = ank.load_graphml("graph_combined.graphml")
+input_graph = ank.load_graphml("example.graphml")
+#input_graph = ank.load_graphml("graph_combined.graphml")
 
 G_in = anm.add_overlay("input", input_graph)
 
@@ -131,6 +131,7 @@ for node in nidb:
             data.append({
                     'type': session.type,
                     'peer': session.dst,
+                    'peer_ip': session.dst.overlay.ip.loopback,
             })
         node.bgp.session = data
 
@@ -147,9 +148,6 @@ for node in nidb:
 
 #TODO: don't need to transform, just need to pass a view of the nidb which does the wrapping: iterates through returned data, recursively, and wraps accordingly. ie pass the data to return through a recursive formatter which wraps
 print "rendering"
-start = time.clock()
 ank_render.render(nidb)
-elapsed = (time.clock() - start)
-print "rendering time:", elapsed
 
 # Now build the NIDB
