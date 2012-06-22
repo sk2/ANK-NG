@@ -135,6 +135,10 @@ class nidb_node(object):
         return str(self._node_data)
 
     @property
+    def id(self):
+        return self.node_id
+
+    @property
     def label(self):
         return self.__repr__()
 

@@ -111,12 +111,20 @@ ank.plot_pylab(G_ip, edge_label_attribute = 'ip_address', node_label_attribute =
 
 ank_compiler.compile_ios(nidb, anm)
 ank_compiler.compile_junos(nidb, anm)
-
+# update nidb graphics
+for node in nidb:
+    graphics_node = G_graphics.node(node)
+    node.graphics.x = graphics_node.x
+    node.graphics.y = graphics_node.y
+    node.graphics.device_type = graphics_node.device_type
 
 # and setup interfaces
 
 
 #TODO: don't need to transform, just need to pass a view of the nidb which does the wrapping: iterates through returned data, recursively, and wraps accordingly. ie pass the data to return through a recursive formatter which wraps
 ank_render.render(nidb)
+
+#TODO: plot the nidb
+ank.plot_pylab(nidb)
 
 # Now build the NIDB
