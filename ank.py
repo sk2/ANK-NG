@@ -199,7 +199,6 @@ def plot_pylab(overlay_graph, edge_label_attribute = None, node_label_attribute 
         labels = {}
         for n in overlay_graph:
             attr = n.get(node_label_attribute)
-            print "attr is", attr
             if attr:
                 label = "%s\n%s" % (n, attr)
             else:
@@ -334,6 +333,12 @@ def in_edges(overlay_graph, nodes=None):
     return wrap_edges(overlay_graph, edges)
 
 def split(overlay_graph, edges, retain = []):
+    try:
+        retain.lower()
+        retain = [retain] # was a string, put into list
+    except AttributeError:
+        pass # already a list
+
     graph = unwrap_graph(overlay_graph)
     edges = list(unwrap_edges(edges))
     edges_to_add = []

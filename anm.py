@@ -137,8 +137,6 @@ class overlay_node(object):
         """
 # refer back to the physical node, to access attributes such as name
 #TODO: handle case of trying to access phy in phy: loop, can't just return self
-        if self.overlay_id == "phy":
-            return None
         return overlay_node(self.anm, "phy", self.node_id)
 
     def dump(self):

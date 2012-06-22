@@ -3,6 +3,7 @@ import ank
 import itertools
 from nidb import NIDB
 import ank_render
+import ank_compiler
 import time
 
 anm = AbstractNetworkModel()
@@ -14,8 +15,11 @@ G_in = anm.add_overlay("input", input_graph)
 G_phy = anm.overlay.phy #G_phy created automatically by ank
 
 # build physical graph
-G_phy.add_nodes_from(G_in, retain=['label', 'device_type', 'asn'])
+G_phy.add_nodes_from(G_in, retain=['label', 'device_type', 'asn', 'platform'])
 G_phy.add_edges_from([edge for edge in G_in.edges() if edge.type == "physical"])
+
+print [node.is_switch for node in G_phy]
+ 
 
 """
 r1 = G_phy.node("r1")
@@ -39,9 +43,8 @@ ank.aggregate_nodes(G_ip, G_ip.nodes("is_switch"), retain = "edge_id")
 #TODO: add function to update edge properties: can overload node update?
 
 #TODO: abstract this better
-l3_devices = set(['router', 'server'])
 edges_to_split = [edge for edge in G_ip.edges() if edge.src.is_l3device and edge.dst.is_l3device]
-split_created_nodes = list(ank.split(G_ip, edges_to_split, retain=['edge_id']))
+split_created_nodes = list(ank.split(G_ip, edges_to_split, retain='edge_id'))
 for node in split_created_nodes:
     node.overlay.graphics.x = ank.neigh_average(G_ip, node, "x", G_graphics)
     node.overlay.graphics.y = ank.neigh_average(G_ip, node, "y", G_graphics)
@@ -49,7 +52,7 @@ for node in split_created_nodes:
 #TODO: add sanity checks like only routers can cross ASes: can't have an eBGP server
 G_igp = anm.add_overlay("igp")
 G_igp.add_nodes_from(G_in, retain=['asn'])
-G_igp.add_edges_from(G_in.edges(), retain = ['edge_id'])
+G_igp.add_edges_from(G_in.edges(), retain = 'edge_id')
 added_edges = ank.aggregate_nodes(G_igp, G_igp.nodes("is_switch"), retain='edge_id')
 
 switch_nodes = G_ip.nodes("is_switch")# regenerate due to aggregated
@@ -98,76 +101,19 @@ G_bgp.update(ebgp_nodes, ebgp=True)
 
 nidb = NIDB() 
 #TODO: build this on a platform by platform basis
-nidb.add_nodes_from(G_phy, retain=['label'])
+nidb.add_nodes_from(G_phy, retain='label')
 
 #print G_ip.dump()
+"""
 ank.plot_pylab(G_bgp, edge_label_attribute = 'type', node_label_attribute='asn')
 ank.plot_pylab(G_phy, edge_label_attribute = 'edge_id')
 ank.plot_pylab(G_igp, edge_label_attribute='edge_id')
 ank.plot_pylab(G_ip, edge_label_attribute = 'ip_address', node_label_attribute = 'loopback')
+"""
 
-for node in nidb:
-    phy_node = G_phy.node(node)
-    for edge in phy_node.edges():
-        ip_edge = G_ip.edge(edge)
-        if ip_edge:
-            pass
-            #print ip_edge.ip_address
-            #print ip_edge.dump()
+ank_compiler.compile_ios(nidb, anm)
+ank_compiler.compile_junos(nidb, anm)
 
-for node in nidb:
-    graphics_node = G_graphics.node(node) #node from graphics graph
-    node.graphics.x = graphics_node.x
-    node.graphics.y = graphics_node.y
-    node.graphics.device_type = graphics_node.device_type
-
-# build IP
-#TODO: iterate from G_phy, look up nidb_node, filter based on type
-for node in nidb:
-    if node in G_ip:
-        ip_allocations = []
-        for ip_link in G_ip.edges(node):
-            ip_allocations.append(ip_link.ip_address)
-        node.ip.allocations = ip_allocations
-
-# build IGP
-    if node in G_igp:
-        igp_node = G_igp.node(node)
-        data = []
-        for link in G_igp.edges(node):
-            ip_link = G_ip.edge(link)
-#TODO: allow this to return None if no data eg phy_link.int_id
-            phy_link = G_phy.edge(link)
-            data.append({
-                'desc': "%s to %s" % (link.src, link.dst),
-                'dest': link.dst,
-                'cost': link.cost,
-                #'phy link': phy_link.int_id,
-                'interface ip': str(ip_link.ip_address)
-                })
-        node.igp.links = data
-
-# build BGP
-    if node in G_bgp:
-        bgp_node = G_bgp.node(node)
-        data = []
-        asn = G_phy.node(node).asn
-        node.bgp.asn_sn_blocks = G_ip.data.asn_blocks[asn]
-        for session in G_bgp.edges(bgp_node):
-            data.append({
-                    'type': session.type,
-                    'peer': session.dst,
-                    'peer_ip': session.dst.overlay.ip.loopback,
-            })
-        node.bgp.session = data
-
-        #print node.bgp['session']
-
-for node in nidb:
-    # allocate the renderer template
-    node.render.template = "templates/test.mako"
-    node.render.dst_folder = "rendered"
-    node.render.dst_file = "%s.conf" % ank.name_folder_safe(node.label)
 
 # and setup interfaces
 

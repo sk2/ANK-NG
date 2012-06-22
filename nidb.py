@@ -168,6 +168,8 @@ class nidb_graph_data(object):
 
 class NIDB(object):
 
+    #TODO: inherit common methods from same base as overlay
+
     def __init__(self):
         self._graph = nx.Graph() # only for connectivity, any other information stored on node
 
@@ -188,6 +190,22 @@ class NIDB(object):
     def __len__(self):
         return len(self._graph)
 
+    def node(self, key):
+        """Returns node based on name
+        This is currently O(N). Could use a lookup table"""
+#TODO: check if node.node_id in graph, if so return wrapped node for this...
+# returns node based on name
+        try:
+            if key.node_id in self._graph:
+                return nidb_node(self, key.node_id)
+        except AttributeError:
+            # doesn't have node_id, likely a label string, search based on this label
+            for node in self:
+                if str(node) == key:
+                    return node
+            print "Unable to find node", key, "in", self
+            return None
+
     @property
     def data(self):
         return nidb_graph_data(self)
@@ -198,6 +216,12 @@ class NIDB(object):
                 node.category.set(key, value)
 
     def add_nodes_from(self, nbunch, retain=[], **kwargs):
+        try:
+            retain.lower()
+            retain = [retain] # was a string, put into list
+        except AttributeError:
+            pass # already a list
+
         if len(retain):
             add_nodes = []
             for n in nbunch:
@@ -212,6 +236,12 @@ class NIDB(object):
         self.add_edges_from([(src, dst)], retain, **kwargs)
 
     def add_edges_from(self, ebunch, retain=[], **kwargs):
+        try:
+            retain.lower()
+            retain = [retain] # was a string, put into list
+        except AttributeError:
+            pass # already a list
+
         #TODO: need to test if given a (id, id) or an edge overlay pair... use try/except for speed
         try:
             if len(retain):
