@@ -60,9 +60,28 @@ class overlay_node_accessor(object):
         #TODO: make this list overlays the node is present in
         return "Overlay graphs: %s" % ", ".join(sorted(self.anm._overlays.keys()))
 
-    def __getattr__(self, key):
+    def __getattr__(self, overlay_id):
         """Access overlay graph"""
-        return overlay_node(self.anm, key, self.node_id)
+        return overlay_node(self.anm, overlay_id, self.node_id)
+
+class overlay_edge_accessor(object):
+    """API to access overlay nodes in ANM"""
+#TODO: fix consistency between node_id (id) and edge (overlay edge)
+    def __init__(self, anm, edge):
+#Set using this method to bypass __setattr__ 
+        object.__setattr__(self, 'anm', anm)
+        object.__setattr__(self, 'edge', edge)
+
+    def __repr__(self):
+        #TODO: make this list overlays the node is present in
+        return "Overlay edge accessor: %s" % self.edge
+
+    def __getattr__(self, overlay_id):
+        """Access overlay edge"""
+#TODO: check on returning list or single edge if multiple found with same id (eg in G_igp from explode)
+        overlay  = overlay_graph(self.anm, overlay_id)
+        edge = overlay.edge(self.edge)
+        return edge
 
 class overlay_node(object):
     def __init__(self, anm, overlay_id, node_id):
@@ -225,6 +244,11 @@ class overlay_edge(object):
             return False
 
     @property
+    def overlay(self):
+        """Access node in another overlay graph"""
+        return overlay_edge_accessor(self.anm, self)
+
+    @property
     def _graph(self):
         """Return graph the node belongs to"""
         return self.anm._overlays[self.overlay_id]
@@ -288,6 +312,7 @@ class OverlayBase(object):
         """returns edge in this graph with same src and same edge_id"""
         src_id = edge_to_find.src_id
         search_id = edge_to_find.edge_id
+#TODO: if no edge_id then search for src, dst pair
 
         for src, dst in self._graph.edges_iter(src_id):
             try:

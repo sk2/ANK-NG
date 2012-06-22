@@ -82,7 +82,6 @@ class nidb_node_category(object):
 
     def __getitem__(self, key):
         """Used to access the data directly. calling node.key returns wrapped data for templates"""
-        print "returning", key
         return self._category_data[key]
 
     @property

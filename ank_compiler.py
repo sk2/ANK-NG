@@ -23,14 +23,23 @@ def compile_ios(nidb, anm):
     G_graphics = anm.overlay.graphics
 
     print "compiling ios"
-    print [node.device_type for node in G_phy]
-    for phy_node in G_phy.nodes(platform='ios'):
-        print "ios nodes", phy_node.is_switch
-        print phy_node
+    for phy_node in G_phy.nodes('is_router', platform='ios'):
+        print "ios for", phy_node
         nidb_node = nidb.node(phy_node)
         nidb_node.render.template = "templates/ios.mako"
         nidb_node.render.dst_folder = "rendered/ios"
         nidb_node.render.dst_file = "%s.conf" % ank.name_folder_safe(phy_node.label)
+
+        # Interfaces
+        interfaces = []
+        for link in phy_node.edges():
+            print link.overlay.ip.ip_address
+            data = {
+                    'source': link.src,
+                    'ip': 1,
+                    }
+            interfaces.append(data)
+
 
 def compile_old(nidb, anm):
     G_phy = anm.overlay.phy

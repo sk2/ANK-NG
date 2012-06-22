@@ -26,10 +26,15 @@ def render_node(node):
             os.mkdir(render_output_dir)
 
 
+        #TODO: capture mako errors better
+
         with open( dst_file, 'wb') as dst_fh:
-            dst_fh.write(render_template.render(
-                node = node,
-                ))
+            try:
+                dst_fh.write(render_template.render(
+                    node = node,
+                    ))
+            except KeyError, error:
+                print "Unable to render %s: %s not set" % (node, error)
 
         return
 
