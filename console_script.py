@@ -5,7 +5,8 @@ from nidb import NIDB
 import ank_render
 
 anm = AbstractNetworkModel()
-input_graph = ank.load_graphml("example.graphml")
+#input_graph = ank.load_graphml("example.graphml")
+input_graph = ank.load_graphml("graph_combined.graphml")
 
 G_in = anm.add_overlay("input", input_graph)
 
@@ -15,7 +16,7 @@ G_phy = anm.overlay.phy #G_phy created automatically by ank
 G_phy.add_nodes_from(G_in, retain=['label', 'device_type', 'asn'])
 G_phy.add_edges_from([edge for edge in G_in.edges() if edge.type == "physical"])
 
-G_phy.add_edge(G_phy.node("r1"), G_phy.node("r4"))
+#G_phy.add_edge(G_phy.node("r1"), G_phy.node("r4"))
 
 G_graphics = anm.add_overlay("graphics") # plotting data
 G_graphics.add_nodes_from(G_in, retain=['x', 'y', 'device_type'])
@@ -47,6 +48,7 @@ G_ip.update(switch_nodes, collision_domain=True) # switches are part of collisio
 G_ip.update(split_created_nodes, collision_domain=True)
 
 # set collision domain IPs
+print "collision domains"
 collision_domain_id = (i for i in itertools.count(0))
 for node in G_ip.nodes("collision_domain"):
     graphics_node = G_graphics.node(node)
@@ -59,8 +61,10 @@ for node in G_ip.nodes("collision_domain"):
         node.label = "cd_%s" % cd_id # switches keep their names
         graphics_node.label = label
 
+print "allocating ips"
 ank.allocate_ips(G_ip)
-ank.save(G_ip)
+print "ips allocated"
+#ank.save(G_ip)
 
 G_bgp = anm.add_overlay("bgp", directed = True)
 G_bgp.add_nodes_from([d for d in G_in if d.is_router], color = 'red')
@@ -78,27 +82,31 @@ for asn, devices in G_in.groupby("asn").items():
 ebgp_nodes = [d for d in G_bgp if any(edge.type == 'ebgp' for edge in d.edges())]
 G_bgp.update(ebgp_nodes, ebgp=True)
 
-ank.save(G_bgp)
-ank.save(G_phy)
+#ank.save(G_bgp)
+#ank.save(G_phy)
 
 #TODO: set fqdn property
+print "allocating nidb"
 
 nidb = NIDB() 
 #TODO: build this on a platform by platform basis
 nidb.add_nodes_from(G_phy, retain=['label'])
+print "nidb nodes added"
 
 #print G_ip.dump()
 
 for node in nidb:
     phy_node = G_phy.node(node)
-    for edge in G_phy.edges():
+    for edge in phy_node.edges():
         ip_edge = G_ip.edge(edge)
         if ip_edge:
+            pass
             #print ip_edge.ip_address
             #print ip_edge.dump()
-            pass
 
+print "ip blocks", G_ip.data.asn_blocks[asn]
 
+print "creating nidb"
 for node in nidb:
     graphics_node = G_graphics.node(node) #node from graphics graph
     node.graphics.x = graphics_node.x
@@ -139,6 +147,7 @@ for node in nidb:
 
 
 #TODO: don't need to transform, just need to pass a view of the nidb which does the wrapping: iterates through returned data, recursively, and wraps accordingly. ie pass the data to return through a recursive formatter which wraps
+print "rendering"
 ank_render.render(nidb)
 
 # Now build the NIDB

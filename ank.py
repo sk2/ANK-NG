@@ -12,10 +12,25 @@ def unique_id(length = 5):
 #this cleans up the manual edge adding process
 
 def load_graphml(filename):
+    import string
     graph = nx.read_graphml(filename)
 #TODO: node labels if not set, need to set from a sequence, ensure unique... etc
 
-#TODO: ensure unique node labels
+    letters_single = (c for c in string.lowercase) # a, b, c, ... z
+    letters_double = ("%s%s" % (a, b) for (a, b) in itertools.product(string.lowercase, string.lowercase)) # aa, ab, ... zz
+    letters = itertools.chain(letters_single, letters_double) # a, b, c, .. z, aa, ab, ac, ... zz
+#TODO: need to get set of current labels, and only return if not in this set
+
+    #TODO: add cloud, host, etc
+    # prefixes for unlabelled devices, ie router -> r_a
+    label_prefixes = {
+            'router': 'r',
+            'switch': 'sw',
+            'server': 'se',
+            }
+
+    current_labels = set(graph.node[node].get("label") for node in graph.nodes_iter())
+    unique_label = (letter for letter in letters if letter not in current_labels)
 
 # set our own defaults if not set
 #TODO: store these in config file
@@ -36,8 +51,21 @@ def load_graphml(filename):
     # and ensure asn is integer, x and y are floats
     for node in graph:
         graph.node[node]['asn'] = int(graph.node[node]['asn'])
-        graph.node[node]['x'] = float(graph.node[node]['x'])
-        graph.node[node]['y'] = float(graph.node[node]['y'])
+        try:
+            x = float(graph.node[node]['x'])
+        except KeyError:
+            x = 0
+        graph.node[node]['x'] = x
+        try:
+            y = float(graph.node[node]['y'])
+        except KeyError:
+            y = 0
+        graph.node[node]['y'] = y
+        try:
+            graph.node[node]['label']
+        except KeyError:
+            device_type = graph.node[node]['device_type']
+            graph.node[node]['label'] = "%s_%s" % (label_prefixes[device_type], unique_label.next())
 
     ank_edge_defaults = {
             'type': 'physical',

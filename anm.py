@@ -280,10 +280,11 @@ class OverlayBase(object):
     def edge(self, edge_to_find):
         """returns edge in this graph with same src and same edge_id"""
         src_id = edge_to_find.src_id
+        search_id = edge_to_find.edge_id
 
-        for src, dst, data in self._graph.edges(src_id, data=True):
+        for src, dst in self._graph.edges_iter(src_id):
             try:
-                if data['edge_id'] == edge_to_find.edge_id:
+                if self._graph[src][dst]['edge_id'] == search_id:
                     return overlay_edge(self._anm, self._overlay_id, src, dst)
             except KeyError:
                 pass # no edge_id for this edge
