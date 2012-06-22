@@ -22,6 +22,15 @@ def unique_id(length = 5):
 #TODO: have function that goes over a list, edge edges_to_add and sets edge_id if not set
 #this cleans up the manual edge adding process
 
+def set_node_default(overlay_graph, nbunch, **kwargs):
+    """Sets all nodes in nbunch to value if key not already set"""
+    graph = unwrap_graph(overlay_graph)
+    nbunch = unwrap_nodes(nbunch)
+    for node in nbunch:
+        for key, val in kwargs.items():
+            if key not in graph.node[node]:
+                graph.node[node][key] = val
+
 def load_graphml(filename):
     import string
     graph = nx.read_graphml(filename)
@@ -313,16 +322,16 @@ def in_edges(overlay_graph, nodes=None):
     edges = graph.in_edges(nodes)
     return wrap_edges(overlay_graph, edges)
 
-def split(overlay_graph, edges):
+def split(overlay_graph, edges, retain = []):
     graph = unwrap_graph(overlay_graph)
     edges = list(unwrap_edges(edges))
     edges_to_add = []
     added_nodes = []
     for (src, dst) in edges:
-        edge_id = graph[src][dst]['edge_id']
         cd_id = "cd_%s_%s" % (src, dst)
-        edges_to_add.append( (src, cd_id, {'edge_id': edge_id}))
-        edges_to_add.append( (dst, cd_id, {'edge_id': edge_id}))
+        data = dict( (key, graph[src][dst][key]) for key in retain)
+        edges_to_add.append( (src, cd_id, data))
+        edges_to_add.append( (dst, cd_id, data))
         added_nodes.append(cd_id)
 
     graph.remove_edges_from(edges)
@@ -330,17 +339,25 @@ def split(overlay_graph, edges):
 
     return wrap_nodes(overlay_graph, added_nodes)
 
-def explode(overlay_graph, nodes):
+def explode(overlay_graph, nodes, retain = []):
     """Explodes all nodes in nodes
     TODO: explain better
     """
+    print "expliding"
     graph = unwrap_graph(overlay_graph)
     nodes = unwrap_nodes(nodes)
     added_edges = []
 #TODO: need to keep track of edge_ids here also?
     for node in nodes:
         neighbors = graph.neighbors(node)
-        edges_to_add = [ (s,t, {"edge_id": unique_id}) for s in neighbors for t in neighbors if s != t]
+        neigh_edge_pairs = ( (s,t) for s in neighbors for t in neighbors if s != t)
+        edges_to_add = []
+        for (src, dst) in neigh_edge_pairs:
+            data = dict( (key, graph[src][dst][key]) for key in retain)
+            edges_to_add.append(src, dst, data)
+
+        print "adding edges", edges_to_add
+
         graph.add_edges_from(edges_to_add)
         added_edges.append(edges_to_add)
 
@@ -356,6 +373,8 @@ def aggregate_nodes(overlay_graph, nodes):
     nodes = list(unwrap_nodes(nodes))
     graph = unwrap_graph(overlay_graph)
     subgraph = graph.subgraph(nodes)
+    if not len(subgraph.edges()):
+        print "Nothing to aggregate for %s: no edges in subgraph" % (overlay_graph)
     added_edges = []
     for component in nx.connected_components(subgraph):
         if len(component) > 1:
@@ -367,6 +386,7 @@ def aggregate_nodes(overlay_graph, nodes):
             graph.add_edges_from(edges_to_add)
             graph.remove_nodes_from(component)
 
+    print "added edges", added_edges
     return wrap_edges(overlay_graph, added_edges)
 
 # chain of two or more nodes

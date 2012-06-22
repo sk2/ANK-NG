@@ -11,7 +11,6 @@ IP ${allocation}
 --BGP--       
 IP blocks: ${node.bgp.asn_sn_blocks}              
 % for session in node.bgp.session:           
-${session}
 session ${session.peer} type ${session.type}   id ${session.peer_ip}
 % endfor     
 % endif

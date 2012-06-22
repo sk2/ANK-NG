@@ -131,9 +131,8 @@ class overlay_node(object):
 # refer back to the physical node, to access attributes such as name
         return overlay_node(self.anm, "phy", self.node_id)
 
-    @property
     def dump(self):
-        return self._graph.node[self.node_id].keys()
+        return str(self._graph.node[self.node_id])
 
     @property
     def overlay(self):
@@ -206,7 +205,7 @@ class overlay_edge(object):
         return overlay_node(self.anm, self.overlay_id, self.dst_id)
 
     def dump(self):
-        return self._graph[self.src_id][self.dst_id].keys()
+        return str(self._graph[self.src_id][self.dst_id])
 
     def __nonzero__(self):
         """Allows for checking if edge exists
@@ -380,8 +379,8 @@ class OverlayBase(object):
             nbunch = self.nodes()
         def filter_func(node):
             return (
-                    all(node.get(key) for key in args) and
-                    all(node.get(key) == val for key, val in kwargs.items())
+                    all(getattr(node, key) for key in args) and
+                    all(getattr(node, key) == val for key, val in kwargs.items())
                     )
 
         return (n for n in nbunch if filter_func(n))
@@ -435,6 +434,8 @@ class overlay_graph(OverlayBase):
         """Add edges. Unlike NetworkX, can only add an edge if both src and dst in graph already.
         If they are not, then they will not be added (silently ignored)"""
         #TODO: need to test if given a (id, id) or an edge overlay pair... use try/except for speed
+#TODO: tidy this logic up, use edge unwrap and 
+# data = dict( (key, graph[src][dst][key]) for key in retain)
         retain.append("edge_id")
         try:
             if len(retain):
