@@ -1,4 +1,6 @@
 import ank
+import itertools
+import netaddr
 
 def compile_junos(nidb, anm):
     G_phy = anm.overlay.phy
@@ -15,12 +17,18 @@ def compile_junos(nidb, anm):
         nidb_node.render.dst_folder = "rendered/junos"
         nidb_node.render.dst_file = "%s.conf" % ank.name_folder_safe(phy_node.label)
 
+# TODO: create base compiler class, which provides each of the Interfaces
+# inherited by router compiler which does bgp, igp
+# inherited by ios, etc which can then append the data they wish
+# ideally calling super so don't repeat extra code, eg for description etc
+
 def compile_ios(nidb, anm):
     G_phy = anm.overlay.phy
     G_ip = anm.overlay.ip
     G_igp = anm.overlay.igp
     G_bgp = anm.overlay.bgp
     G_graphics = anm.overlay.graphics
+    loopback_subnet = netaddr.IPNetwork("0.0.0.0/32")
 
     print "compiling ios"
     for phy_node in G_phy.nodes('is_router', platform='ios'):
@@ -31,16 +39,24 @@ def compile_ios(nidb, anm):
         nidb_node.render.dst_file = "%s.conf" % ank.name_folder_safe(phy_node.label)
 
 #TODO: need to map interface ids
+        interface_ids = ("gigabitethernet0/0/0/%s" % x for x in itertools.count(0))
 
         # Interfaces
         interfaces = []
+        interfaces.append({
+            'id': 'lo0',
+            'description': "Loopback",
+            'ip_address': phy_node.overlay.ip.loopback,
+            'subnet': loopback_subnet,
+            })
+
         for link in phy_node.edges():
             ip_link = G_ip.edge(link)
             #TODO: what if multiple ospf costs for this link
             ospf_cost = link.overlay.igp.cost
             subnet =  ip_link.dst.subnet # netmask comes from collision domain on the link
             data = {
-                    'id': 'Fe/0',
+                    'id': interface_ids.next(),
                     'description': "%s to %s" % (link.src, link.dst),
                     'ip_address': link.overlay.ip.ip_address,
                     'subnet': subnet,
@@ -48,7 +64,30 @@ def compile_ios(nidb, anm):
                     }
             interfaces.append(data)
 
-        nidb_node.interfaces = interfaces
+        #nidb_node.interfaces = interfaces
+        nidb_node.interfaces = []
+        
+        # IGP
+#TODO: check if router has IGP set as ospf or isis or ...
+        nidb_node.ospf.process_id = 2
+        ospf_links = []
+        for igp_link in G_igp.edges(phy_node):
+            ospf_links.append({
+                'network': igp_link.overlay.ip.dst.subnet,
+                'area': igp_link.area,
+                })
+
+        nidb_node.ospf.ospf_links = sorted(ospf_links)
+
+        #nidb_node.eigrp.process_id = 1
+        #nidb_node.isis.process_id = 1
+            
+
+
+        # BGP
+
+
+
         #print nidb_node.dump()
 
 

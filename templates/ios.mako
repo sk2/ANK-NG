@@ -8,16 +8,39 @@ no aaa new-model
 !
 !
 ip cef
-!
-% for interface in node.interfaces:   
+! 
+!      
+% for interface in node.interfaces:  
 interface ${interface.id}
 	description ${interface.description}
-	ip address ${interface.ip_address} ${interface.subnet.netmask}  
+	ip address ${interface.ip_address} ${interface.subnet.netmask}   
+	% if interface.cost:
 	ip ospf cost ${interface.cost}
+	% endif
 	no shutdown
    	duplex auto
-	speed autoComplete
-% endfor
+	speed auto
+!
+% endfor 
+
+!               
+% if node.ospf: 
+router ospf ${node.ospf.process_id} 
+% for ospf_link in node.ospf.ospf_links:
+	network ${ospf_link.network.network} ${ospf_link.network.hostmask} area ${ospf_link.area} 
+% endfor    
+% endif           
+% if node.isis: 
+router isis ${node.isis.process_id}       
+
+% endif  
+% if node.eigrp: 
+router eigrp ${node.eigrp.process_id}       
+
+% endif   
+!
+!
+
 
 <%doc>
 interface ${i['id']}

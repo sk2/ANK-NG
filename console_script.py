@@ -58,6 +58,7 @@ G_ip.update(split_created_nodes, collision_domain=True)
 # allocate costs
 for link in G_igp.edges():
     link.cost = link.src.degree() # arbitrary deterministic cost
+    link.area = 0
 
 # set collision domain IPs
 collision_domain_id = (i for i in itertools.count(0))
@@ -104,7 +105,7 @@ nidb.add_nodes_from(G_phy, retain='label')
 """
 ank.plot_pylab(G_bgp, edge_label_attribute = 'type', node_label_attribute='asn')
 ank.plot_pylab(G_phy, edge_label_attribute = 'edge_id')
-ank.plot_pylab(G_igp, edge_label_attribute='edge_id')
+ank.plot_pylab(G_igp, edge_label_attribute='cost')
 ank.plot_pylab(G_ip, edge_label_attribute = 'ip_address', node_label_attribute = 'loopback')
 """
 

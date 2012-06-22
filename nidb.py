@@ -98,6 +98,8 @@ class nidb_node_category(object):
             return overlay_data_list_of_dicts(data)
         except AttributeError:
             pass # not a dict
+        except TypeError:
+            pass # also not a dict
         return data
 
     def dump(self):
