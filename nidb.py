@@ -2,6 +2,7 @@ import networkx as nx
 from collections import namedtuple
 import pprint
 
+
 class overlay_node_accessor(namedtuple('overlay_accessor', "nidb, node_id")):
     """API to access overlay nodes in ANM"""
 #Used for consistency with ANM, where can also do node.overlay.graphics as well as node.graphics directly
@@ -33,7 +34,6 @@ class nidb_node_subcategory(object):
     def __repr__(self):
         print "here"
         return self.nidb._graph.node[self.node_id][self.category_id][self.subcategory_id]
-             
 
 class nidb_node_category(object):
 
@@ -137,11 +137,12 @@ class NIDB(object):
                 pprint.pformat(self._graph.edges(data=True))
                 )
 
-
-
     @property
     def name(self):
         return self.__repr__()
+
+    def __len__(self):
+        return len(self._graph)
 
     @property
     def data(self):

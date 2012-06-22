@@ -3,6 +3,17 @@ from anm import overlay_node, overlay_edge
 from collections import defaultdict
 import itertools
 
+def fqdn(node):
+    return "%s.%s" % (node.label, node.asn)
+
+def name_folder_safe(foldername):
+    for illegal_char in [" ", "/", "_", ",", ".", "&amp;", "-", "(", ")"]:
+        foldername = foldername.replace(illegal_char, "_")
+    # Don't want double _
+    while "__" in foldername:
+        foldername = foldername.replace("__", "_")
+    return foldername
+
 def unique_id(length = 5):
     """Generates a unique ID. TODO: want shorter unique ids"""
     import uuid
@@ -499,10 +510,13 @@ def allocate_ips(G_ip):
 
 # if node or subnet has IP already allocated, then skip from this tree
 
-    for asn, asn_cds in cds_by_asn.items():
+    for asn in routers_by_asn:
+# Need to iterate by asn with routers, as single router AS may not have a cd
+        asn_cds = cds_by_asn.get(asn) or []
 #tree by ASN
 #TODO: Add in loopbacks as a subnet also
         asn_address_block = subnet_address_blocks.next()
+        #print "ips for asn", asn
         G_ip.data.asn_blocks[asn] = asn_address_block
 #TODO: record this in G_ip graph data not node/edge data
 
@@ -515,7 +529,11 @@ def allocate_ips(G_ip):
         loopback_size = subnet_size(len(routers_by_asn[asn])) # calculate from number of routers in asn
 
         ip_tree = defaultdict(list) # index by level to simplify creation of tree
-        current_level = min(size_list) # start at base
+        try:
+            current_level = min(size_list) # start at base
+        except ValueError:
+            current_level = loopback_size # no cds, start at loopback
+        
         asn_loopback_tree_node = None #keep track of to allocate loopbacks at end
         while True:
             cds = size_list[current_level]

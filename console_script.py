@@ -3,6 +3,7 @@ import ank
 import itertools
 from nidb import NIDB
 import ank_render
+import time
 
 anm = AbstractNetworkModel()
 #input_graph = ank.load_graphml("example.graphml")
@@ -104,8 +105,6 @@ for node in nidb:
             #print ip_edge.ip_address
             #print ip_edge.dump()
 
-print "ip blocks", G_ip.data.asn_blocks[asn]
-
 print "creating nidb"
 for node in nidb:
     graphics_node = G_graphics.node(node) #node from graphics graph
@@ -141,13 +140,16 @@ for node in nidb:
     # allocate the renderer template
     node.render.template = "templates/test.mako"
     node.render.dst_folder = "rendered"
-    node.render.dst_file = "%s.conf" % node.label
+    node.render.dst_file = "%s.conf" % ank.name_folder_safe(node.label)
 
 # and setup interfaces
 
 
 #TODO: don't need to transform, just need to pass a view of the nidb which does the wrapping: iterates through returned data, recursively, and wraps accordingly. ie pass the data to return through a recursive formatter which wraps
 print "rendering"
+start = time.clock()
 ank_render.render(nidb)
+elapsed = (time.clock() - start)
+print "rendering time:", elapsed
 
 # Now build the NIDB
