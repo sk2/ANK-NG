@@ -282,7 +282,8 @@ def aggregate_nodes(overlay_graph, nodes, retain = []):
     graph = unwrap_graph(overlay_graph)
     subgraph = graph.subgraph(nodes)
     if not len(subgraph.edges()):
-        print "Nothing to aggregate for %s: no edges in subgraph"
+        #print "Nothing to aggregate for %s: no edges in subgraph"
+        pass
     total_added_edges = []
     for component_nodes in nx.connected_components(subgraph):
         if len(component_nodes) > 1:

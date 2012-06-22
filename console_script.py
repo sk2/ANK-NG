@@ -4,7 +4,7 @@ import itertools
 from nidb import NIDB
 import ank_render
 import ank_compiler
-#import ank_plot
+import ank_plot
 
 import optparse
 opt = optparse.OptionParser()
@@ -126,12 +126,10 @@ ios_nodes = list(nidb.nodes(platform="ios"))
 
 
 #print G_ip.dump()
-"""
 ank_plot.plot_pylab(G_bgp, edge_label_attribute = 'type', node_label_attribute='asn')
 ank_plot.plot_pylab(G_phy, edge_label_attribute = 'edge_id')
 ank_plot.plot_pylab(G_ospf, edge_label_attribute='cost')
 ank_plot.plot_pylab(G_ip, edge_label_attribute = 'ip_address', node_label_attribute = 'loopback')
-"""
 
 ank_compiler.compile_ios(nidb, anm)
 ank_compiler.compile_junos(nidb, anm)
