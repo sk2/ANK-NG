@@ -2,6 +2,8 @@ import ank
 import itertools
 import netaddr
 
+#TODO: for any property not in nidb, try and pass through to obtain from respective overlay, eg ospf tries from G_ospf.node(node) etc
+
 def compile_junos(nidb, anm):
     G_phy = anm.overlay.phy
     G_ip = anm.overlay.ip
@@ -37,6 +39,8 @@ def compile_ios(nidb, anm):
         nidb_node.render.template = "templates/ios.mako"
         nidb_node.render.dst_folder = "rendered/ios"
         nidb_node.render.dst_file = "%s.conf" % ank.name_folder_safe(phy_node.label)
+
+        nidb_node.asn = phy_node.asn
 
 #TODO: need to map interface ids
         interface_ids = ("gigabitethernet0/0/0/%s" % x for x in itertools.count(0))
@@ -81,10 +85,30 @@ def compile_ios(nidb, anm):
 
         #nidb_node.eigrp.process_id = 1
         #nidb_node.isis.process_id = 1
-            
-
 
         # BGP
+        if phy_node.overlay.bgp.edges():
+            asn = phy_node.asn # easy reference for cleaner code
+            nidb_node.bgp.advertise_subnets = G_ip.data.asn_blocks[asn]
+            igp_neighbors = []
+            egp_neighbors = []
+            for edge in phy_node.overlay.bgp.edges():
+                print edge, edge.type
+            print "ibgp edges", [edge for edge in phy_node.overlay.bgp.edges(type="ibgp")]
+            print "ebgp edges", [edge for edge in phy_node.overlay.bgp.edges(type="ebgp")]
+            for session in phy_node.overlay.bgp.edges():
+                #TODO: design decision: more boilerplate here, or more complexity in templates?
+                if session.type == 'ibgp':
+                    igp_neighbors.append({
+                        'neighbor': session.dst,
+                        'update-source': "loopback 0",
+                        })
+                else:
+                    egp_neighbors.append({
+                        'neighbor': session.dst,
+                        'update-source': "loopback 0",
+                        })
+
 
 
 

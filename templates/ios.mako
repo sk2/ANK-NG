@@ -39,6 +39,17 @@ router eigrp ${node.eigrp.process_id}
 
 % endif   
 !
+!  
+% if node.bgp: 
+router bgp ${node.asn}   
+	no synchronization
+% for subnet in node.bgp.advertise_subnets:
+	network ${subnet.network} mask ${subnet.netmask}
+	
+% endfor    
+
+% endif   
+!
 !
 
 

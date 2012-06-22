@@ -166,10 +166,9 @@ class overlay_node(object):
         """Access node in another overlay graph"""
         return overlay_node_accessor(self.anm, self.node_id)
 
-    def edges(self):
+    def edges(self, *args, **kwargs):
         #TODO: want to add filter for *args and **kwargs here too
-        return iter(overlay_edge(self.anm, self.overlay_id, src, dst)
-                for src, dst in self._graph.edges(self.node_id))
+        return overlay_graph(self.anm, self.overlay_id).edges(self, *args, **kwargs)
 
     def __repr__(self):
         """Try label if set in overlay, otherwise from physical, otherwise node id"""
@@ -420,13 +419,24 @@ class OverlayBase(object):
 
     def edges(self, nbunch = None, *args, **kwargs):
 # nbunch may be single node
+#TODO: Apply edge filters
         if nbunch:
             try:
                 nbunch = nbunch.node_id
             except AttributeError:
                 nbunch = (n.node_id for n in nbunch) # only store the id in overlay
-        return iter(overlay_edge(self._anm, self._overlay_id, src, dst)
-                for src, dst in self._graph.edges(nbunch))
+
+        def filter_func(edge):
+            return (
+                    all(getattr(edge, key) for key in args) and
+                    all(getattr(edge, key) == val for key, val in kwargs.items())
+                    )
+
+        #TODO: See if more efficient way to access underlying data structure rather than create overlay to throw away
+        all_edges = iter(overlay_edge(self._anm, self._overlay_id, src, dst)
+                for src, dst in self._graph.edges(nbunch)
+                )
+        return (edge for edge in all_edges if filter_func(edge))
 
 class overlay_subgraph(OverlayBase):
 
@@ -474,9 +484,13 @@ class overlay_graph(OverlayBase):
             pass # already a list
         self.add_edges_from([(src, dst)], retain, **kwargs)
 
-    def add_edges_from(self, ebunch, retain=[], **kwargs):
+    def add_edges_from(self, ebunch, bidirectional = False, retain=[], **kwargs):
         """Add edges. Unlike NetworkX, can only add an edge if both src and dst in graph already.
-        If they are not, then they will not be added (silently ignored)"""
+        If they are not, then they will not be added (silently ignored)
+
+        Bidirectional will add edge in both directions. Useful if going from an undirected graph to a 
+        directed, eg G_in to G_bgp
+        """
         #TODO: need to test if given a (id, id) or an edge overlay pair... use try/except for speed
 #TODO: tidy this logic up, use edge unwrap and 
 # data = dict( (key, graph[src][dst][key]) for key in retain)
@@ -501,6 +515,8 @@ class overlay_graph(OverlayBase):
             ebunch = [(src.node_id, dst.node_id, {}) for src, dst in ebunch]
 
         ebunch = [(src, dst, data) for (src, dst, data) in ebunch if src in self._graph and dst in self._graph]
+        if bidirectional:
+            ebunch += [(dst, src, data) for (src, dst, data) in ebunch if src in self._graph and dst in self._graph]
 #TODO: log to debug any filtered out nodes... if if lengths not the same
 
         #TODO: decide if want to allow nodes to be created when adding edge if not already in graph

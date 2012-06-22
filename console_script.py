@@ -81,7 +81,9 @@ G_bgp.add_nodes_from([d for d in G_in if d.is_router], color = 'red')
 
 # eBGP
 ebgp_edges = [edge for edge in G_in.edges() if edge.src.asn != edge.dst.asn]
-G_bgp.add_edges_from(ebgp_edges, type = 'ebgp')
+G_bgp.add_edges_from(ebgp_edges, bidirectional = True, type = 'ebgp')
+print G_bgp.dump()
+
 
 # now iBGP
 for asn, devices in G_in.groupby("asn").items():

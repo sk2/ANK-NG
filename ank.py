@@ -547,7 +547,7 @@ def allocate_ips(G_ip):
     subnet_address_blocks = address_block.subnet(16)
 #TODO: need to divide this up per AS
 
-    G_ip.data.asn_blocks = {}
+    G_ip.data.asn_blocks = defaultdict(list)
     #print G_ip._graph
     
     G_phy = G_ip.overlay.phy
@@ -574,7 +574,7 @@ def allocate_ips(G_ip):
 #TODO: Add in loopbacks as a subnet also
         asn_address_block = subnet_address_blocks.next()
         #print "ips for asn", asn
-        G_ip.data.asn_blocks[asn] = asn_address_block
+        G_ip.data.asn_blocks[asn].append(asn_address_block)
 #TODO: record this in G_ip graph data not node/edge data
 
         # Build list of collision domains sorted by size
