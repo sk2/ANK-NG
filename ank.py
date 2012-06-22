@@ -102,8 +102,7 @@ def load_graphml(filename):
 
     # allocate edge_ids
     for src, dst in graph.edges():
-        uuid = unique_id()
-        graph[src][dst]['edge_id'] = uuid
+        graph[src][dst]['edge_id'] = "%s_%s" % (graph.node[src]['label'], graph.node[dst]['label'])
 
 # apply defaults
 # relabel nodes
@@ -342,6 +341,11 @@ def explode(overlay_graph, nodes, retain = []):
     """Explodes all nodes in nodes
     TODO: explain better
     """
+    try:
+        retain.lower()
+        retain = [retain] # was a string, put into list
+    except AttributeError:
+        pass # already a list
     graph = unwrap_graph(overlay_graph)
     nodes = unwrap_nodes(nodes)
     added_edges = []
@@ -364,25 +368,44 @@ def explode(overlay_graph, nodes, retain = []):
 def label(overlay_graph, nodes):
     return list(overlay_graph._anm.node_label(node) for node in nodes)
 
-def aggregate_nodes(overlay_graph, nodes):
+def aggregate_nodes(overlay_graph, nodes, retain = []):
     """Combines connected into a single node"""
+    try:
+        retain.lower()
+        retain = [retain] # was a string, put into list
+    except AttributeError:
+        pass # already a list
+
     nodes = list(unwrap_nodes(nodes))
     graph = unwrap_graph(overlay_graph)
     subgraph = graph.subgraph(nodes)
     if not len(subgraph.edges()):
         print "Nothing to aggregate for %s: no edges in subgraph"
-    added_edges = []
-    for component in nx.connected_components(subgraph):
-        if len(component) > 1:
-            external_nodes = nx.node_boundary(graph, component)
-# choose one base device to retain
-            base = component.pop()
-            edges_to_add = [ (base, s) for s in external_nodes]
+    total_added_edges = []
+    for component_nodes in nx.connected_components(subgraph):
+        if len(component_nodes) > 1:
+            base = component_nodes.pop() # choose one base device to retain
+            nodes_to_remove = set(component_nodes) # remaining nodes, set for fast membership test
+            external_edges = nx.edge_boundary(graph, component_nodes)
+            edges_to_add = []
+            for src, dst in external_edges:
+                # src is the internal node to remove
+                if src == base or dst == base:
+                    continue # don't alter edges from base
+                else:
+                    if src in nodes_to_remove:
+                        # edge from component to outside
+                        data = dict( (key, graph[src][dst][key]) for key in retain)
+                        edges_to_add.append((base, dst, data))
+                    else:
+                        # edge from outside into component
+                        data = dict( (key, graph[dst][src][key]) for key in retain)
+                        edges_to_add.append((base, src, data))
             graph.add_edges_from(edges_to_add)
-            graph.remove_nodes_from(component)
-            added_edges += edges_to_add
+            total_added_edges += edges_to_add
+            graph.remove_nodes_from(nodes_to_remove)
 
-    return wrap_edges(overlay_graph, added_edges)
+    return wrap_edges(overlay_graph, total_added_edges)
 
 # chain of two or more nodes
 
