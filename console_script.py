@@ -46,9 +46,6 @@ for node in split_created_nodes:
     node.overlay.graphics.x = ank.neigh_average(G_ip, node, "x", G_graphics)
     node.overlay.graphics.y = ank.neigh_average(G_ip, node, "y", G_graphics)
 
-for edge in G_ip.edges():
-    print edge.dump()
-
 #TODO: add sanity checks like only routers can cross ASes: can't have an eBGP server
 G_igp = anm.add_overlay("igp")
 G_igp.add_nodes_from(G_in, retain=['asn'])
@@ -58,6 +55,9 @@ added_edges = ank.aggregate_nodes(G_igp, G_igp.nodes("is_switch"), retain='edge_
 switch_nodes = [n for n in G_ip if n.is_switch] # regenerate due to aggregated
 G_ip.update(switch_nodes, collision_domain=True) # switches are part of collision domain
 G_ip.update(split_created_nodes, collision_domain=True)
+# allocate costs
+for node in G_igp:
+    node.cost = 5
 
 # set collision domain IPs
 collision_domain_id = (i for i in itertools.count(0))
@@ -129,8 +129,13 @@ for node in nidb:
             ip_allocations.append(ip_link.ip_address)
         node.ip.allocations = ip_allocations
 
+# build IGP
+    if node in G_igp:
+        igp_node = G_igp.node(node)
+        print igp_node.cost
+        node.igp.cost = igp_node.cost
+
 # build BGP
-for node in nidb:
     if node in G_bgp:
         bgp_node = G_bgp.node(node)
         data = []
@@ -156,6 +161,6 @@ for node in nidb:
 
 
 #TODO: don't need to transform, just need to pass a view of the nidb which does the wrapping: iterates through returned data, recursively, and wraps accordingly. ie pass the data to return through a recursive formatter which wraps
-#ank_render.render(nidb)
+ank_render.render(nidb)
 
 # Now build the NIDB

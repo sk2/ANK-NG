@@ -417,6 +417,12 @@ class overlay_graph(OverlayBase):
 
     # these work similar to their nx counterparts: just need to strip the node_id
     def add_nodes_from(self, nbunch, retain=[], **kwargs):
+        try:
+            retain.lower()
+            retain = [retain] # was a string, put into list
+        except AttributeError:
+            pass # already a list
+
         if len(retain):
             add_nodes = []
             for n in nbunch:
@@ -428,6 +434,11 @@ class overlay_graph(OverlayBase):
         self._graph.add_nodes_from(nbunch, **kwargs)
 
     def add_edge(self, src, dst, retain=[], **kwargs):
+        try:
+            retain.lower()
+            retain = [retain] # was a string, put into list
+        except AttributeError:
+            pass # already a list
         self.add_edges_from([(src, dst)], retain, **kwargs)
 
     def add_edges_from(self, ebunch, retain=[], **kwargs):
@@ -436,6 +447,12 @@ class overlay_graph(OverlayBase):
         #TODO: need to test if given a (id, id) or an edge overlay pair... use try/except for speed
 #TODO: tidy this logic up, use edge unwrap and 
 # data = dict( (key, graph[src][dst][key]) for key in retain)
+        try:
+            retain.lower()
+            retain = [retain] # was a string, put into list
+        except AttributeError:
+            pass # already a list
+
         retain.append("edge_id")
         try:
             if len(retain):

@@ -1,10 +1,20 @@
-router ${node}   
+router ${node}    
+
+
+dsfsdfdf
+
 
 %if node.ip:  
 --IP--                    
 % for allocation in node.ip.allocations:
 IP ${allocation}
 % endfor     
+% endif
+
+% if node.igp:
+---IGP---
+${node.igp}
+
 % endif
 
 %if node.bgp:

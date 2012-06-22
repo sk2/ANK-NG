@@ -346,6 +346,7 @@ def explode(overlay_graph, nodes, retain = []):
         retain = [retain] # was a string, put into list
     except AttributeError:
         pass # already a list
+
     graph = unwrap_graph(overlay_graph)
     nodes = unwrap_nodes(nodes)
     added_edges = []

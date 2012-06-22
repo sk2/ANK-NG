@@ -80,7 +80,7 @@ class nidb_node_category(object):
         """Used to access the data directly. calling node.key returns wrapped data for templates"""
         print "returning", key
         return self._node_data[self.category_id][key]
-    
+
     @property
     def _node_data(self):
         return self.nidb._graph.node[self.node_id]
@@ -122,6 +122,9 @@ class nidb_node(object):
     @property
     def _node_data(self):
         return self.nidb._graph.node[self.node_id]
+
+    def dump(self):
+        return str(self._node_data)
 
     @property
     def label(self):
