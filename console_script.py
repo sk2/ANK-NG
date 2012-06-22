@@ -52,12 +52,12 @@ G_igp.add_nodes_from(G_in, retain=['asn'])
 G_igp.add_edges_from(G_in.edges(), retain = ['edge_id'])
 added_edges = ank.aggregate_nodes(G_igp, G_igp.nodes("is_switch"), retain='edge_id')
 
-switch_nodes = [n for n in G_ip if n.is_switch] # regenerate due to aggregated
+switch_nodes = G_ip.nodes("is_switch")# regenerate due to aggregated
 G_ip.update(switch_nodes, collision_domain=True) # switches are part of collision domain
 G_ip.update(split_created_nodes, collision_domain=True)
 # allocate costs
-for node in G_igp:
-    node.cost = 5
+for link in G_igp.edges():
+    link.cost = link.src.degree() # arbitrary deterministic cost
 
 # set collision domain IPs
 collision_domain_id = (i for i in itertools.count(0))
@@ -101,10 +101,10 @@ nidb = NIDB()
 nidb.add_nodes_from(G_phy, retain=['label'])
 
 #print G_ip.dump()
-#ank.plot_pylab(G_bgp)
+ank.plot_pylab(G_bgp, edge_label_attribute = 'type')
 ank.plot_pylab(G_phy, edge_label_attribute = 'edge_id')
 ank.plot_pylab(G_igp, edge_label_attribute='edge_id')
-#ank.plot_pylab(G_ip)
+ank.plot_pylab(G_ip, edge_label_attribute = 'ip_address')
 
 for node in nidb:
     phy_node = G_phy.node(node)
@@ -122,6 +122,7 @@ for node in nidb:
     node.graphics.device_type = graphics_node.device_type
 
 # build IP
+#TODO: iterate from G_phy, look up nidb_node, filter based on type
 for node in nidb:
     if node in G_ip:
         ip_allocations = []
@@ -132,8 +133,18 @@ for node in nidb:
 # build IGP
     if node in G_igp:
         igp_node = G_igp.node(node)
-        print igp_node.cost
-        node.igp.cost = igp_node.cost
+        data = []
+        for link in G_igp.edges(node):
+            ip_link = G_ip.edge(link)
+            phy_link = G_phy.edge(link)
+            data.append({
+                'desc': "%s to %s" % (link.src, link.dst),
+                'dest': link.dst,
+                'cost': link.cost,
+                'phy link': phy_link.int_id,
+                'interface ip': str(ip_link.ip_address)
+                })
+        node.igp.links = data
 
 # build BGP
     if node in G_bgp:

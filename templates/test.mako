@@ -12,9 +12,10 @@ IP ${allocation}
 % endif
 
 % if node.igp:
----IGP---
-${node.igp}
-
+---IGP---       
+% for link in node.igp.links:
+${link}
+% endfor
 % endif
 
 %if node.bgp:

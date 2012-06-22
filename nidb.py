@@ -8,7 +8,7 @@ class overlay_data_dict(object):
         self.data = data
 
     def __repr__(self):
-        return "aa" + str(self.data)
+        return str(self.data)
 
     def __getitem__(self, key):
         """To act as a dict eg self['item']"""
@@ -95,9 +95,7 @@ class nidb_node_category(object):
             pass # not a dict
         return data
 
-
 # check if list
-
 
     def __setattr__(self, key, val):
         """Sets edge property"""
