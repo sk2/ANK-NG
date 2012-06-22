@@ -106,11 +106,14 @@ edges_to_add = [edge for edge in G_phy.edges() if edge.src.is_switch or edge.dst
 edges_to_add += [edge for edge in G_ip.edges() if edge.src.collision_domain or edge.dst.collision_domain]
 nidb.add_edges_from(edges_to_add, retain='edge_id')
 
-print nidb.dump()
+#TODO: boundaries is still a work in progress...
+ios_nodes = list(nidb.nodes(platform="ios"))
+print "boundary nodes", list(nidb.boundary_nodes(ios_nodes))
+print "boundary edges", list(nidb.boundary_edges(ios_nodes))
+for edge in nidb.boundary_edges(ios_nodes):
+    edge.boundary = True
 
-print "cisco ndoes", list(nidb.nodes(platform="ios"))
-nidb_ios = nidb.subgraph(nidb.nodes(platform="ios"))
-print "ios nodes", list(nidb_ios.nodes())
+#TODO: add platform and host
 
 
 #TODO: add support for nidb subgraphs, especially for platforms, and show boundary nodes and boundary edges easily
@@ -140,6 +143,6 @@ for node in nidb:
 ank_render.render(nidb)
 
 #TODO: plot the nidb
-ank.plot_pylab(nidb)
+ank.plot_pylab(nidb, edge_label_attribute = 'boundary', node_label_attribute='platform')
 
 # Now build the NIDB

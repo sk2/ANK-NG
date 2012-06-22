@@ -1,7 +1,5 @@
 import networkx as nx
-from collections import namedtuple
 import pprint
-
 
 class overlay_data_dict(object):
     def __init__(self, data):
@@ -24,6 +22,77 @@ class overlay_data_list_of_dicts(object):
 
     def __iter__(self):
         return iter(overlay_data_dict(item) for item in self.data)
+
+class overlay_edge_accessor(object):
+    """API to access overlay nodes in ANM"""
+#TODO: fix consistency between node_id (id) and edge (overlay edge)
+    def __init__(self, nidb, edge):
+#Set using this method to bypass __setattr__ 
+        object.__setattr__(self, 'nidb', nidb)
+        object.__setattr__(self, 'edge', edge)
+
+    def __repr__(self):
+        #TODO: make this list overlays the node is present in
+        return "Overlay edge accessor: %s" % self.edge
+
+    def __getattr__(self, overlay_id):
+        """Access overlay edge"""
+#TODO: check on returning list or single edge if multiple found with same id (eg in G_igp from explode)
+        edge = self.nidb.edge(self.edge)
+        return edge
+
+class overlay_edge(object):
+    """API to access edge in nidb"""
+    def __init__(self, nidb, src_id, dst_id):
+#Set using this method to bypass __setattr__ 
+        object.__setattr__(self, 'nidb', nidb)
+        object.__setattr__(self, 'src_id', src_id)
+        object.__setattr__(self, 'dst_id', dst_id)
+
+    def __repr__(self):
+        return "(%s, %s)" % (self.src, self.dst)
+
+    @property
+    def src(self):
+        return nidb_node(self.nidb, self.src_id)
+
+    @property
+    def dst(self):
+        return nidb_node(self.nidb, self.dst_id)
+
+    def dump(self):
+        return str(self._graph[self.src_id][self.dst_id])
+
+    def __nonzero__(self):
+        """Allows for checking if edge exists
+        """
+        try:
+            self._graph[self.src_id][self.dst_id]
+            return True
+        except KeyError:
+            return False
+
+    @property
+    def overlay(self):
+        """Access node in another overlay graph"""
+        return overlay_edge_accessor(self.nidb, self)
+
+    @property
+    def _graph(self):
+        """Return graph the node belongs to"""
+        return self.nidb._graph
+
+    def get(self, key):
+        """For consistency, edge.get(key) is neater than getattr(edge, key)"""
+        return self.__getattr__(key)
+
+    def __getattr__(self, key):
+        """Returns edge property"""
+        return self._graph[self.src_id][self.dst_id].get(key)
+
+    def __setattr__(self, key, val):
+        """Sets edge property"""
+        self._graph[self.src_id][self.dst_id][key] = val
 
 
 class overlay_node_accessor(object):
@@ -100,7 +169,6 @@ class nidb_node_category(object):
             pass # not a dict
         except TypeError:
             pass # also not a dict
-        print "returning", type(data), data
         return data
 
     def dump(self):
@@ -142,6 +210,9 @@ class nidb_node(object):
     @property
     def label(self):
         return self.__repr__()
+
+    def get(self, key):
+        return getattr(self, key)
 
     def __getattr__(self, key):
         """Returns edge property"""
@@ -221,6 +292,27 @@ class NIDB_base(object):
     def __len__(self):
         return len(self._graph)
 
+    def edges(self, nbunch = None, *args, **kwargs):
+# nbunch may be single node
+#TODO: Apply edge filters
+        if nbunch:
+            try:
+                nbunch = nbunch.node_id
+            except AttributeError:
+                nbunch = (n.node_id for n in nbunch) # only store the id in overlay
+
+        def filter_func(edge):
+            return (
+                    all(getattr(edge, key) for key in args) and
+                    all(getattr(edge, key) == val for key, val in kwargs.items())
+                    )
+
+        #TODO: See if more efficient way to access underlying data structure rather than create overlay to throw away
+        all_edges = iter(overlay_edge(self, src, dst)
+                for src, dst in self._graph.edges(nbunch)
+                )
+        return (edge for edge in all_edges if filter_func(edge))
+
     def node(self, key):
         """Returns node based on name
         This is currently O(N). Could use a lookup table"""
@@ -256,10 +348,6 @@ class NIDB_base(object):
         #TODO: also allow nbunch to be passed in to subfilter on...?
         """TODO: expand this to allow args also, ie to test if value evaluates to True"""
         # need to allow filter_func to access these args
-        print "filtering", args, kwargs.items()
-        for node in nbunch:
-            print type(node.platform)
-            print node.platform == 'ios'
         if not nbunch:
             nbunch = self.nodes()
         def filter_func(node):
@@ -325,9 +413,19 @@ class NIDB(NIDB_base):
         nbunch = (n.node_id for n in nbunch) # only store the id in overlay
         return overlay_subgraph(self._graph.subgraph(nbunch), name)
 
+    def boundary_nodes(self, nbunch, nbunch2 = None):
+        nbunch = (n.node_id for n in nbunch) # only store the id in overlay
+        return iter(nidb_node(self, node)
+                for node in nx.node_boundary(self._graph, nbunch, nbunch2))
+
+    def boundary_edges(self, nbunch, nbunch2 = None):
+        nbunch = (n.node_id for n in nbunch) # only store the id in overlay
+        return iter(overlay_edge(self, src, dst)
+                for (src, dst) in nx.edge_boundary(self._graph, nbunch, nbunch2))
+
 class overlay_subgraph(NIDB_base):
     def __init__(self, graph, name = None):
+        #TODO: need to refer back to the source nidb
         self._graph = graph # only for connectivity, any other information stored on node
-        print graph
         self._name = name
-    
+

@@ -187,8 +187,16 @@ def plot_pylab(overlay_graph, edge_label_attribute = None, node_label_attribute 
                            alpha=0.8)
     
     if edge_label_attribute:
-        edge_labels = dict ( ( (edge.src.node_id, edge.dst.node_id), edge.get(edge_label_attribute))
-            for edge in overlay_graph.edges())
+        edge_labels = {}
+        for edge in overlay_graph.edges():
+            attr = edge.get(edge_label_attribute)
+            print attr
+            if attr:
+                label = "%s" % attr
+            else:
+                label = ""
+
+            edge_labels[(edge.src.node_id, edge.dst.node_id)] = label
         nx.draw_networkx_edge_labels(graph, pos, 
                             edge_labels = edge_labels,
                             font_size = 10,
