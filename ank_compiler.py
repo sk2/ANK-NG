@@ -83,23 +83,24 @@ def compile_ios(nidb, anm):
         nidb_node.ospf.ospf_links = sorted(ospf_links)
 
         # BGP
-        if phy_node.overlay.bgp.edges():
+        if True:
             asn = phy_node.asn # easy reference for cleaner code
             nidb_node.bgp.advertise_subnets = G_ip.data.asn_blocks[asn]
             ibgp_neighbors = []
             ebgp_neighbors = []
-            for session in G_bgp.edges(type='ibgp'):
-                neigh = session.dst
-                ibgp_neighbors.append({
-                    'neighbor': neigh,
-                    'loopback': neigh.overlay.ip.loopback,
-                    'update_source': "loopback 0",
-                    })
-            for session in G_bgp.edges(type='ebgp'):
-                ebgp_neighbors.append({
-                    'neighbor': session.dst,
-                    'loopback': neigh.overlay.ip.loopback,
-                    'update_source': "loopback 0",
+            for session in G_bgp.edges(phy_node):
+                if session.type == "ibgp":
+                    neigh = session.dst
+                    ibgp_neighbors.append({
+                        'neighbor': neigh,
+                        'loopback': neigh.overlay.ip.loopback,
+                        'update_source': "loopback 0",
+                        })
+                else:
+                    ebgp_neighbors.append({
+                        'neighbor': session.dst,
+                        'loopback': neigh.overlay.ip.loopback,
+                        'update_source': "loopback 0",
                     })
 
             nidb_node.bgp.ibgp_neighbors = ibgp_neighbors

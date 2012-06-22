@@ -146,6 +146,7 @@ for node in nidb:
 
 
 #TODO: don't need to transform, just need to pass a view of the nidb which does the wrapping: iterates through returned data, recursively, and wraps accordingly. ie pass the data to return through a recursive formatter which wraps
+print "rendering"
 ank_render.render(nidb)
 
 #TODO: plot the nidb

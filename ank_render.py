@@ -2,6 +2,9 @@ import mako
 from mako.lookup import TemplateLookup
 from mako.exceptions import SyntaxException
 import os
+import threading
+import Queue
+import time
 
 #TODO: fix support here for template lookups, internal, user provided
 #template_cache_dir = config.template_cache_dir
@@ -50,6 +53,42 @@ def render_node(node):
 
         return
 
+"""
 def render(nidb):
     for node in nidb:
         render_node(node)
+"""
+
+def render(nidb):
+        nidb_node_count = len(nidb)
+        num_worker_threads = 10
+        rendered_nodes = []
+        def worker():
+                while True:
+                    node = q.get()
+                    render_node(node)
+                    q.task_done()
+                    rendered_nodes.append(node.label)
+
+        q = Queue.Queue()
+
+        for i in range(num_worker_threads):
+            t = threading.Thread(target=worker)
+            t.setDaemon(True)
+            t.start()
+
+        # Sort so starup looks neater
+#TODO: fix sort
+        for node in nidb:
+            q.put(node)
+
+        while True:
+            """ Using this instead of q.join allows easy way to quit all threads (but not allow cleanup)
+            refer http://stackoverflow.com/questions/820111"""
+            time.sleep(1)
+            if len(rendered_nodes) == nidb_node_count:
+# all routers started
+                break
+            else:
+                #print "rendered", len(rendered_nodes)
+                pass

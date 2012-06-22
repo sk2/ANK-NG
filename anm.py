@@ -433,10 +433,15 @@ class OverlayBase(object):
                     )
 
         #TODO: See if more efficient way to access underlying data structure rather than create overlay to throw away
-        all_edges = iter(overlay_edge(self._anm, self._overlay_id, src, dst)
-                for src, dst in self._graph.edges(nbunch)
-                )
-        return (edge for edge in all_edges if filter_func(edge))
+#TODO: problem is on-the-fly-properties like is_router.... need to map these specially?
+        if len(args) or len(kwargs):
+            all_edges = iter(overlay_edge(self._anm, self._overlay_id, src, dst)
+                    for src, dst in self._graph.edges(nbunch)
+                    )
+            return (edge for edge in all_edges if filter_func(edge))
+        else:
+            return (overlay_edge(self._anm, self._overlay_id, src, dst)
+                    for src, dst in self._graph.edges(nbunch))
 
 class overlay_subgraph(OverlayBase):
 
