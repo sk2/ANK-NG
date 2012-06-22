@@ -47,16 +47,16 @@ for node in split_created_nodes:
     node.overlay.graphics.y = ank.neigh_average(G_ip, node, "y", G_graphics)
 
 #TODO: add sanity checks like only routers can cross ASes: can't have an eBGP server
-G_igp = anm.add_overlay("igp")
-G_igp.add_nodes_from(G_in, retain=['asn'])
-G_igp.add_edges_from(G_in.edges(), retain = 'edge_id')
-added_edges = ank.aggregate_nodes(G_igp, G_igp.nodes("is_switch"), retain='edge_id')
+G_ospf = anm.add_overlay("ospf")
+G_ospf.add_nodes_from(G_in, retain=['asn'])
+G_ospf.add_edges_from(G_in.edges(), retain = 'edge_id')
+added_edges = ank.aggregate_nodes(G_ospf, G_ospf.nodes("is_switch"), retain='edge_id')
 
 switch_nodes = G_ip.nodes("is_switch")# regenerate due to aggregated
 G_ip.update(switch_nodes, collision_domain=True) # switches are part of collision domain
 G_ip.update(split_created_nodes, collision_domain=True)
 # allocate costs
-for link in G_igp.edges():
+for link in G_ospf.edges():
     link.cost = link.src.degree() # arbitrary deterministic cost
     link.area = 0
 
@@ -82,8 +82,6 @@ G_bgp.add_nodes_from([d for d in G_in if d.is_router], color = 'red')
 # eBGP
 ebgp_edges = [edge for edge in G_in.edges() if edge.src.asn != edge.dst.asn]
 G_bgp.add_edges_from(ebgp_edges, bidirectional = True, type = 'ebgp')
-print G_bgp.dump()
-
 
 # now iBGP
 for asn, devices in G_in.groupby("asn").items():
@@ -107,7 +105,7 @@ nidb.add_nodes_from(G_phy, retain='label')
 """
 ank.plot_pylab(G_bgp, edge_label_attribute = 'type', node_label_attribute='asn')
 ank.plot_pylab(G_phy, edge_label_attribute = 'edge_id')
-ank.plot_pylab(G_igp, edge_label_attribute='cost')
+ank.plot_pylab(G_ospf, edge_label_attribute='cost')
 ank.plot_pylab(G_ip, edge_label_attribute = 'ip_address', node_label_attribute = 'loopback')
 """
 
