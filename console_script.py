@@ -59,8 +59,9 @@ G_igp.add_edges_from(G_in.edges(), retain = ['edge_id'])
 added_edges = ank.aggregate_nodes(G_igp, G_igp.nodes("is_switch"))
 print "igp aggregate added", list(added_edges)
 print "after agg", list(G_igp.nodes())
-ank.plot_pylab(G_igp)
+ank.plot_pylab(G_igp, edge_label_attribute='edge_id')
 ank.plot_pylab(G_ip)
+
 
 switch_nodes = [n for n in G_ip if n.is_switch] # regenerate due to aggregated
 G_ip.update(switch_nodes, collision_domain=True) # switches are part of collision domain
@@ -108,6 +109,8 @@ nidb = NIDB()
 nidb.add_nodes_from(G_phy, retain=['label'])
 
 #print G_ip.dump()
+ank.plot_pylab(G_bgp)
+ank.plot_pylab(G_phy, edge_label_attribute = 'edge_id')
 
 for node in nidb:
     phy_node = G_phy.node(node)

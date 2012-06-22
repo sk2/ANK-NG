@@ -134,7 +134,6 @@ def plot_dot(overlay_graph, edge_label_attribute = None, save = True, show = Fal
     cmd = ["dot", "-Kfdp", filename, "-Tpdf", "-o", "%s.pdf" % graph_name]
     subprocess.call(cmd)
 
-
 def plot_pylab(overlay_graph, edge_label_attribute = None, save = True, show = False):
     """ Plot a graph"""
     try:
@@ -343,7 +342,6 @@ def explode(overlay_graph, nodes, retain = []):
     """Explodes all nodes in nodes
     TODO: explain better
     """
-    print "expliding"
     graph = unwrap_graph(overlay_graph)
     nodes = unwrap_nodes(nodes)
     added_edges = []
@@ -355,8 +353,6 @@ def explode(overlay_graph, nodes, retain = []):
         for (src, dst) in neigh_edge_pairs:
             data = dict( (key, graph[src][dst][key]) for key in retain)
             edges_to_add.append(src, dst, data)
-
-        print "adding edges", edges_to_add
 
         graph.add_edges_from(edges_to_add)
         added_edges.append(edges_to_add)
@@ -374,7 +370,7 @@ def aggregate_nodes(overlay_graph, nodes):
     graph = unwrap_graph(overlay_graph)
     subgraph = graph.subgraph(nodes)
     if not len(subgraph.edges()):
-        print "Nothing to aggregate for %s: no edges in subgraph" % (overlay_graph)
+        print "Nothing to aggregate for %s: no edges in subgraph"
     added_edges = []
     for component in nx.connected_components(subgraph):
         if len(component) > 1:
@@ -382,11 +378,10 @@ def aggregate_nodes(overlay_graph, nodes):
 # choose one base device to retain
             base = component.pop()
             edges_to_add = [ (base, s) for s in external_nodes]
-            added_edges.append(edges_to_add)
             graph.add_edges_from(edges_to_add)
             graph.remove_nodes_from(component)
+            added_edges += edges_to_add
 
-    print "added edges", added_edges
     return wrap_edges(overlay_graph, added_edges)
 
 # chain of two or more nodes
