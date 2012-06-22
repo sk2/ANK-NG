@@ -112,6 +112,13 @@ class overlay_node(object):
 #TODO: Add other base device_types
 
     @property
+    def asn(self):
+        try:
+            return self._graph.node[self.node_id]['asn'] # not in this graph
+        except KeyError:
+            return self.anm._overlays['phy'].node[self.node_id]['asn'] #try from phy
+
+    @property
     def id(self):
         return self.node_id
 
@@ -129,6 +136,9 @@ class overlay_node(object):
         ie node.phy.x is same as node.overlay.phy.x
         """
 # refer back to the physical node, to access attributes such as name
+#TODO: handle case of trying to access phy in phy: loop, can't just return self
+        if self.overlay_id == "phy":
+            return None
         return overlay_node(self.anm, "phy", self.node_id)
 
     def dump(self):
@@ -169,7 +179,7 @@ class overlay_node(object):
 
     def get(self, key):
         """For consistency, node.get(key) is neater than getattr(node, key)"""
-        return self.__getattr__(key)
+        return getattr(self, key)
 
     def __setattr__(self, key, val):
         """Sets node property

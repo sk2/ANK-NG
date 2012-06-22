@@ -76,10 +76,14 @@ class nidb_node_category(object):
             return True
         return False
 
+    @property
+    def _category_data(self):
+        return self._node_data[self.category_id]
+
     def __getitem__(self, key):
         """Used to access the data directly. calling node.key returns wrapped data for templates"""
         print "returning", key
-        return self._node_data[self.category_id][key]
+        return self._category_data[key]
 
     @property
     def _node_data(self):
@@ -87,7 +91,8 @@ class nidb_node_category(object):
 
     def __getattr__(self, key):
         """Returns edge property"""
-        data = self._node_data[self.category_id].get(key)
+#TODO: allow appending if non existent: so can do node.bgp.session.append(data)
+        data = self._category_data.get(key)
         try:
             [item.keys() for item in data]
             return overlay_data_list_of_dicts(data)

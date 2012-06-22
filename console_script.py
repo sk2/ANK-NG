@@ -101,10 +101,10 @@ nidb = NIDB()
 nidb.add_nodes_from(G_phy, retain=['label'])
 
 #print G_ip.dump()
-ank.plot_pylab(G_bgp, edge_label_attribute = 'type')
+ank.plot_pylab(G_bgp, edge_label_attribute = 'type', node_label_attribute='asn')
 ank.plot_pylab(G_phy, edge_label_attribute = 'edge_id')
 ank.plot_pylab(G_igp, edge_label_attribute='edge_id')
-ank.plot_pylab(G_ip, edge_label_attribute = 'ip_address')
+ank.plot_pylab(G_ip, edge_label_attribute = 'ip_address', node_label_attribute = 'loopback')
 
 for node in nidb:
     phy_node = G_phy.node(node)
@@ -136,12 +136,13 @@ for node in nidb:
         data = []
         for link in G_igp.edges(node):
             ip_link = G_ip.edge(link)
+#TODO: allow this to return None if no data eg phy_link.int_id
             phy_link = G_phy.edge(link)
             data.append({
                 'desc': "%s to %s" % (link.src, link.dst),
                 'dest': link.dst,
                 'cost': link.cost,
-                'phy link': phy_link.int_id,
+                #'phy link': phy_link.int_id,
                 'interface ip': str(ip_link.ip_address)
                 })
         node.igp.links = data

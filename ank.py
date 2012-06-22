@@ -133,7 +133,7 @@ def plot_dot(overlay_graph, edge_label_attribute = None, save = True, show = Fal
     cmd = ["dot", "-Kfdp", filename, "-Tpdf", "-o", "%s.pdf" % graph_name]
     subprocess.call(cmd)
 
-def plot_pylab(overlay_graph, edge_label_attribute = None, save = True, show = False):
+def plot_pylab(overlay_graph, edge_label_attribute = None, node_label_attribute = None, save = True, show = False):
     """ Plot a graph"""
     try:
         import matplotlib.pyplot as plt
@@ -191,11 +191,24 @@ def plot_pylab(overlay_graph, edge_label_attribute = None, save = True, show = F
             for edge in overlay_graph.edges())
         nx.draw_networkx_edge_labels(graph, pos, 
                             edge_labels = edge_labels,
-                            font_size = 12,
+                            font_size = 10,
                             font_color = font_color)
 
 #TODO: where is anm from here? global? :/
-    labels = dict( (n.node_id, n) for n in overlay_graph)
+    if node_label_attribute:
+        labels = {}
+        for n in overlay_graph:
+            attr = n.get(node_label_attribute)
+            print "attr is", attr
+            if attr:
+                label = "%s\n%s" % (n, attr)
+            else:
+                label = n
+
+            labels[n.node_id] = label
+    else:
+        labels = dict( (n.node_id, n) for n in overlay_graph)
+
 #TODO: need to strip out 
     nx.draw_networkx_labels(graph, pos, 
                             labels=labels,
