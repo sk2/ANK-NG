@@ -99,7 +99,22 @@ G_bgp.update(ebgp_nodes, ebgp=True)
 
 nidb = NIDB() 
 #TODO: build this on a platform by platform basis
-nidb.add_nodes_from(G_phy, retain='label')
+nidb.add_nodes_from(G_phy, retain=['label', 'platform'])
+nidb.add_nodes_from(G_ip, retain='label', collision_domain = True)
+# add edges to switches
+edges_to_add = [edge for edge in G_phy.edges() if edge.src.is_switch or edge.dst.is_switch]
+edges_to_add += [edge for edge in G_ip.edges() if edge.src.collision_domain or edge.dst.collision_domain]
+nidb.add_edges_from(edges_to_add, retain='edge_id')
+
+print nidb.dump()
+
+print "cisco ndoes", list(nidb.nodes(platform="ios"))
+nidb_ios = nidb.subgraph(nidb.nodes(platform="ios"))
+print "ios nodes", list(nidb_ios.nodes())
+
+
+#TODO: add support for nidb subgraphs, especially for platforms, and show boundary nodes and boundary edges easily
+
 
 #print G_ip.dump()
 """

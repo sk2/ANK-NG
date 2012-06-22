@@ -100,6 +100,7 @@ class nidb_node_category(object):
             pass # not a dict
         except TypeError:
             pass # also not a dict
+        print "returning", type(data), data
         return data
 
     def dump(self):
@@ -152,7 +153,19 @@ class nidb_node(object):
             pass # Not set yet
         except AttributeError:
             pass # not a dict
-        return nidb_node_category(self.nidb, self.node_id, key)
+
+        try:
+            data.keys() 
+            return nidb_node_category(self.nidb, self.node_id, key)
+        except TypeError:
+            pass # Not set yet
+        except AttributeError:
+            pass # not a dict
+
+        if data:
+            return data
+        else:
+            return nidb_node_category(self.nidb, self.node_id, key)
 
     def __setattr__(self, key, val):
         """Sets edge property"""
@@ -184,12 +197,12 @@ class nidb_graph_data(object):
 #TODO: make this inherit same overlay base as overlay_graph for add nodes etc properties
 # but not the degree etc
 
-class NIDB(object):
+class NIDB_base(object):
 
     #TODO: inherit common methods from same base as overlay
 
     def __init__(self):
-        self._graph = nx.Graph() # only for connectivity, any other information stored on node
+        pass
 
     def __repr__(self):
         return "nidb"
@@ -232,6 +245,30 @@ class NIDB(object):
         for node in nbunch:
             for (category, key), value in kwargs.items():
                 node.category.set(key, value)
+
+    def nodes(self, *args, **kwargs):
+        result = self.__iter__()
+        if len(args) or len(kwargs):
+            result = self.filter(result, *args, **kwargs)
+        return result
+
+    def filter(self, nbunch = None, *args, **kwargs):
+        #TODO: also allow nbunch to be passed in to subfilter on...?
+        """TODO: expand this to allow args also, ie to test if value evaluates to True"""
+        # need to allow filter_func to access these args
+        print "filtering", args, kwargs.items()
+        for node in nbunch:
+            print type(node.platform)
+            print node.platform == 'ios'
+        if not nbunch:
+            nbunch = self.nodes()
+        def filter_func(node):
+            return (
+                    all(getattr(node, key) for key in args) and
+                    all(getattr(node, key) == val for key, val in kwargs.items())
+                    )
+
+        return (n for n in nbunch if filter_func(n))
 
     def add_nodes_from(self, nbunch, retain=[], **kwargs):
         try:
@@ -279,3 +316,18 @@ class NIDB(object):
     def __iter__(self):
         return iter(nidb_node(self, node)
                 for node in self._graph)
+
+class NIDB(NIDB_base):
+    def __init__(self):
+        self._graph = nx.Graph() # only for connectivity, any other information stored on node
+
+    def subgraph(self, nbunch, name = None):
+        nbunch = (n.node_id for n in nbunch) # only store the id in overlay
+        return overlay_subgraph(self._graph.subgraph(nbunch), name)
+
+class overlay_subgraph(NIDB_base):
+    def __init__(self, graph, name = None):
+        self._graph = graph # only for connectivity, any other information stored on node
+        print graph
+        self._name = name
+    
