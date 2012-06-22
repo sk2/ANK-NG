@@ -4,13 +4,24 @@ import itertools
 from nidb import NIDB
 import ank_render
 import ank_compiler
-import time
+#import ank_plot
+
+import optparse
+opt = optparse.OptionParser()
+opt.add_option('--file', '-f', default= None, help="Load topology from FILE")        
+options, arguments = opt.parse_args()
+
+if not options.file:
+    import sys
+    print "Please specify topology file using -f" #TODO: use argparse and compulsory argument
+    sys.exit(0)
 
 anm = AbstractNetworkModel()
-input_graph = ank.load_graphml("example.graphml")
+input_graph = ank.load_graphml(options.file)
 #input_graph = ank.load_graphml("graph_combined.graphml")
 
 G_in = anm.add_overlay("input", input_graph)
+ank.set_node_default(G_in, G_in.nodes(), platform="ios")
 
 G_phy = anm.overlay.phy #G_phy created automatically by ank
 
@@ -108,23 +119,18 @@ nidb.add_edges_from(edges_to_add, retain='edge_id')
 
 #TODO: boundaries is still a work in progress...
 ios_nodes = list(nidb.nodes(platform="ios"))
-print "boundary nodes", list(nidb.boundary_nodes(ios_nodes))
-print "boundary edges", list(nidb.boundary_edges(ios_nodes))
-for edge in nidb.boundary_edges(ios_nodes):
-    edge.boundary = True
 
 #TODO: add platform and host
-
 
 #TODO: add support for nidb subgraphs, especially for platforms, and show boundary nodes and boundary edges easily
 
 
 #print G_ip.dump()
 """
-ank.plot_pylab(G_bgp, edge_label_attribute = 'type', node_label_attribute='asn')
-ank.plot_pylab(G_phy, edge_label_attribute = 'edge_id')
-ank.plot_pylab(G_ospf, edge_label_attribute='cost')
-ank.plot_pylab(G_ip, edge_label_attribute = 'ip_address', node_label_attribute = 'loopback')
+ank_plot.plot_pylab(G_bgp, edge_label_attribute = 'type', node_label_attribute='asn')
+ank_plot.plot_pylab(G_phy, edge_label_attribute = 'edge_id')
+ank_plot.plot_pylab(G_ospf, edge_label_attribute='cost')
+ank_plot.plot_pylab(G_ip, edge_label_attribute = 'ip_address', node_label_attribute = 'loopback')
 """
 
 ank_compiler.compile_ios(nidb, anm)
@@ -143,6 +149,6 @@ for node in nidb:
 ank_render.render(nidb)
 
 #TODO: plot the nidb
-ank.plot_pylab(nidb, edge_label_attribute = 'boundary', node_label_attribute='platform')
+#ank_plot.plot_pylab(nidb, edge_label_attribute = 'id', node_label_attribute='platform')
 
 # Now build the NIDB

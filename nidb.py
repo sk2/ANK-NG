@@ -329,6 +329,19 @@ class NIDB_base(object):
             print "Unable to find node", key, "in", self
             return None
 
+    def edge(self, edge_to_find):
+        """returns edge in this graph with same src and same edge_id"""
+        src_id = edge_to_find.src_id
+        search_id = edge_to_find.edge_id
+#TODO: if no edge_id then search for src, dst pair
+
+        for src, dst in self._graph.edges_iter(src_id):
+            try:
+                if self._graph[src][dst]['edge_id'] == search_id:
+                    return overlay_edge(self, src, dst)
+            except KeyError:
+                pass # no edge_id for this edge
+
     @property
     def data(self):
         return nidb_graph_data(self)

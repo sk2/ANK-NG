@@ -14,7 +14,6 @@ def compile_junos(nidb, anm):
     print "compiling junos"
     for phy_node in G_phy.nodes(platform='junos'):
         nidb_node = nidb.node(phy_node)
-        print phy_node
         nidb_node.render.template = "templates/junos.mako"
         nidb_node.render.dst_folder = "rendered/junos"
         nidb_node.render.dst_file = "%s.conf" % ank.name_folder_safe(phy_node.label)
@@ -42,6 +41,9 @@ def compile_ios(nidb, anm):
 
 #TODO: need to map interface ids
         interface_ids = ("gigabitethernet0/0/0/%s" % x for x in itertools.count(0))
+        # assign interfaces
+        for edge in nidb.edges(nidb_node):
+            edge.id = interface_ids.next()
 
         # Interfaces
         interfaces = []
@@ -54,17 +56,17 @@ def compile_ios(nidb, anm):
 
         for link in phy_node.edges():
             ip_link = G_ip.edge(link)
+            nidb_edge = nidb.edge(link)
             #TODO: what if multiple ospf costs for this link
             ospf_cost = link.overlay.ospf.cost
             subnet =  ip_link.dst.subnet # netmask comes from collision domain on the link
-            data = {
-                    'id': interface_ids.next(),
+            interfaces.append({
+                    'id': nidb_edge.id,
                     'description': "%s to %s" % (link.src, link.dst),
                     'ip_address': link.overlay.ip.ip_address,
                     'subnet': subnet,
                     'cost': ospf_cost,
-                    }
-            interfaces.append(data)
+                    })
 
         nidb_node.interfaces = interfaces
         
