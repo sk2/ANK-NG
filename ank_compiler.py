@@ -30,15 +30,26 @@ def compile_ios(nidb, anm):
         nidb_node.render.dst_folder = "rendered/ios"
         nidb_node.render.dst_file = "%s.conf" % ank.name_folder_safe(phy_node.label)
 
+#TODO: need to map interface ids
+
         # Interfaces
         interfaces = []
         for link in phy_node.edges():
-            print link.overlay.ip.ip_address
+            ip_link = G_ip.edge(link)
+            #TODO: what if multiple ospf costs for this link
+            ospf_cost = link.overlay.igp.cost
+            subnet =  ip_link.dst.subnet # netmask comes from collision domain on the link
             data = {
-                    'source': link.src,
-                    'ip': 1,
+                    'id': 'Fe/0',
+                    'description': "%s to %s" % (link.src, link.dst),
+                    'ip_address': link.overlay.ip.ip_address,
+                    'subnet': subnet,
+                    'cost': ospf_cost,
                     }
             interfaces.append(data)
+
+        nidb_node.interfaces = interfaces
+        #print nidb_node.dump()
 
 
 def compile_old(nidb, anm):

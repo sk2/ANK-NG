@@ -18,9 +18,6 @@ G_phy = anm.overlay.phy #G_phy created automatically by ank
 G_phy.add_nodes_from(G_in, retain=['label', 'device_type', 'asn', 'platform'])
 G_phy.add_edges_from([edge for edge in G_in.edges() if edge.type == "physical"])
 
-print [node.is_switch for node in G_phy]
- 
-
 """
 r1 = G_phy.node("r1")
 r1.test = "xxx"

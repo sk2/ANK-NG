@@ -82,6 +82,7 @@ class nidb_node_category(object):
 
     def __getitem__(self, key):
         """Used to access the data directly. calling node.key returns wrapped data for templates"""
+        print "getting", key
         return self._category_data[key]
 
     @property
@@ -98,6 +99,9 @@ class nidb_node_category(object):
         except AttributeError:
             pass # not a dict
         return data
+
+    def dump(self):
+        return str(self._node_data)
 
 # check if list
 
@@ -134,11 +138,20 @@ class nidb_node(object):
 
     def __getattr__(self, key):
         """Returns edge property"""
+        data = self._node_data.get(key)
+        try:
+            [item.keys() for item in data]
+            return overlay_data_list_of_dicts(data)
+        except TypeError:
+            pass # Not set yet
+        except AttributeError:
+            pass # not a dict
         return nidb_node_category(self.nidb, self.node_id, key)
 
     def __setattr__(self, key, val):
         """Sets edge property"""
-        return nidb_node_category(self.nidb, self.node_id, key)
+        self._node_data[key] = val
+        #return nidb_node_category(self.nidb, self.node_id, key)
 
     @property
     def overlay(self):

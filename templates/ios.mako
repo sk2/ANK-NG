@@ -10,8 +10,13 @@ no aaa new-model
 ip cef
 !
 % for interface in node.interfaces:   
-${interface}
-
+interface ${interface.id}
+	description ${interface.description}
+	ip address ${interface.ip_address} ${interface.subnet.netmask}  
+	ip ospf cost ${interface.cost}
+	no shutdown
+   	duplex auto
+	speed autoComplete
 % endfor
 
 <%doc>

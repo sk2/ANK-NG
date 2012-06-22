@@ -1,4 +1,6 @@
+import mako
 from mako.lookup import TemplateLookup
+from mako.exceptions import SyntaxException
 import os
 
 #TODO: fix support here for template lookups, internal, user provided
@@ -14,11 +16,17 @@ lookup = TemplateLookup(directories=[""],
 def render_node(node):
         try:
             render_output_dir = node.render.dst_folder
-            render_template = lookup.get_template(node.render.template)
+            render_template_file = node.render.template
             dst_file = os.path.join(node.render.dst_folder, node.render.dst_file)
         except KeyError, error:
             #print "Skipping render for %s: %s not set" % (node, error)
             #TODO: log to debug
+            return
+
+        try:
+            render_template = lookup.get_template(render_template_file)
+        except SyntaxException, error:
+            print "Unable to render %s: Syntax error in template: %s" % (node, error)
             return
 
 #TODO: may need to iterate if multiple parts of the directory need to be created
@@ -35,6 +43,10 @@ def render_node(node):
                     ))
             except KeyError, error:
                 print "Unable to render %s: %s not set" % (node, error)
+            except AttributeError, error:
+                print "Unable to render %s: %s " % (node, error)
+            except NameError, error:
+                print "Unable to render %s: %s. Check all variables used are defined" % (node, error)
 
         return
 
