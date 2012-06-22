@@ -22,7 +22,6 @@ interface ${interface.id}
 	speed auto
 !
 % endfor 
-
 !               
 % if node.ospf: 
 router ospf ${node.ospf.process_id} 
@@ -32,11 +31,9 @@ router ospf ${node.ospf.process_id}
 % endif           
 % if node.isis: 
 router isis ${node.isis.process_id}       
-
 % endif  
 % if node.eigrp: 
 router eigrp ${node.eigrp.process_id}       
-
 % endif   
 !
 !  
@@ -44,29 +41,26 @@ router eigrp ${node.eigrp.process_id}
 router bgp ${node.asn}   
 	no synchronization
 % for subnet in node.bgp.advertise_subnets:
-	network ${subnet.network} mask ${subnet.netmask}
-	
+	network ${subnet.network} mask ${subnet.netmask}                                                          
+% endfor 
+! ibgp
+% for neigh in node.bgp.ibgp_neighbors:       
+	! ${neigh.neighbor}
+	neighbor remote-as ${neigh.neighbor.asn}
+	neighbor ${neigh.loopback} update-source ${neigh.update_source}                                                     
+	neighbor send-community      
+% endfor
+! ebgp
+% for neigh in node.bgp.ebgp_neighbors:      
+	! ${neigh.neighbor} 
+	neighbor remote-as ${neigh.neighbor.asn}
+	neighbor ${neigh.loopback} update-source ${neigh.update_source}                                                     
+	neighbor send-community
 % endfor    
-
 % endif   
 !
 !
-
-
-<%doc>
-interface ${i['id']}
- description ${i['description']}
- ip address ${i['ip']} ${i['netmask']} 
- % if igp_protocol == 'isis' and len(igp_interfaces) > 0:
- ip router isis
-   % if 'weight' in i:
- isis metric ${i['weight']}
-   % endif
- % elif 'weight' in i and len(igp_interfaces) > 0:
- ip ospf cost ${i['weight']}
- % endif
- no shutdown
- duplex auto
- speed auto
-!                
-</%doc>
+ip forward-protocol nd
+!
+no ip http server
+!

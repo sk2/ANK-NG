@@ -68,8 +68,7 @@ def compile_ios(nidb, anm):
                     }
             interfaces.append(data)
 
-        #nidb_node.interfaces = interfaces
-        nidb_node.interfaces = []
+        nidb_node.interfaces = interfaces
         
         # IGP
 #TODO: check if router has IGP set as ospf or isis or ...
@@ -90,24 +89,24 @@ def compile_ios(nidb, anm):
         if phy_node.overlay.bgp.edges():
             asn = phy_node.asn # easy reference for cleaner code
             nidb_node.bgp.advertise_subnets = G_ip.data.asn_blocks[asn]
-            igp_neighbors = []
-            egp_neighbors = []
-            for edge in phy_node.overlay.bgp.edges():
-                print edge, edge.type
-            print "ibgp edges", [edge for edge in phy_node.overlay.bgp.edges(type="ibgp")]
-            print "ebgp edges", [edge for edge in phy_node.overlay.bgp.edges(type="ebgp")]
-            for session in phy_node.overlay.bgp.edges():
-                #TODO: design decision: more boilerplate here, or more complexity in templates?
-                if session.type == 'ibgp':
-                    igp_neighbors.append({
-                        'neighbor': session.dst,
-                        'update-source': "loopback 0",
-                        })
-                else:
-                    egp_neighbors.append({
-                        'neighbor': session.dst,
-                        'update-source': "loopback 0",
-                        })
+            ibgp_neighbors = []
+            ebgp_neighbors = []
+            for session in phy_node.overlay.bgp.edges(type='ibgp'):
+                neigh = session.dst
+                ibgp_neighbors.append({
+                    'neighbor': neigh,
+                    'loopback': neigh.overlay.ip.loopback,
+                    'update_source': "loopback 0",
+                    })
+            for session in phy_node.overlay.bgp.edges(type='ebgp'):
+                ebgp_neighbors.append({
+                    'neighbor': session.dst,
+                    'loopback': neigh.overlay.ip.loopback,
+                    'update_source': "loopback 0",
+                    })
+
+            nidb_node.bgp.ibgp_neighbors = ibgp_neighbors
+            nidb_node.bgp.ebgp_neighbors = ebgp_neighbors
 
 
 
