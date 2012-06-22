@@ -25,10 +25,12 @@ class overlay_data_list_of_dicts(object):
     def __iter__(self):
         return iter(overlay_data_dict(item) for item in self.data)
 
-class overlay_node_accessor(namedtuple('overlay_accessor', "nidb, node_id")):
-    """API to access overlay nodes in ANM"""
-#Used for consistency with ANM, where can also do node.overlay.graphics as well as node.graphics directly
-    __slots = ()
+
+class overlay_node_accessor(object):
+    def __init__(self, nidb, node_id):
+#Set using this method to bypass __setattr__ 
+        object.__setattr__(self, 'nidb', nidb)
+        object.__setattr__(self, 'node_id', node_id)
 
     def __repr__(self):
         #TODO: make this list overlays the node is present in
@@ -38,9 +40,6 @@ class overlay_node_accessor(namedtuple('overlay_accessor', "nidb, node_id")):
         """Access category"""
         return nidb_node_category(self.nidb, self.node_id, key)
 
-#class nidb_node_category(namedtuple('nidb_node_category', "nidb, node_id, category_id")):
-    #"""API to access overlay graph node category in network"""
-    #__slots = ()
 class nidb_node_subcategory(object):
     def __init__(self, nidb, node_id, category_id, subcategory_id):
 #Set using this method to bypass __setattr__ 
@@ -108,9 +107,14 @@ class nidb_node_category(object):
             self._node_data[self.category_id] = {} # create dict for this data category
             setattr(self, key, val)
 
-class nidb_node(namedtuple('nidb_node', "nidb, node_id")):
+
+class nidb_node(object):
     """API to access overlay graph node in network"""
-    __slots = ()
+
+    def __init__(self, nidb, node_id):
+#Set using this method to bypass __setattr__ 
+        object.__setattr__(self, 'nidb', nidb)
+        object.__setattr__(self, 'node_id', node_id)
 
     def __repr__(self):
         return self._node_data['label']
@@ -135,8 +139,12 @@ class nidb_node(namedtuple('nidb_node', "nidb, node_id")):
     def overlay(self):
         return overlay_node_accessor(self.nidb, self.node_id)
 
-class nidb_graph_data(namedtuple('nidb_graph_data', "nidb")):
-    __slots = ()
+class nidb_graph_data(object):
+    """API to access overlay graph node in network"""
+
+    def __init__(self, nidb, node_id):
+#Set using this method to bypass __setattr__ 
+        object.__setattr__(self, 'nidb', nidb)
 
     def __repr__(self):
         return "NIDB data: %s" % self.nidb._graph.graph
@@ -148,8 +156,6 @@ class nidb_graph_data(namedtuple('nidb_graph_data', "nidb")):
     def __setattr__(self, key, val):
         """Sets edge property"""
         self.nidb._graph.graph[key] = val
-
-
 
 #TODO: make this inherit same overlay base as overlay_graph for add nodes etc properties
 # but not the degree etc
@@ -219,6 +225,3 @@ class NIDB(object):
     def __iter__(self):
         return iter(nidb_node(self, node)
                 for node in self._graph)
-
-
-
