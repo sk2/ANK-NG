@@ -84,7 +84,9 @@ for node in G_ip.nodes("collision_domain"):
         node.label = "cd_%s" % cd_id # switches keep their names
         graphics_node.label = label
 
+print "allocating ips"
 ank.allocate_ips(G_ip)
+print "allocated ips"
 #ank.save(G_ip)
 
 G_bgp = anm.add_overlay("bgp", directed = True)

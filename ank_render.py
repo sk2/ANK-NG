@@ -8,11 +8,12 @@ import time
 
 #TODO: fix support here for template lookups, internal, user provided
 #template_cache_dir = config.template_cache_dir
+template_cache_dir = "cache"
 
 lookup = TemplateLookup(directories=[""],
-                        #module_directory= template_cache_dir,
-                        #cache_type='memory',
-                        #cache_enabled=True,
+                        module_directory= template_cache_dir,
+                        cache_type='memory',
+                        cache_enabled=True,
                        )
 
 #TODO: Add support for both src template and src folder (eg for quagga, servers)
@@ -35,7 +36,6 @@ def render_node(node):
 #TODO: may need to iterate if multiple parts of the directory need to be created
         if not os.path.isdir(render_output_dir):
             os.mkdir(render_output_dir)
-
 
         #TODO: capture mako errors better
 
@@ -61,7 +61,7 @@ def render(nidb):
 
 def render(nidb):
         nidb_node_count = len(nidb)
-        num_worker_threads = 10
+        num_worker_threads = 20
         rendered_nodes = []
         def worker():
                 while True:

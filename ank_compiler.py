@@ -83,28 +83,28 @@ def compile_ios(nidb, anm):
         nidb_node.ospf.ospf_links = sorted(ospf_links)
 
         # BGP
-        if True:
-            asn = phy_node.asn # easy reference for cleaner code
-            nidb_node.bgp.advertise_subnets = G_ip.data.asn_blocks[asn]
-            ibgp_neighbors = []
-            ibgp_rr_clients = []
-            ebgp_neighbors = []
-            bgp_node = G_bgp.node(phy_node)
-            for session in bgp_node.edges():
-                neigh = session.dst
-                if session.type == "ibgp":
-                    ibgp_neighbors.append({
-                        'neighbor': neigh,
-                        'loopback': neigh.overlay.ip.loopback,
-                        'update_source': "loopback 0",
-                        })
-                else:
-                    ebgp_neighbors.append({
-                        'neighbor': session.dst,
-                        'loopback': neigh.overlay.ip.loopback,
-                        'update_source': "loopback 0",
+        asn = phy_node.asn # easy reference for cleaner code
+        nidb_node.bgp.advertise_subnets = G_ip.data.asn_blocks[asn]
+        ibgp_neighbors = []
+        ibgp_rr_clients = []
+        ebgp_neighbors = []
+        for session in G_bgp.edges(phy_node):
+            neigh = session.dst
+            neigh_ip = G_ip.node(neigh)
+            if session.type == "ibgp":
+                #print session.direction
+                ibgp_neighbors.append({
+                    'neighbor': neigh,
+                    'loopback': neigh_ip.loopback,
+                    'update_source': "loopback 0",
                     })
+            else:
+                ebgp_neighbors.append({
+                    'neighbor': neigh,
+                    'loopback': neigh_ip.loopback,
+                    'update_source': "loopback 0",
+                })
 
-            nidb_node.bgp.ibgp_rr_clients = ibgp_rr_clients
-            nidb_node.bgp.ibgp_neighbors = ibgp_neighbors
-            nidb_node.bgp.ebgp_neighbors = ebgp_neighbors
+        nidb_node.bgp.ibgp_rr_clients = ibgp_rr_clients
+        nidb_node.bgp.ibgp_neighbors = ibgp_neighbors
+        nidb_node.bgp.ebgp_neighbors = ebgp_neighbors
