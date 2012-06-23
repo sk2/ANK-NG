@@ -136,20 +136,18 @@ class PlatformCompiler(object):
         #TODO: make this abstract
         pass
 
-
-
 class JunosphereCompiler(PlatformCompiler):
     def interface_ids(self):
         invalid = set([2])
         valid_ids = (x for x in itertools.count(0) if x not in invalid)
         for x in valid_ids:
-            yield "ge-0/0/1%s" % x 
+            yield "ge-0/0/%s" % x
 
     def compile(self):
         print "compiling dynagen for", self.host
         G_phy = self.anm.overlay.phy
         junos_compiler = JunosCompiler(self.nidb, self.anm)
-        for phy_node in G_phy.nodes('is_router', host = self.host, syntax='ios'):
+        for phy_node in G_phy.nodes('is_router', host = self.host, syntax='junos'):
             nidb_node = self.nidb.node(phy_node)
             nidb_node.render.template = "templates/junos.mako"
             nidb_node.render.dst_folder = "rendered/junos"
