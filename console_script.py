@@ -3,6 +3,7 @@ import ank
 import itertools
 from nidb import NIDB
 import ank_render
+import ank_deploy
 import pprint
 import ank_compiler
 #import ank_plot
@@ -178,6 +179,14 @@ for node in nidb:
 #TODO: don't need to transform, just need to pass a view of the nidb which does the wrapping: iterates through returned data, recursively, and wraps accordingly. ie pass the data to return through a recursive formatter which wraps
 print "rendering"
 ank_render.render(nidb)
+
+tar_file = ank_deploy.package("rendered/trc1/netkit/", "netkit")
+server = "trc1.trc.adelaide.edu.au"
+ank_deploy.transfer(server, "sknight", tar_file, tar_file)
+print "server", server
+cd_dir = "rendered/trc1/netkit/"
+ank_deploy.extract(server, tar_file, cd_dir)
+
 
 #TODO: plot the nidb
 #ank_plot.plot_pylab(nidb, edge_label_attribute = 'id', node_label_attribute='platform')

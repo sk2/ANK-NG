@@ -188,9 +188,9 @@ class NetkitCompiler(PlatformCompiler):
         for phy_node in G_phy.nodes('is_router', host = self.host, syntax='quagga'):
             nidb_node = self.nidb.node(phy_node)
             nidb_node.render.base = "templates/quagga"
-            nidb_node.render.base_dst_folder = "rendered/netkit/%s" % phy_node
             nidb_node.render.template = "templates/netkit_startup.mako"
             nidb_node.render.dst_folder = "rendered/%s/%s" % (self.host, "netkit")
+            nidb_node.render.base_dst_folder = "rendered/%s/%s/%s" % (self.host, "netkit", phy_node)
             nidb_node.render.dst_file = "%s.startup" % ank.name_folder_safe(phy_node.label)
             
 
