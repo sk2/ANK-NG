@@ -160,13 +160,13 @@ class JunosphereCompiler(PlatformCompiler):
             yield "ge-0/0/%s" % x
 
     def compile(self):
-        print "compiling dynagen for", self.host
+        print "Compiling Junosphere for", self.host
         G_phy = self.anm.overlay.phy
         junos_compiler = JunosCompiler(self.nidb, self.anm)
         for phy_node in G_phy.nodes('is_router', host = self.host, syntax='junos'):
             nidb_node = self.nidb.node(phy_node)
             nidb_node.render.template = "templates/junos.mako"
-            nidb_node.render.dst_folder = "rendered/junos"
+            nidb_node.render.dst_folder = "rendered/%s/%s" % (self.host, "junosphere")
             nidb_node.render.dst_file = "%s.conf" % ank.name_folder_safe(phy_node.label)
 
             int_ids = self.interface_ids()
@@ -177,7 +177,31 @@ class JunosphereCompiler(PlatformCompiler):
             junos_compiler.compile(nidb_node)
 
 class NetkitCompiler(PlatformCompiler):
-    pass
+    def interface_ids(self):
+        for x in itertools.count(0):
+            yield "eth%s" % x
+
+    def compile(self):
+        print "Compiling Netkit for", self.host
+        G_phy = self.anm.overlay.phy
+        ios_compiler = IosCompiler(self.nidb, self.anm)
+        for phy_node in G_phy.nodes('is_router', host = self.host, syntax='quagga'):
+            nidb_node = self.nidb.node(phy_node)
+            nidb_node.render.base = "templates/quagga"
+            nidb_node.render.base_dst_folder = "rendered/netkit/%s" % phy_node
+            nidb_node.render.template = "templates/netkit_startup.mako"
+            nidb_node.render.dst_folder = "rendered/%s/%s" % (self.host, "netkit")
+            nidb_node.render.dst_file = "%s.startup" % ank.name_folder_safe(phy_node.label)
+            
+
+            # Allocate edges
+            # assign interfaces
+            # Note this could take external data
+            int_ids = self.interface_ids()
+            for edge in self.nidb.edges(nidb_node):
+                edge.id = int_ids.next()
+
+            ios_compiler.compile(nidb_node)
 
 class DynagenCompiler(PlatformCompiler):
     def interface_ids(self):
@@ -185,13 +209,13 @@ class DynagenCompiler(PlatformCompiler):
             yield "gigabitethernet0/0/0/%s" % x
 
     def compile(self):
-        print "compiling dynagen for", self.host
+        print "Compiling Dynagen for", self.host
         G_phy = self.anm.overlay.phy
         ios_compiler = IosCompiler(self.nidb, self.anm)
         for phy_node in G_phy.nodes('is_router', host = self.host, syntax='ios'):
             nidb_node = self.nidb.node(phy_node)
             nidb_node.render.template = "templates/ios.mako"
-            nidb_node.render.dst_folder = "rendered/ios"
+            nidb_node.render.dst_folder = "rendered/%s/%s" % (self.host, "dynagen")
             nidb_node.render.dst_file = "%s.conf" % ank.name_folder_safe(phy_node.label)
 
             # Allocate edges

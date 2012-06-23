@@ -12,3 +12,4 @@ rendered/*
 *.DS_Store
 *.dot
 *.ps
+cache/*
