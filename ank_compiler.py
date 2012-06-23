@@ -121,7 +121,23 @@ class IosCompiler(RouterCompiler):
         return interfaces
 
 class JunosCompiler(RouterCompiler):
-    pass
+    def interfaces(self, node):
+        ip_node = self.anm.overlay.ip.node(node)
+        loopback_subnet = netaddr.IPNetwork("0.0.0.0/32")
+
+        interfaces = super(JunosCompiler, self).interfaces(node)
+        for link in interfaces:
+            nidb_link =  self.nidb.edge(link)
+            interfaces[link]['unit'] = nidb_link.unit
+
+        interfaces['lo0'] = {
+            'id': 'lo0',
+            'description': "Loopback",
+            'ip_address': ip_node.loopback,
+            'subnet': loopback_subnet,
+            }
+
+        return interfaces
 
 
 # Platform compilers
@@ -155,6 +171,7 @@ class JunosphereCompiler(PlatformCompiler):
 
             int_ids = self.interface_ids()
             for edge in self.nidb.edges(nidb_node):
+                edge.unit = 0
                 edge.id = int_ids.next()
 
             junos_compiler.compile(nidb_node)

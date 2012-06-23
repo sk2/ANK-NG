@@ -1,17 +1,21 @@
-JUNOS
-
 router ${node}    
-
-                 
-% for interface in node.interfaces:  
-interface ${interface.id}
-	description ${interface.description}
-	ip address ${interface.ip_address} ${interface.subnet.netmask}   
-	% if interface.ospf_cost:
-	ip ospf cost ${interface.ospf_cost}
-	% endif
-	no shutdown
-   	duplex auto
-	speed auto
-!
+% for data in node.interfaces:  
+% if loop.first:
+	interfaces {
+% endif       
+    ${interface(data)}
+% if loop.last:
+}
+% endif
 % endfor
+         
+<%def name="interface(data)" filter="trim">
+    interface ${data.id} {
+    unit ${data.unit} {
+	    description "${data.description}";
+	    family inet  {
+	        address ${data.ip_address}/${data.subnet.prefixlen}   
+	    }
+	    } 
+	}
+</%def>

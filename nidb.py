@@ -20,6 +20,9 @@ class overlay_data_list_of_dicts(object):
     def __init__(self, data):
         self.data = data
 
+    def __len__(self):
+        return len(self.data)
+
     def __iter__(self):
         #TODO: want to introduce some sorting here.... how?
         return iter(overlay_data_dict(item) for item in self.data)
