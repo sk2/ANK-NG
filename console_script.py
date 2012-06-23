@@ -47,7 +47,6 @@ G_ip = anm.add_overlay("ip")
 G_ip.add_nodes_from(G_in)
 G_ip.add_edges_from(G_in.edges(type="physical"))
 
-"""
 ank.aggregate_nodes(G_ip, G_ip.nodes("is_switch"), retain = "edge_id")
 #TODO: add function to update edge properties: can overload node update?
 
@@ -86,7 +85,6 @@ for node in G_ip.nodes("collision_domain"):
         graphics_node.label = label
 
 ank.allocate_ips(G_ip)
-"""
 #ank.save(G_ip)
 
 G_bgp = anm.add_overlay("bgp", directed = True)

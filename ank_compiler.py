@@ -93,7 +93,6 @@ def compile_ios(nidb, anm):
             for session in bgp_node.edges():
                 neigh = session.dst
                 if session.type == "ibgp":
-                    print bgp_node.route_reflector, neigh.route_reflector
                     ibgp_neighbors.append({
                         'neighbor': neigh,
                         'loopback': neigh.overlay.ip.loopback,
