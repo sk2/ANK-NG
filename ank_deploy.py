@@ -31,35 +31,6 @@ def extract(host, tar_file, cd_dir):
     def lab_started(protocol, index, data):
         print "Lab started"
 
-
-    #account = read_login()              
-    """
-    account = Account("sknight")
-    conn = SSH2()                       
-    conn.connect(host)     
-    conn.login(account)                 
-
-#TODO: use a script template for this
-    conn.add_monitor(r'Starting (\S+)', starting_host)
-    conn.add_monitor(r'vstart: Virtual machine ', already_running)
-    conn.data_received_event.connect(data_received)
-
-    conn.execute('tar -xzf %s' % tar_file)
-    print conn.response
-    conn.execute('cd %s' % cd_dir)
-    print conn.response
-    conn.execute('pwd')
-    print conn.response
-    conn.execute('vlist')
-    print conn.response
-    print "Starting lab"
-    conn.execute('lstart -p5 -o --con0=none')
-    print conn.response
-    conn.send("exit")
-
-    conn.close() 
-    """
-
     def do_something(thread, host, conn):
         conn.add_monitor(r'Starting (\S+)', starting_host)
         conn.add_monitor(r'The lab has been started', lab_started)
@@ -67,6 +38,7 @@ def extract(host, tar_file, cd_dir):
         conn.execute('tar -xzf %s' % tar_file)
         conn.execute('cd %s' % cd_dir)
         conn.execute('vlist')
+        conn.execute("lclean")
         print "Starting lab"
         start_command = 'lstart -p5 -o --con0=none'
         try:
@@ -74,8 +46,10 @@ def extract(host, tar_file, cd_dir):
         except InvalidCommandException, error:
             if "already running" in str(error):
                 print "Already Running" #TODO: handle appropriately
+                print "Halting previous lab"
                 conn.execute("vclean -K")
-                print "halted"
+                print "Halted previous lab"
+                print "Starting lab"
                 conn.execute(start_command)
         conn.send("exit")
 
