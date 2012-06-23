@@ -5,6 +5,10 @@ import os
 import threading
 import Queue
 import time
+import shutil
+from collections import defaultdict
+import fnmatch
+
 
 #TODO: fix support here for template lookups, internal, user provided
 #template_cache_dir = config.template_cache_dir
@@ -16,50 +20,83 @@ lookup = TemplateLookup(directories=[""],
                         cache_enabled=True,
                        )
 
+#TODO: make a render class, that caches traversed folders for speed
+
 #TODO: Add support for both src template and src folder (eg for quagga, servers)
 def render_node(node):
         try:
             render_output_dir = node.render.dst_folder
+            render_base = node.render.base
+            render_base_output_dir = node.render.base_dst_folder
             render_template_file = node.render.template
-            dst_file = os.path.join(node.render.dst_folder, node.render.dst_file)
         except KeyError, error:
-            #print "Skipping render for %s: %s not set" % (node, error)
-            #TODO: log to debug
             return
+        shutil.rmtree(render_output_dir)
+        
+        if not os.path.isdir(render_output_dir):
+            os.makedirs(render_output_dir)
 
-        try:
-            render_template = lookup.get_template(render_template_file)
-        except SyntaxException, error:
-            print "Unable to render %s: Syntax error in template: %s" % (node, error)
-            return
+        if render_template_file:
+            try:
+                render_template = lookup.get_template(render_template_file)
+            except SyntaxException, error:
+                print "Unable to render %s: Syntax error in template: %s" % (node, error)
+                return
+            dst_file = os.path.join(render_output_dir, node.render.dst_file)
 
 #TODO: may need to iterate if multiple parts of the directory need to be created
-        if not os.path.isdir(render_output_dir):
-            os.mkdir(render_output_dir)
 
-        #TODO: capture mako errors better
+            #TODO: capture mako errors better
 
-        with open( dst_file, 'wb') as dst_fh:
-            try:
-                dst_fh.write(render_template.render(
-                    node = node,
-                    ))
-            except KeyError, error:
-                print "Unable to render %s: %s not set" % (node, error)
-            except AttributeError, error:
-                print "Unable to render %s: %s " % (node, error)
-            except NameError, error:
-                print "Unable to render %s: %s. Check all variables used are defined" % (node, error)
+            with open( dst_file, 'wb') as dst_fh:
+                try:
+                    dst_fh.write(render_template.render(
+                        node = node,
+                        ))
+                except KeyError, error:
+                    print "Unable to render %s: %s not set" % (node, error)
+                except AttributeError, error:
+                    print "Unable to render %s: %s " % (node, error)
+                except NameError, error:
+                    print "Unable to render %s: %s. Check all variables used are defined" % (node, error)
+
+        if render_base:
+            fs_mako_templates = []
+            for root, dirnames, filenames in os.walk(render_base):
+                for filename in fnmatch.filter(filenames, '*.mako'):
+                    rel_root = os.path.relpath(root, render_base) # relative to fs root
+                    fs_mako_templates.append(os.path.join(rel_root, filename))
+
+            mako_tmp_dir = "cache"
+
+            #print("Copying fs for node %s" % (node))
+            shutil.rmtree(render_base_output_dir)
+            shutil.copytree(render_base, render_base_output_dir, 
+                    ignore=shutil.ignore_patterns('*.mako'))
+# now use templates
+            for template_file in fs_mako_templates:
+                template_file_path = os.path.normpath(os.path.join(render_base, template_file))
+                mytemplate = mako.template.Template(filename=template_file_path, module_directory= mako_tmp_dir)
+                dst_file = os.path.normpath((os.path.join(render_base_output_dir, template_file)))
+                dst_file, _ = os.path.splitext(dst_file) # remove .mako suffix
+                #print("Writing %s"% dst_file)
+                with open( dst_file, 'wb') as dst_fh:
+                    dst_fh.write(mytemplate.render(
+                        node = node, 
+                        ))
+
+
 
         return
 
-"""
-def render(nidb):
+def render(node):
+    render_single(node)
+
+def render_single(nidb):
     for node in nidb:
         render_node(node)
-"""
 
-def render(nidb):
+def render_multi(nidb):
         nidb_node_count = len(nidb)
         num_worker_threads = 10
         rendered_nodes = []
