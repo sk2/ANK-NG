@@ -21,19 +21,19 @@ def transfer(host, username, local, remote):
     ftp.close()
 
 def extract(host, tar_file, cd_dir):
-    from Exscript.protocols import SSH2
     from Exscript import Account
+    from Exscript.util.start import start
+    from Exscript.protocols.Exception import InvalidCommandException
 
     def starting_host(protocol, index, data):
-        print "Starting", data.group(index)
+        print data.group(index)
 
-    def already_running(protocol, index, data):
-        print "already_running", data.group(index)
+    def lab_started(protocol, index, data):
+        print "Lab started"
 
-    def data_received(data):
-        print "data event", data
 
     #account = read_login()              
+    """
     account = Account("sknight")
     conn = SSH2()                       
     conn.connect(host)     
@@ -41,7 +41,7 @@ def extract(host, tar_file, cd_dir):
 
 #TODO: use a script template for this
     conn.add_monitor(r'Starting (\S+)', starting_host)
-    conn.add_monitor(r'vstart: Virtual machine "(\S+)" is already running. Please', already_running)
+    conn.add_monitor(r'vstart: Virtual machine ', already_running)
     conn.data_received_event.connect(data_received)
 
     conn.execute('tar -xzf %s' % tar_file)
@@ -58,4 +58,29 @@ def extract(host, tar_file, cd_dir):
     conn.send("exit")
 
     conn.close() 
+    """
+
+    def do_something(thread, host, conn):
+        conn.add_monitor(r'Starting (\S+)', starting_host)
+        conn.add_monitor(r'The lab has been started', lab_started)
+        #conn.data_received_event.connect(data_received)
+        conn.execute('tar -xzf %s' % tar_file)
+        conn.execute('cd %s' % cd_dir)
+        conn.execute('vlist')
+        print "Starting lab"
+        start_command = 'lstart -p5 -o --con0=none'
+        try:
+            conn.execute(start_command)
+        except InvalidCommandException, error:
+            if "already running" in str(error):
+                print "Already Running" #TODO: handle appropriately
+                conn.execute("vclean -K")
+                print "halted"
+                conn.execute(start_command)
+        conn.send("exit")
+
+
+    accounts = [Account("sknight")]  # No account needed.
+    hosts = ['ssh://%s' % host]
+    start(accounts, hosts, do_something, verbose = 0)
 
