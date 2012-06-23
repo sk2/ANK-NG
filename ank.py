@@ -33,8 +33,27 @@ def set_node_default(overlay_graph, nbunch, **kwargs):
 
 def load_graphml(filename):
     import string
-    graph = nx.read_graphml(filename)
+    import os
+    pickle_dir = os.getcwd() + os.sep + "cache"
+    if not os.path.isdir(pickle_dir):
+        os.mkdir(pickle_dir)
+
+    path, file_with_ext = os.path.split(filename)
+    file_name_only, extension = os.path.splitext(filename)
+
+    pickle_file = "%s/%s.pickle" % (pickle_dir, file_name_only)
+    if (os.path.isfile(pickle_file) and
+        os.stat(filename).st_mtime < os.stat(pickle_file).st_mtime):
+        # Pickle file exists, and source_file is older
+        graph = nx.read_gpickle(pickle_file)
+    else:
+        # No pickle file, or is outdated
+        graph = nx.read_graphml(filename)
+        nx.write_gpickle(graph, pickle_file)
 #TODO: node labels if not set, need to set from a sequence, ensure unique... etc
+
+    # remove selfloops
+    graph.remove_edges_from(edge for edge in graph.selfloop_edges())
 
     letters_single = (c for c in string.lowercase) # a, b, c, ... z
     letters_double = ("%s%s" % (a, b) for (a, b) in itertools.product(string.lowercase, string.lowercase)) # aa, ab, ... zz
@@ -526,4 +545,30 @@ def allocate_ips(G_ip):
         # traverse tree, allocate back to loopbacks, and to nodes
         # TODO: should loopbacks be a sentinel type node for faster traversal rather than checking each time?
 
+def allocate_route_reflectors(G_phy, G_bgp):
+    print "allocating rr"
+    graph_phy = G_phy._graph
+    graph_bgp = G_bgp._graph
+    for asn, devices in G_phy.groupby("asn").items():
+        routers = [d for d in devices if d.is_router]
+        router_ids = unwrap_nodes(routers)
+        subgraph_phy = graph_phy.subgraph(router_ids)
+        try:
+            betw_cen = nx.degree_centrality(subgraph_phy)
+# need to connect others to closest route reflectors
+        except ZeroDivisionError:
+            if len(subgraph_phy) == 1:  
+                #TODO: just apply rr here (or no need as no iBGP)
+                print "no ibgp"
+                continue
+            else:
+                raise
 
+        ordered = sorted(subgraph_phy.nodes(), key = lambda x: betw_cen[x], reverse = True)
+        rr_count = len(subgraph_phy)/5 # Take top 20% to be route reflectors
+        route_reflectors = ordered[:rr_count] # most connected 20%
+        rr_clients = ordered[rr_count:] # the other routers
+        route_reflectors = list(wrap_nodes(G_bgp, route_reflectors))
+        rr_clients = list(wrap_nodes(G_bgp, rr_clients))
+        for route_reflector in route_reflectors:
+            route_reflector.route_reflector = True

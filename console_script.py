@@ -4,7 +4,7 @@ import itertools
 from nidb import NIDB
 import ank_render
 import ank_compiler
-import ank_plot
+#import ank_plot
 
 import optparse
 opt = optparse.OptionParser()
@@ -47,6 +47,7 @@ G_ip = anm.add_overlay("ip")
 G_ip.add_nodes_from(G_in)
 G_ip.add_edges_from(G_in.edges(type="physical"))
 
+"""
 ank.aggregate_nodes(G_ip, G_ip.nodes("is_switch"), retain = "edge_id")
 #TODO: add function to update edge properties: can overload node update?
 
@@ -85,20 +86,30 @@ for node in G_ip.nodes("collision_domain"):
         graphics_node.label = label
 
 ank.allocate_ips(G_ip)
+"""
 #ank.save(G_ip)
 
 G_bgp = anm.add_overlay("bgp", directed = True)
-G_bgp.add_nodes_from([d for d in G_in if d.is_router], color = 'red')
+G_bgp.add_nodes_from(G_in.nodes("is_router"), color = 'red')
 
 # eBGP
 ebgp_edges = [edge for edge in G_in.edges() if edge.src.asn != edge.dst.asn]
 G_bgp.add_edges_from(ebgp_edges, bidirectional = True, type = 'ebgp')
 
 # now iBGP
-for asn, devices in G_in.groupby("asn").items():
-    routers = [d for d in devices if d.device_type == "router"]
-    ibgp_edges = [ (s, t) for s in routers for t in routers if s!=t]
-    G_bgp.add_edges_from(ibgp_edges, type = 'ibgp')
+if len(G_phy) < 500:
+# full mesh
+    for asn, devices in G_phy.groupby("asn").items():
+        routers = [d for d in devices if d.is_router]
+        ibgp_edges = [ (s, t) for s in routers for t in routers if s!=t]
+        G_bgp.add_edges_from(ibgp_edges, type = 'ibgp')
+else:
+    print "big graph"
+    ank.allocate_route_reflectors(G_phy, G_bgp)
+
+
+#TODO: probably want to use l3 connectivity graph for allocating route reflectors
+
 
 ebgp_nodes = [d for d in G_bgp if any(edge.type == 'ebgp' for edge in d.edges())]
 G_bgp.update(ebgp_nodes, ebgp=True)
@@ -126,10 +137,12 @@ ios_nodes = list(nidb.nodes(platform="ios"))
 
 
 #print G_ip.dump()
+"""
 ank_plot.plot_pylab(G_bgp, edge_label_attribute = 'type', node_label_attribute='asn')
 ank_plot.plot_pylab(G_phy, edge_label_attribute = 'edge_id')
 ank_plot.plot_pylab(G_ospf, edge_label_attribute='cost')
 ank_plot.plot_pylab(G_ip, edge_label_attribute = 'ip_address', node_label_attribute = 'loopback')
+"""
 
 ank_compiler.compile_ios(nidb, anm)
 ank_compiler.compile_junos(nidb, anm)

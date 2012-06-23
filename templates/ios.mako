@@ -44,6 +44,13 @@ router bgp ${node.asn}
 	network ${subnet.network} mask ${subnet.netmask}                                                          
 % endfor 
 ! ibgp
+% for client in node.bgp.ibgp_rr_clients:       
+	! ${client.neighbor}
+	neighbor remote-as ${client.neighbor.asn}
+	neighbor ${client.loopback} update-source ${client.update_source} 
+	neighbor ${client.loopback} route-reflector-client                                                   
+	neighbor send-community      
+% endfor    
 % for neigh in node.bgp.ibgp_neighbors:       
 	! ${neigh.neighbor}
 	neighbor remote-as ${neigh.neighbor.asn}
