@@ -61,7 +61,7 @@ def render(nidb):
 
 def render(nidb):
         nidb_node_count = len(nidb)
-        num_worker_threads = 20
+        num_worker_threads = 10
         rendered_nodes = []
         def worker():
                 while True:

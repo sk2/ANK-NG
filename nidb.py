@@ -21,6 +21,7 @@ class overlay_data_list_of_dicts(object):
         self.data = data
 
     def __iter__(self):
+        #TODO: want to introduce some sorting here.... how?
         return iter(overlay_data_dict(item) for item in self.data)
 
 class overlay_edge_accessor(object):
@@ -174,7 +175,9 @@ class nidb_node_category(object):
     def dump(self):
         return str(self._node_data)
 
-# check if list
+    def add_list_of_dicts(self, key, data, sortkey = None):
+        pass #TODO: use this to store data, and this will return list of dicts -> simplifies logic elsewhere
+        # and allows sorting
 
     def __setattr__(self, key, val):
         """Sets edge property"""

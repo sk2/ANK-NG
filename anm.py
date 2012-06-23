@@ -173,16 +173,13 @@ class overlay_node(object):
     def __repr__(self):
         """Try label if set in overlay, otherwise from physical, otherwise node id"""
 #TODO: make access direct from phy, and can then do "%s: %s" % (overlay_id, label)
-        label = self._graph.node[self.node_id].get("label")
-        if not label:
+        try:
+            return self.anm.node_label(self)
+        except KeyError:
             try:
-                label =  self.phy.label
-            except IntegrityException:
-                label = self.node_id # node not in physical graph
+                return self._graph.node[self.node_id]['label']
             except KeyError:
-                label = self.node_id # node not in physical graph
-
-        return label
+                return self.node_id # node not in physical graph
 
     def __getattr__(self, key):
         """Returns node property
@@ -570,7 +567,6 @@ class AbstractNetworkModel(object):
             graph = nx.MultiGraph()
         elif directed and not multi_edge:
             graph = nx.MultiDiGraph()
-
         self._overlays[name] = graph
         return overlay_graph(self, name)
 
@@ -581,12 +577,27 @@ class AbstractNetworkModel(object):
     def devices(self, *args, **kwargs):
         return self._phy.filter(*args, **kwargs)
 
+    def default_node_label(self, node, attrs = None, seperator = "_"):
+    
+        data = self._overlays['phy'].node[node.node_id]
+        return seperator.join(str(data.get(val)) for val in attrs)
+
     def node_label(self, node):
         """Returns node label from physical graph"""
+        return self.default_node_label(node)
+
+    def set_node_label(self, seperator, attrs):
         try:
-            return overlay_node(self, "phy", node).label
-        except IntegrityException:
-            return node # not in physical graph
+            attrs.lower()
+            attrs = [attrs] # was a string, put into list
+        except AttributeError:
+            pass # already a list
+
+        def custom_label(node):
+            return seperator.join(str(self._overlays['phy'].node[node.node_id].get(val)) for val in attrs)
+
+        self.node_label = custom_label
+
 
     #TODO: move this out into debug module
     def dump_graph(self, graph):

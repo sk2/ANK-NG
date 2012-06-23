@@ -17,6 +17,9 @@ if not options.file:
     sys.exit(0)
 
 anm = AbstractNetworkModel()
+
+anm.set_node_label(".",  ['label', 'asn'])
+
 input_graph = ank.load_graphml(options.file)
 #input_graph = ank.load_graphml("graph_combined.graphml")
 

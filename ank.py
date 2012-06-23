@@ -51,6 +51,7 @@ def load_graphml(filename):
         graph = nx.read_graphml(filename)
         nx.write_gpickle(graph, pickle_file)
 #TODO: node labels if not set, need to set from a sequence, ensure unique... etc
+    graph = nx.read_graphml(filename)
 
     # remove selfloops
     graph.remove_edges_from(edge for edge in graph.selfloop_edges())

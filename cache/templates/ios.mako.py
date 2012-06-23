@@ -3,8 +3,9 @@ from mako import runtime, filters, cache
 UNDEFINED = runtime.UNDEFINED
 __M_dict_builtin = dict
 __M_locals_builtin = locals
-_magic_number = 7
-_modified_time = 1340433399.000848
+_magic_number = 8
+_modified_time = 1340434905.218339
+_enable_loop = True
 _template_filename = 'templates/ios.mako'
 _template_uri = 'templates/ios.mako'
 _source_encoding = 'ascii'
@@ -12,9 +13,10 @@ _exports = []
 
 
 def render_body(context,**pageargs):
-    context.caller_stack._push_frame()
+    __M_caller = context.caller_stack._push_frame()
     try:
         __M_locals = __M_dict_builtin(pageargs=pageargs)
+        loop = __M_loop = runtime.LoopStack()
         node = context.get('node', UNDEFINED)
         __M_writer = context.writer()
         # SOURCE LINE 1
@@ -99,57 +101,99 @@ def render_body(context,**pageargs):
             # SOURCE LINE 46
             __M_writer(u'! ibgp\n')
             # SOURCE LINE 47
-            for client in node.bgp.ibgp_rr_clients:       
-                # SOURCE LINE 48
-                __M_writer(u'\t! ')
-                __M_writer(unicode(client.neighbor))
-                __M_writer(u'\n\tneighbor remote-as ')
-                # SOURCE LINE 49
-                __M_writer(unicode(client.neighbor.asn))
-                __M_writer(u'\n\tneighbor ')
-                # SOURCE LINE 50
-                __M_writer(unicode(client.loopback))
-                __M_writer(u' update-source ')
-                __M_writer(unicode(client.update_source))
-                __M_writer(u' \n\tneighbor ')
-                # SOURCE LINE 51
-                __M_writer(unicode(client.loopback))
-                __M_writer(u' route-reflector-client                                                   \n\tneighbor send-community      \n')
-                pass
-            # SOURCE LINE 54
-            for neigh in node.bgp.ibgp_neighbors:       
-                # SOURCE LINE 55
-                __M_writer(u'\t! ')
-                __M_writer(unicode(neigh.neighbor))
-                __M_writer(u'\n\tneighbor remote-as ')
-                # SOURCE LINE 56
-                __M_writer(unicode(neigh.neighbor.asn))
-                __M_writer(u'\n\tneighbor ')
-                # SOURCE LINE 57
-                __M_writer(unicode(neigh.loopback))
-                __M_writer(u' update-source ')
-                __M_writer(unicode(neigh.update_source))
-                __M_writer(u'                                                     \n\tneighbor send-community      \n')
-                pass
-            # SOURCE LINE 60
+            loop = __M_loop._enter(node.bgp.ibgp_rr_clients)
+            try:
+                for client in loop:
+                    # SOURCE LINE 48
+                    if loop.first:
+                        # SOURCE LINE 49
+                        __M_writer(u'\t! ibgp clients\n')
+                        pass
+                    # SOURCE LINE 51
+                    __M_writer(u'\t! ')
+                    __M_writer(unicode(client.neighbor))
+                    __M_writer(u'\n\tneighbor remote-as ')
+                    # SOURCE LINE 52
+                    __M_writer(unicode(client.neighbor.asn))
+                    __M_writer(u'\n\tneighbor ')
+                    # SOURCE LINE 53
+                    __M_writer(unicode(client.loopback))
+                    __M_writer(u' update-source ')
+                    __M_writer(unicode(client.update_source))
+                    __M_writer(u' \n\tneighbor ')
+                    # SOURCE LINE 54
+                    __M_writer(unicode(client.loopback))
+                    __M_writer(u' route-reflector-client                                                   \n\tneighbor send-community      \n')
+                    pass
+            finally:
+                loop = __M_loop._exit()
+            # SOURCE LINE 57
+            loop = __M_loop._enter(node.bgp.ibgp_rr_parents)
+            try:
+                for parent in loop:
+                    # SOURCE LINE 58
+                    if loop.first:
+                        # SOURCE LINE 59
+                        __M_writer(u'\t! ibgp route reflector servers\n')
+                        pass
+                    # SOURCE LINE 61
+                    __M_writer(u'\t! ')
+                    __M_writer(unicode(parent.neighbor))
+                    __M_writer(u'\n\tneighbor remote-as ')
+                    # SOURCE LINE 62
+                    __M_writer(unicode(parent.neighbor.asn))
+                    __M_writer(u'\n\tneighbor ')
+                    # SOURCE LINE 63
+                    __M_writer(unicode(parent.loopback))
+                    __M_writer(u' update-source ')
+                    __M_writer(unicode(parent.update_source))
+                    __M_writer(u' \n\tneighbor send-community      \n')
+                    pass
+            finally:
+                loop = __M_loop._exit()
+            # SOURCE LINE 66
+            loop = __M_loop._enter(node.bgp.ibgp_neighbors)
+            try:
+                for neigh in loop:
+                    # SOURCE LINE 67
+                    if loop.first:
+                        # SOURCE LINE 68
+                        __M_writer(u'\t! ibgp peers\n')
+                        pass
+                    # SOURCE LINE 70
+                    __M_writer(u'\t! ')
+                    __M_writer(unicode(neigh.neighbor))
+                    __M_writer(u'\n\tneighbor remote-as ')
+                    # SOURCE LINE 71
+                    __M_writer(unicode(neigh.neighbor.asn))
+                    __M_writer(u'\n\tneighbor ')
+                    # SOURCE LINE 72
+                    __M_writer(unicode(neigh.loopback))
+                    __M_writer(u' update-source ')
+                    __M_writer(unicode(neigh.update_source))
+                    __M_writer(u'                                                     \n\tneighbor send-community      \n')
+                    pass
+            finally:
+                loop = __M_loop._exit()
+            # SOURCE LINE 75
             __M_writer(u'! ebgp\n')
-            # SOURCE LINE 61
+            # SOURCE LINE 76
             for neigh in node.bgp.ebgp_neighbors:      
-                # SOURCE LINE 62
+                # SOURCE LINE 77
                 __M_writer(u'\t! ')
                 __M_writer(unicode(neigh.neighbor))
                 __M_writer(u' \n\tneighbor remote-as ')
-                # SOURCE LINE 63
+                # SOURCE LINE 78
                 __M_writer(unicode(neigh.neighbor.asn))
                 __M_writer(u'\n\tneighbor ')
-                # SOURCE LINE 64
+                # SOURCE LINE 79
                 __M_writer(unicode(neigh.loopback))
                 __M_writer(u' update-source ')
                 __M_writer(unicode(neigh.update_source))
                 __M_writer(u'                                                     \n\tneighbor send-community\n')
                 pass
             pass
-        # SOURCE LINE 68
+        # SOURCE LINE 83
         __M_writer(u'!\n!\nip forward-protocol nd\n!\nno ip http server\n!')
         return ''
     finally:

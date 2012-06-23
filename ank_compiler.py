@@ -4,6 +4,11 @@ import netaddr
 
 #TODO: for any property not in nidb, try and pass through to obtain from respective overlay, eg ospf tries from G_ospf.node(node) etc
 
+def dict_to_sorted_list(data):
+    """Returns values in dict, sorted by keys"""
+    data = sorted(data.items())
+    return [val for (key, val) in data]
+
 def compile_junos(nidb, anm):
     G_phy = anm.overlay.phy
     G_ip = anm.overlay.ip
@@ -85,26 +90,35 @@ def compile_ios(nidb, anm):
         # BGP
         asn = phy_node.asn # easy reference for cleaner code
         nidb_node.bgp.advertise_subnets = G_ip.data.asn_blocks[asn]
-        ibgp_neighbors = []
-        ibgp_rr_clients = []
-        ebgp_neighbors = []
+        ibgp_neighbors = {}
+        ibgp_rr_clients = {}
+        ibgp_rr_parents = {}
+        ebgp_neighbors = {}
         for session in G_bgp.edges(phy_node):
             neigh = session.dst
+            key = str(neigh) # used to index dict for sorting
             neigh_ip = G_ip.node(neigh)
             if session.type == "ibgp":
                 #print session.direction
-                ibgp_neighbors.append({
+                data = {
                     'neighbor': neigh,
                     'loopback': neigh_ip.loopback,
                     'update_source': "loopback 0",
-                    })
+                    }
+                if session.direction == 'down':
+                    ibgp_rr_clients[key] = data
+                elif session.direction == 'up':
+                    ibgp_rr_parents[key] = data
+                else:
+                    ibgp_neighbors[key] = data
             else:
-                ebgp_neighbors.append({
+                ebgp_neighbors[key] = {
                     'neighbor': neigh,
                     'loopback': neigh_ip.loopback,
                     'update_source': "loopback 0",
-                })
+                }
 
-        nidb_node.bgp.ibgp_rr_clients = ibgp_rr_clients
-        nidb_node.bgp.ibgp_neighbors = ibgp_neighbors
-        nidb_node.bgp.ebgp_neighbors = ebgp_neighbors
+        nidb_node.bgp.ibgp_rr_clients = dict_to_sorted_list(ibgp_rr_clients)
+        nidb_node.bgp.ibgp_rr_parents = dict_to_sorted_list(ibgp_rr_parents)
+        nidb_node.bgp.ibgp_neighbors = dict_to_sorted_list(ibgp_neighbors)
+        nidb_node.bgp.ebgp_neighbors = dict_to_sorted_list(ebgp_neighbors)
