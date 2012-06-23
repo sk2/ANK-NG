@@ -31,7 +31,8 @@ def render_node(node):
             render_template_file = node.render.template
         except KeyError, error:
             return
-        shutil.rmtree(render_output_dir)
+
+#TODO: make sure is an abspath here so don't wipe user directory!!!
         
         if not os.path.isdir(render_output_dir):
             os.makedirs(render_output_dir)
@@ -70,7 +71,11 @@ def render_node(node):
             mako_tmp_dir = "cache"
 
             #print("Copying fs for node %s" % (node))
-            shutil.rmtree(render_base_output_dir)
+#TODO: make sure render_base_output_dir is subdir of this one.. and abspath....
+            try:
+                shutil.rmtree(render_base_output_dir)
+            except OSError:
+                pass # doesn't exist
             shutil.copytree(render_base, render_base_output_dir, 
                     ignore=shutil.ignore_patterns('*.mako'))
 # now use templates
