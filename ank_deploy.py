@@ -54,7 +54,7 @@ def extract(host, tar_file, cd_dir):
         conn.send("exit")
 
 
-    accounts = [Account("sknight")]  # No account needed.
+    accounts = [Account("sknight")] 
     hosts = ['ssh://%s' % host]
     start(accounts, hosts, do_something, verbose = 0)
 
