@@ -4,7 +4,7 @@ UNDEFINED = runtime.UNDEFINED
 __M_dict_builtin = dict
 __M_locals_builtin = locals
 _magic_number = 8
-_modified_time = 1340434905.218339
+_modified_time = 1340446149.349819
 _enable_loop = True
 _template_filename = 'templates/ios.mako'
 _template_uri = 'templates/ios.mako'
@@ -38,10 +38,10 @@ def render_body(context,**pageargs):
             __M_writer(unicode(interface.subnet.netmask))
             __M_writer(u'   \n')
             # SOURCE LINE 17
-            if interface.cost:
+            if interface.ospf_cost:
                 # SOURCE LINE 18
                 __M_writer(u'\tip ospf cost ')
-                __M_writer(unicode(interface.cost))
+                __M_writer(unicode(interface.ospf_cost))
                 __M_writer(u'\n')
                 pass
             # SOURCE LINE 20

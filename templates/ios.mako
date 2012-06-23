@@ -14,8 +14,8 @@ ip cef
 interface ${interface.id}
 	description ${interface.description}
 	ip address ${interface.ip_address} ${interface.subnet.netmask}   
-	% if interface.cost:
-	ip ospf cost ${interface.cost}
+	% if interface.ospf_cost:
+	ip ospf cost ${interface.ospf_cost}
 	% endif
 	no shutdown
    	duplex auto

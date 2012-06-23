@@ -3,6 +3,7 @@ import ank
 import itertools
 from nidb import NIDB
 import ank_render
+import pprint
 import ank_compiler
 #import ank_plot
 
@@ -24,12 +25,17 @@ input_graph = ank.load_graphml(options.file)
 #input_graph = ank.load_graphml("graph_combined.graphml")
 
 G_in = anm.add_overlay("input", input_graph)
-ank.set_node_default(G_in, G_in.nodes(), platform="ios")
+ank.set_node_default(G_in, G_in.nodes(), platform="dynagen")
+
+# set syntax for routers according to platform
+G_in.update(G_in.nodes("is_router", platform = "junosphere"), syntax="junos")
+G_in.update(G_in.nodes("is_router", platform = "dynagen"), syntax="ios")
+G_in.update(G_in.nodes("is_router", platform = "netkit"), syntax="quagga")
 
 G_phy = anm.overlay.phy #G_phy created automatically by ank
 
 # build physical graph
-G_phy.add_nodes_from(G_in, retain=['label', 'device_type', 'asn', 'platform'])
+G_phy.add_nodes_from(G_in, retain=['label', 'device_type', 'asn', 'platform', 'host', 'syntax'])
 G_phy.add_edges_from([edge for edge in G_in.edges() if edge.type == "physical"])
 
 """
@@ -147,8 +153,14 @@ ank_plot.plot_pylab(G_ospf, edge_label_attribute='cost')
 ank_plot.plot_pylab(G_ip, edge_label_attribute = 'ip_address', node_label_attribute = 'loopback')
 """
 
-ank_compiler.compile_ios(nidb, anm)
-ank_compiler.compile_junos(nidb, anm)
+host = "trc1"
+junosphere_compiler = ank_compiler.JunosphereCompiler(nidb, anm, host)
+junosphere_compiler.compile()
+netkit_compiler = ank_compiler.NetkitCompiler(nidb, anm, host)
+netkit_compiler.compile()
+dynagen_compiler = ank_compiler.DynagenCompiler(nidb, anm, host)
+dynagen_compiler.compile()
+
 # update nidb graphics
 for node in nidb:
     graphics_node = G_graphics.node(node)
@@ -157,6 +169,10 @@ for node in nidb:
     node.graphics.device_type = graphics_node.device_type
 
 # and setup interfaces
+for node in nidb:
+    if node.interfaces:
+        #print pprint.pprint(node._node_data['interfaces'])
+        pass
 
 
 #TODO: don't need to transform, just need to pass a view of the nidb which does the wrapping: iterates through returned data, recursively, and wraps accordingly. ie pass the data to return through a recursive formatter which wraps
