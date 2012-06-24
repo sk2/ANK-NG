@@ -13,3 +13,4 @@ rendered/*
 *.dot
 *.ps
 cache/*
+nidb_history/*

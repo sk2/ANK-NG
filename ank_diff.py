@@ -9,10 +9,13 @@ def diff_history(directory):
     pickle_files = glob.glob(glob_dir)
     pickle_files = sorted(pickle_files)
     pairs = [(a, b) for (a, b) in zip(pickle_files, pickle_files[1:])]
+    diffs = []
     for fileA, fileB in pairs:
         graphA = nx.read_gpickle(fileA)
         graphB = nx.read_gpickle(fileB)
-        compare(graphA, graphB)
+        diffs.append(compare(graphA, graphB))
+
+    return diffs[-1:]
 
 def element_diff(elemA, elemB):
     try: # split out if single element lists
@@ -143,28 +146,5 @@ def compare(graphA, graphB):
             diff['edges']['m'][(src, dst)] = edge_diff
 
 
-    pprint.pprint(diff)
+    return diff
 
-
-    
-"""
-want to return structure:
-nodes {
-    'added': []
-    'removed': []
-    'modified': {}
-}
-edges {
-    'added': []
-    'removed': []
-    'modified': {}
-}
-
-and if modified, then list the properties
-eg {
-    'added': []
-    'removed': []
-    'modified': {}
-}
-and can be recursive
-"""

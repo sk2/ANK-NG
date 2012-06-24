@@ -478,6 +478,7 @@ def allocate_ips(G_ip):
     for asn in routers_by_asn:
 # Need to iterate by asn with routers, as single router AS may not have a cd
         asn_cds = cds_by_asn.get(asn) or []
+        asn_cds = sorted(asn_cds)
 #tree by ASN
 #TODO: Add in loopbacks as a subnet also
         asn_address_block = subnet_address_blocks.next()
@@ -544,7 +545,7 @@ def allocate_ips(G_ip):
         # now allocate to the links of each cd
         for cd in asn_cds:
             hosts = cd.subnet.iter_hosts()
-            for edge in cd.edges():
+            for edge in sorted(cd.edges()):
                 edge.ip_address = hosts.next()
 
         # traverse tree, allocate back to loopbacks, and to nodes

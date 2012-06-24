@@ -170,9 +170,10 @@ for node in nidb:
     node.graphics.y = graphics_node.y
     node.graphics.device_type = graphics_node.device_type
 
-#nidb.save()
+nidb.save()
 
-ank_diff.diff_history("nidb_history")
+diff = ank_diff.diff_history("nidb_history")
+pprint.pprint(diff)
 
 #TODO: plot the nidb
 #ank_plot.plot_pylab(nidb2, edge_label_attribute = 'id', node_label_attribute='platform')
