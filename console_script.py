@@ -178,9 +178,47 @@ for node in nidb:
         pass
 
 
+import networkx as nx
+pickle_file = "nidb.pickle"
+graph = nidb._graph
+print "PICKLING"
+#print nidb.dump()
+#pprint.pprint(graph.graph.items())
+#pprint.pprint(graph.nodes(data=True))
+#pprint.pprint(graph.edges(data=True))
+import pickle
+import sys
+pkl_file = open('nidb.pkl', 'w')
+for edge in nidb.edges():
+    print "edge is", edge
+    #pickle.dump(edge, sys.stdout)
+    pickle.dump(nidb, pkl_file, pickle.HIGHEST_PROTOCOL)
+    
+graph.graph = []
+
+sys.exit(0)
+
+import cPickle as pickle
+import sys
+#TODO: try higher level of pickling to replicate nx pickle error
+pkl_file = open('nidb.pkl', 'w')
+import netaddr
+pickle.dump(nidb, pkl_file, pickle.HIGHEST_PROTOCOL)
+pkl_file = open('nidb.pkl', 'rb')
+nidb2 = pickle.load(pkl_file)
+for node in nidb2:
+    print node
+#nx.write_gpickle(graph, pickle_file)
+
+
+#TODO: plot the nidb
+#ank_plot.plot_pylab(nidb2, edge_label_attribute = 'id', node_label_attribute='platform')
+
+# Now build the NIDB
 #TODO: don't need to transform, just need to pass a view of the nidb which does the wrapping: iterates through returned data, recursively, and wraps accordingly. ie pass the data to return through a recursive formatter which wraps
 print "rendering"
-ank_render.render(nidb)
+nidb2.dump()
+ank_render.render(nidb2)
 
 """
 tar_file = ank_deploy.package("rendered/trc1/netkit/", "netkit")
@@ -190,18 +228,5 @@ print "server", server
 cd_dir = "rendered/trc1/netkit/"
 ank_deploy.extract(server, tar_file, cd_dir)
 """
-import networkx as nx
-pickle_file = "nidb.pickle"
-graph = nidb._graph
-print "PICKLING"
-#print nidb.dump()
-#pprint.pprint(graph.graph.items())
-#pprint.pprint(graph.nodes(data=True))
-#pprint.pprint(graph.edges(data=True))
-#nx.write_gpickle(graph, pickle_file)
 
 
-#TODO: plot the nidb
-#ank_plot.plot_pylab(nidb, edge_label_attribute = 'id', node_label_attribute='platform')
-
-# Now build the NIDB

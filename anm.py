@@ -104,6 +104,18 @@ class overlay_node(object):
         except KeyError:
             return False
 
+    def __getstate__(self):
+        """For pickling"""
+        return (self.anm, self.overlay_id, self.node_id)
+
+    def __setstate__(self, state):
+        # Make self.history = state and last_change and value undefined
+        (anm, overlay_id, node_id) = state
+        object.__setattr__(self, 'anm', anm)
+        object.__setattr__(self, 'overlay_id', overlay_id)
+        object.__setattr__(self, 'node_id', node_id)
+
+
     @property
     def _graph(self):
         """Return graph the node belongs to"""
@@ -218,6 +230,20 @@ class overlay_edge(object):
 
     def __repr__(self):
         return "%s: (%s, %s)" % (self.overlay_id, self.src, self.dst)
+
+    def __getstate__(self):
+        """For pickling"""
+        return (self.anm, self.overlay_id, self.src_id, self.dst_id)
+
+    def __setstate__(self, state):
+        """For pickling"""
+        self._overlays = state
+        (anm, overlay_id, src_id, dst_id) = state
+#TODO: call to self __init__ ???
+        object.__setattr__(self, 'anm', anm)
+        object.__setattr__(self, 'overlay_id', overlay_id)
+        object.__setattr__(self, 'src_id', src_id)
+        object.__setattr__(self, 'dst_id', dst_id)
 
     @property
     def src(self):
@@ -551,6 +577,24 @@ class AbstractNetworkModel(object):
         self._overlays = {}
         self.add_overlay("phy")
 
+        self.label_seperator = "_"
+        self.label_attrs = ['label']
+        self._build_node_label()
+        
+
+    def __getstate__(self):
+        """For pickling"""
+        return (self._overlays, self.label_seperator, self.label_attrs)
+
+
+    def __setstate__(self, state):
+        """For pickling"""
+        (overlays, label_seperator, label_attrs) = state
+        self._overlays = overlays
+        self.label_seperator = label_seperator
+        self.label_attrs = label_attrs
+        self._build_node_label()
+
     @property
     def _phy(self):
         return overlay_graph(self, "phy")
@@ -577,26 +621,25 @@ class AbstractNetworkModel(object):
     def devices(self, *args, **kwargs):
         return self._phy.filter(*args, **kwargs)
 
-    def default_node_label(self, node, attrs = None, seperator = "_"):
-    
-        data = self._overlays['phy'].node[node.node_id]
-        return seperator.join(str(data.get(val)) for val in attrs)
-
     def node_label(self, node):
         """Returns node label from physical graph"""
         return self.default_node_label(node)
 
-    def set_node_label(self, seperator, attrs):
+    def _build_node_label(self):
+        def custom_label(node):
+            return self.label_seperator.join(str(self._overlays['phy'].node[node.node_id].get(val)) for val in self.label_attrs)
+
+        self.node_label = custom_label
+
+    def set_node_label(self, seperator, label_attrs):
         try:
-            attrs.lower()
-            attrs = [attrs] # was a string, put into list
+            label_attrs.lower()
+            label_attrs = [label_attrs] # was a string, put into list
         except AttributeError:
             pass # already a list
 
-        def custom_label(node):
-            return seperator.join(str(self._overlays['phy'].node[node.node_id].get(val)) for val in attrs)
-
-        self.node_label = custom_label
+        self.label_seperator = seperator
+        self.label_attrs = label_attrs
 
 
     #TODO: move this out into debug module

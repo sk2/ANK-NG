@@ -129,20 +129,7 @@ class JunosCompiler(RouterCompiler):
         
         if node in self.anm.overlay.bgp:
             bgp_data = self.bgp(node)
-            import pickle
-            import sys
             node.bgp.ebgp_neighbors = dict_to_sorted_list(bgp_data['ebgp_neighbors'], 'neighbor')
-            if node.bgp.ebgp_neighbors:
-                for neigh in node.bgp.ebgp_neighbors:
-                    print type(neigh)
-                    print "dumping", neigh
-                    for key, val in neigh.items():
-                        print key, val
-                        print "key is", key, "val is", val
-                        print "val type is", type(val)
-                        pickle.dump(val, sys.stdout)
-            else:
-                print "no bgp neighbors for ", node
 
     def interfaces(self, node):
         ip_node = self.anm.overlay.ip.node(node)
@@ -161,7 +148,6 @@ class JunosCompiler(RouterCompiler):
             }
 
         return interfaces
-
 
 # Platform compilers
 class PlatformCompiler(object):

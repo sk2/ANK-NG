@@ -45,15 +45,8 @@ class overlay_data_list_of_dicts(object):
     def __nonzero__(self):
         """Allows for checking if data exists """
         if len(self.data):
-            print "returning true"
             return True
         else:
-            print "returning false"
-            return False
-        try:
-            self._graph[self.src_id][self.dst_id]
-            return True
-        except KeyError:
             return False
 
     def __iter__(self):
@@ -88,6 +81,15 @@ class overlay_edge(object):
 
     def __repr__(self):
         return "(%s, %s)" % (self.src, self.dst)
+
+    def __getstate__(self):
+        return (self.nidb, self.src_id, self.dst_id)
+
+    def __setstate__(self, state):
+        (nidb, src_id, dst_id) = state
+        object.__setattr__(self, 'nidb', nidb)
+        object.__setattr__(self, 'src_id', src_id)
+        object.__setattr__(self, 'dst_id', dst_id)
 
     @property
     def src(self):
@@ -162,12 +164,26 @@ class nidb_node_subcategory(object):
         return self.nidb._graph.node[self.node_id][self.category_id][self.subcategory_id]
 
 class nidb_node_category(object):
+    #TODO: make this custom dict like above?
 
     def __init__(self, nidb, node_id, category_id):
 #Set using this method to bypass __setattr__ 
         object.__setattr__(self, 'nidb', nidb)
         object.__setattr__(self, 'node_id', node_id)
         object.__setattr__(self, 'category_id', category_id)
+
+    def __getstate__(self):
+        return (self.nidb, self.node_id)
+
+    def __setstate__(self, state):
+        """For pickling"""
+        self._overlays = state
+        (anm, overlay_id, src_id, dst_id) = state
+#TODO: call to self __init__ ???
+        object.__setattr__(self, 'anm', anm)
+        object.__setattr__(self, 'overlay_id', overlay_id)
+        object.__setattr__(self, 'src_id', src_id)
+        object.__setattr__(self, 'dst_id', dst_id)
 
     def __repr__(self):
         return str(self._node_data.get(self.category_id))
@@ -234,6 +250,14 @@ class nidb_node(object):
     def __repr__(self):
         return self._node_data['label']
 
+    def __getstate__(self):
+        return (self.nidb, self.node_id)
+
+    def __setstate__(self, state):
+        (nidb, node_id) = state
+        object.__setattr__(self, 'nidb', nidb)
+        object.__setattr__(self, 'node_id', node_id)
+
     @property
     def _node_data(self):
         return self.nidb._graph.node[self.node_id]
@@ -281,6 +305,9 @@ class nidb_node(object):
         self._node_data[key] = val
         #return nidb_node_category(self.nidb, self.node_id, key)
 
+    def __iter__(self):
+        return iter(self._node_data)
+
     @property
     def overlay(self):
         return overlay_node_accessor(self.nidb, self.node_id)
@@ -312,6 +339,12 @@ class NIDB_base(object):
 
     def __init__(self):
         pass
+
+    def __getstate__(self):
+        return self._graph
+
+    def __setstate__(self, state):
+        self._graph = state
 
     def __repr__(self):
         return "nidb"
