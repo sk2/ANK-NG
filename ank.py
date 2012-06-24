@@ -14,11 +14,6 @@ def name_folder_safe(foldername):
         foldername = foldername.replace("__", "_")
     return foldername
 
-def unique_id(length = 5):
-    """Generates a unique ID. TODO: want shorter unique ids"""
-    import uuid
-    return str(uuid.uuid4()).split("-")[0]
-
 #TODO: have function that goes over a list, edge edges_to_add and sets edge_id if not set
 #this cleans up the manual edge adding process
 

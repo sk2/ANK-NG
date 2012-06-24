@@ -132,12 +132,12 @@ def compare(graphA, graphB):
     edgesA = set(graphA.edges())
     edgesB = set(graphB.edges())
     diff['edges'] = {
-            'a': nodesB - edgesA,
-            'r': edgesA - nodesB,
+            'a': edgesB - edgesA,
+            'r': edgesA - edgesB,
             'm': {},
             }
-    commonEdges = edgesA & edgesB
 
+    commonEdges = edgesA & edgesB
     for (src, dst) in commonEdges:
         dictA = graphA[src][dst]
         dictB = graphB[src][dst]
