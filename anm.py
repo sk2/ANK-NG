@@ -118,6 +118,8 @@ class overlay_node(object):
         object.__setattr__(self, 'overlay_id', overlay_id)
         object.__setattr__(self, 'node_id', node_id)
 
+    def __eq__(self, other):
+        return self.node_id == other.node_id
 
     @property
     def _graph(self):

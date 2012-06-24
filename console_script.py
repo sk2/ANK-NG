@@ -172,8 +172,10 @@ for node in nidb:
 
 nidb.save()
 
+print "diffing"
+
 diff = ank_diff.diff_history("nidb_history")
-pprint.pprint(diff)
+#pprint.pprint(diff)
 
 #TODO: plot the nidb
 #ank_plot.plot_pylab(nidb2, edge_label_attribute = 'id', node_label_attribute='platform')

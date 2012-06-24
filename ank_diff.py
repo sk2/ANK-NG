@@ -4,18 +4,19 @@ import os
 import pprint
 from collections import defaultdict
 
-def diff_history(directory):
+def diff_history(directory, length = 1):
     glob_dir = os.path.join(directory, "*.pickle.tar.gz")
     pickle_files = glob.glob(glob_dir)
     pickle_files = sorted(pickle_files)
     pairs = [(a, b) for (a, b) in zip(pickle_files, pickle_files[1:])]
+    pairs = pairs[-1*length:]
     diffs = []
     for fileA, fileB in pairs:
         graphA = nx.read_gpickle(fileA)
         graphB = nx.read_gpickle(fileB)
         diffs.append(compare(graphA, graphB))
 
-    return diffs[-1:]
+    return diffs
 
 def element_diff(elemA, elemB):
     try: # split out if single element lists
