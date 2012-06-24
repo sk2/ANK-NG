@@ -1,6 +1,7 @@
 import networkx as nx
 import pprint
 import collections
+import time
 
 class overlay_data_dict(collections.MutableMapping):
     """A dictionary which allows access as dict.key as well as dict['key']
@@ -382,6 +383,18 @@ class NIDB_base(object):
                 pprint.pformat(self._graph.nodes(data=True)),
                 pprint.pformat(self._graph.edges(data=True))
                 )
+
+    def save(self):
+        import os
+        pickle_dir = "nidb_history"
+        if not os.path.isdir(pickle_dir):
+            os.makedirs(pickle_dir)
+
+        pickle_file = "nidb_%s.pickle.tar.gz" % time.strftime("%Y%m%d_%H%M%S", time.localtime())
+        pickle_path = os.path.join(pickle_dir, pickle_file)
+        print "saving to", pickle_path
+        nx.write_gpickle(self._graph, pickle_path)
+
 
     @property
     def name(self):

@@ -127,6 +127,10 @@ def load_graphml(filename):
 # apply defaults
 # relabel nodes
 #other handling... split this into seperate module!
+# relabel based on label: assume unique by now!
+    mapping = dict( (n, d['label']) for n, d in graph.nodes(data=True))
+    nx.relabel_nodes(graph, mapping, copy=False)
+    print graph.nodes()
     return graph
 
 

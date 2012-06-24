@@ -3,6 +3,7 @@ import ank
 import itertools
 from nidb import NIDB
 import ank_render
+import ank_diff
 import ank_deploy
 import pprint
 import ank_compiler
@@ -169,19 +170,9 @@ for node in nidb:
     node.graphics.y = graphics_node.y
     node.graphics.device_type = graphics_node.device_type
 
-# and setup interfaces
-for node in nidb:
-    if node.interfaces:
-        #print pprint.pprint(node._node_data['interfaces'])
-        pass
+#nidb.save()
 
-
-import networkx as nx
-pickle_file = "nidb.pickle.tar.gz"
-nx.write_gpickle(nidb._graph, pickle_file)
-pickle_file = "nidb.pickle"
-nx.write_gpickle(nidb._graph, pickle_file)
-
+ank_diff.diff_history("nidb_history")
 
 #TODO: plot the nidb
 #ank_plot.plot_pylab(nidb2, edge_label_attribute = 'id', node_label_attribute='platform')
