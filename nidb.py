@@ -36,6 +36,16 @@ class overlay_data_list_of_dicts(object):
     def __init__(self, data):
         self.data = data
 
+    def __getstate__(self):
+        return (self.data)
+
+    def __getnewargs__(self):
+        return ()
+
+    def __setstate__(self, state):
+        self.data = state
+
+
     def __len__(self):
         return len(self.data)
 
@@ -65,6 +75,9 @@ class overlay_edge_accessor(object):
         #TODO: make this list overlays the node is present in
         return "Overlay edge accessor: %s" % self.edge
 
+    def __getnewargs__(self):
+        return ()
+
     def __getattr__(self, overlay_id):
         """Access overlay edge"""
 #TODO: check on returning list or single edge if multiple found with same id (eg in G_igp from explode)
@@ -84,6 +97,9 @@ class overlay_edge(object):
 
     def __getstate__(self):
         return (self.nidb, self.src_id, self.dst_id)
+
+    def __getnewargs__(self):
+        return ()
 
     def __setstate__(self, state):
         (nidb, src_id, dst_id) = state
@@ -173,17 +189,20 @@ class nidb_node_category(object):
         object.__setattr__(self, 'category_id', category_id)
 
     def __getstate__(self):
-        return (self.nidb, self.node_id)
+        print "state has cat id", self.category_id
+        return (self.nidb, self.node_id, self.category_id)
+
+    def __getnewargs__(self):
+        return ()
 
     def __setstate__(self, state):
         """For pickling"""
         self._overlays = state
-        (anm, overlay_id, src_id, dst_id) = state
+        (nidb, node_id, category_id) = state
 #TODO: call to self __init__ ???
-        object.__setattr__(self, 'anm', anm)
-        object.__setattr__(self, 'overlay_id', overlay_id)
-        object.__setattr__(self, 'src_id', src_id)
-        object.__setattr__(self, 'dst_id', dst_id)
+        object.__setattr__(self, 'nidb', nidb)
+        object.__setattr__(self, 'node_id', node_id)
+        object.__setattr__(self, 'category_id', category_id)
 
     def __repr__(self):
         return str(self._node_data.get(self.category_id))
@@ -239,6 +258,8 @@ class nidb_node_category(object):
             setattr(self, key, val)
 
 
+#TODO: this should also inherit from collections, so don't break __getnewargs__ etc
+
 class nidb_node(object):
     """API to access overlay graph node in network"""
 
@@ -249,6 +270,9 @@ class nidb_node(object):
 
     def __repr__(self):
         return self._node_data['label']
+
+    def __getnewargs__(self):
+        return ()
 
     def __getstate__(self):
         return (self.nidb, self.node_id)
@@ -345,6 +369,9 @@ class NIDB_base(object):
 
     def __setstate__(self, state):
         self._graph = state
+
+    def __getnewargs__(self):
+        return ()
 
     def __repr__(self):
         return "nidb"

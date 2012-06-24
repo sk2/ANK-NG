@@ -123,13 +123,21 @@ class IosCompiler(RouterCompiler):
 class JunosCompiler(RouterCompiler):
 
     def compile(self, node):
+        import pickle
+        pkl_file = open('nidb.pkl', 'w')
+        
         node.interfaces = dict_to_sorted_list(self.interfaces(node), 'id')
         if node in self.anm.overlay.ospf:
             node.ospf.ospf_links = dict_to_sorted_list(self.ospf(node), 'network')
+            
         
         if node in self.anm.overlay.bgp:
             bgp_data = self.bgp(node)
             node.bgp.ebgp_neighbors = dict_to_sorted_list(bgp_data['ebgp_neighbors'], 'neighbor')
+        try:
+            pickle.dump(node, pkl_file, pickle.HIGHEST_PROTOCOL)
+        except:
+            print "error"
 
     def interfaces(self, node):
         ip_node = self.anm.overlay.ip.node(node)

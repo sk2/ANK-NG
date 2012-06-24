@@ -104,6 +104,9 @@ class overlay_node(object):
         except KeyError:
             return False
 
+    def __getnewargs__(self):
+        return ()
+
     def __getstate__(self):
         """For pickling"""
         return (self.anm, self.overlay_id, self.node_id)
@@ -230,6 +233,9 @@ class overlay_edge(object):
 
     def __repr__(self):
         return "%s: (%s, %s)" % (self.overlay_id, self.src, self.dst)
+
+    def __getnewargs__(self):
+        return ()
 
     def __getstate__(self):
         """For pickling"""
@@ -581,6 +587,9 @@ class AbstractNetworkModel(object):
         self.label_attrs = ['label']
         self._build_node_label()
         
+
+    def __getnewargs__(self):
+        return ()
 
     def __getstate__(self):
         """For pickling"""

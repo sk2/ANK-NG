@@ -157,12 +157,10 @@ ank_plot.plot_pylab(G_ip, edge_label_attribute = 'ip_address', node_label_attrib
 host = "trc1"
 junosphere_compiler = ank_compiler.JunosphereCompiler(nidb, anm, host)
 junosphere_compiler.compile()
-"""
 netkit_compiler = ank_compiler.NetkitCompiler(nidb, anm, host)
 netkit_compiler.compile()
 dynagen_compiler = ank_compiler.DynagenCompiler(nidb, anm, host)
 dynagen_compiler.compile()
-"""
 
 # update nidb graphics
 for node in nidb:
@@ -179,36 +177,10 @@ for node in nidb:
 
 
 import networkx as nx
+pickle_file = "nidb.pickle.tar.gz"
+nx.write_gpickle(nidb._graph, pickle_file)
 pickle_file = "nidb.pickle"
-graph = nidb._graph
-print "PICKLING"
-#print nidb.dump()
-#pprint.pprint(graph.graph.items())
-#pprint.pprint(graph.nodes(data=True))
-#pprint.pprint(graph.edges(data=True))
-import pickle
-import sys
-pkl_file = open('nidb.pkl', 'w')
-for edge in nidb.edges():
-    print "edge is", edge
-    #pickle.dump(edge, sys.stdout)
-    pickle.dump(nidb, pkl_file, pickle.HIGHEST_PROTOCOL)
-    
-graph.graph = []
-
-sys.exit(0)
-
-import cPickle as pickle
-import sys
-#TODO: try higher level of pickling to replicate nx pickle error
-pkl_file = open('nidb.pkl', 'w')
-import netaddr
-pickle.dump(nidb, pkl_file, pickle.HIGHEST_PROTOCOL)
-pkl_file = open('nidb.pkl', 'rb')
-nidb2 = pickle.load(pkl_file)
-for node in nidb2:
-    print node
-#nx.write_gpickle(graph, pickle_file)
+nx.write_gpickle(nidb._graph, pickle_file)
 
 
 #TODO: plot the nidb
@@ -216,9 +188,7 @@ for node in nidb2:
 
 # Now build the NIDB
 #TODO: don't need to transform, just need to pass a view of the nidb which does the wrapping: iterates through returned data, recursively, and wraps accordingly. ie pass the data to return through a recursive formatter which wraps
-print "rendering"
-nidb2.dump()
-ank_render.render(nidb2)
+ank_render.render(nidb)
 
 """
 tar_file = ank_deploy.package("rendered/trc1/netkit/", "netkit")
