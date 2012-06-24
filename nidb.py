@@ -1,20 +1,36 @@
 import networkx as nx
 import pprint
+import collections
 
-class overlay_data_dict(object):
-    def __init__(self, data):
-        self.data = data
+class overlay_data_dict(collections.MutableMapping):
+    """A dictionary which allows access as dict.key as well as dict['key']
+    Based on http://stackoverflow.com/questions/3387691
+    """
 
-    def __repr__(self):
-        return str(self.data)
+    def __init__(self, *args, **kwargs):
+        self.store = dict()
+        self.update(dict(*args, **kwargs)) # use the free update to set keys
 
     def __getitem__(self, key):
-        """To act as a dict eg self['item']"""
-        return self.data.get(key)
+        return self.store[self.__keytransform__(key)]
+
+    def __setitem__(self, key, value):
+        self.store[self.__keytransform__(key)] = value
+
+    def __delitem__(self, key):
+        del self.store[self.__keytransform__(key)]
+
+    def __iter__(self):
+        return iter(self.store)
+
+    def __len__(self):
+        return len(self.store)
+
+    def __keytransform__(self, key):
+        return key
 
     def __getattr__(self, key):
-        """Access category"""
-        return self.data.get(key)
+        return self.store.get(key)
 
 class overlay_data_list_of_dicts(object):
     def __init__(self, data):
@@ -22,6 +38,23 @@ class overlay_data_list_of_dicts(object):
 
     def __len__(self):
         return len(self.data)
+
+    def __repr__(self):
+        return str(self.data)
+
+    def __nonzero__(self):
+        """Allows for checking if data exists """
+        if len(self.data):
+            print "returning true"
+            return True
+        else:
+            print "returning false"
+            return False
+        try:
+            self._graph[self.src_id][self.dst_id]
+            return True
+        except KeyError:
+            return False
 
     def __iter__(self):
         #TODO: want to introduce some sorting here.... how?
@@ -155,7 +188,6 @@ class nidb_node_category(object):
 
     def __getitem__(self, key):
         """Used to access the data directly. calling node.key returns wrapped data for templates"""
-        print "getting", key
         return self._category_data[key]
 
     @property

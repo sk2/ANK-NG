@@ -157,10 +157,12 @@ ank_plot.plot_pylab(G_ip, edge_label_attribute = 'ip_address', node_label_attrib
 host = "trc1"
 junosphere_compiler = ank_compiler.JunosphereCompiler(nidb, anm, host)
 junosphere_compiler.compile()
+"""
 netkit_compiler = ank_compiler.NetkitCompiler(nidb, anm, host)
 netkit_compiler.compile()
 dynagen_compiler = ank_compiler.DynagenCompiler(nidb, anm, host)
 dynagen_compiler.compile()
+"""
 
 # update nidb graphics
 for node in nidb:
@@ -180,12 +182,23 @@ for node in nidb:
 print "rendering"
 ank_render.render(nidb)
 
+"""
 tar_file = ank_deploy.package("rendered/trc1/netkit/", "netkit")
 server = "trc1.trc.adelaide.edu.au"
 ank_deploy.transfer(server, "sknight", tar_file, tar_file)
 print "server", server
 cd_dir = "rendered/trc1/netkit/"
 ank_deploy.extract(server, tar_file, cd_dir)
+"""
+import networkx as nx
+pickle_file = "nidb.pickle"
+graph = nidb._graph
+print "PICKLING"
+#print nidb.dump()
+#pprint.pprint(graph.graph.items())
+#pprint.pprint(graph.nodes(data=True))
+#pprint.pprint(graph.edges(data=True))
+#nx.write_gpickle(graph, pickle_file)
 
 
 #TODO: plot the nidb
