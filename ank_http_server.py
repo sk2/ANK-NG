@@ -20,6 +20,7 @@ class MyHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
+            #TODO: handle "/" and return index.html
             if self.path.endswith("data.json"):
                 print self.path
                 overlay_graph = self.server.get_overlay()
@@ -28,11 +29,31 @@ class MyHandler(BaseHTTPRequestHandler):
                     graph.node[node.node_id]['label'] = node.overlay.input.label
                     graph.node[node.node_id]['x'] = node.overlay.graphics.x
                     graph.node[node.node_id]['y'] = node.overlay.graphics.y
+                    graph.node[node.node_id]['device_type'] = node.overlay.graphics.device_type
 
+                #TODO: need  to normalize
+                x_min = min(data['x'] for n, data in graph.nodes(data=True))
+                y_min = min(data['y'] for n, data in graph.nodes(data=True))
+                for node in graph.nodes():
+                    graph.node[node]['x'] = graph.node[node]['x'] - x_min
+                    graph.node[node]['y'] = graph.node[node]['y'] - y_min
+
+                node_data_list = []
                 for node, data in graph.nodes(data=True):
-                    add_nodes = {'an': {node: {'label': data['label']}}}
-                    data =  json.dumps(add_nodes)
-                    print data
+                    node_data_list.append( {
+                        'x': int(data['x']),
+                        'y': int(data['y']),
+                        'label': data['label'],
+                        'device_type': data['device_type'],
+                        })
+
+                node_data = {'points': node_data_list}
+                data =  json.dumps(node_data)
+                print "serving", data
+                self.send_response(200)
+                self.send_header('Content-type',    'text/json')
+                self.end_headers()
+                self.wfile.write(data)
 
 # server up overlay
             else:
@@ -50,7 +71,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 return
 
         except IOError:
-            self.send_error(404,'File Not Found: %s' % self.path)
+            print "not found", self.path
             
             
 

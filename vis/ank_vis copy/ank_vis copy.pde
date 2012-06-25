@@ -1,9 +1,8 @@
 
 ArrayList points;
-ArrayList edges;
 
 PImage router;
-PImage icon_switch;
+PImage switch;
 PImage server;
 
 PFont font;
@@ -25,8 +24,7 @@ PFont font;
        Point pt = (Point) points.get(p);
        if(p<end-1) {
          Point next = (Point) points.get(p+1);
-         //line(pt.x,pt.y,next.x,next.y);
-       }
+         line(pt.x,pt.y,next.x,next.y); }
        pt.draw(); }
    }
 
@@ -48,9 +46,6 @@ PFont font;
      if (device_type.equals("switch")) {
        icon = icon_switch;
      }
-     if (device_type.equals("collision_domain")) {
-       icon = icon_switch;
-     }
      if (device_type.equals("server")) {
        icon = server;
      }
@@ -66,7 +61,7 @@ PFont font;
      PImage icon;
      Point(int x, int y, String label, PImage icon ) { this.x=x+50; this.y=y+50; this.label = label, this.icon = icon}
      void draw() {
-       image(icon, x - icon.width/2, y - icon.height/2);
+       image(icon, x - b.width/2, y - icon.height/2);
        textAlign(CENTER);
        text(label, x, y + icon.height/3);
        //stroke(255,0,0);
@@ -74,5 +69,3 @@ PFont font;
        //ellipse(x,y,10,10);
      }
    }
-
-  

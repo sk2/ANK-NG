@@ -15,7 +15,7 @@
              // we know the JSON is an array of points, called "points"
              for(p=0, end=data.points.length; p<end; p++) {
                var point = data.points[p];
-               pjs.addPoint(point.x, point.y);
+               pjs.addPoint(point.x, point.y, point.label, point.device_type);
              }
            }
          }
