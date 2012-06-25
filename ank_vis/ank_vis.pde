@@ -39,7 +39,6 @@ void mouseReleased() {
       Point pt = (Point) me.getValue();
       if ( (mouseX > pt.x - pt.icon.width/2 && mouseX < pt.x + pt.icon.width/2) && 
           (mouseY > pt.y - pt.icon.height/2 && mouseY < pt.y + pt.icon.height/2) ) {
-        println("Adding edge" + selectedNode.label + "->" + pt.label);
         edges.add(new Edge(selectedNode.label, pt.label));
           }
     }
@@ -47,18 +46,31 @@ void mouseReleased() {
 }
 
 void mouseClicked() {
+  boolean clicked_a_node = boolean("false");
   Iterator i = nodes.entrySet().iterator();  // Get an iterator
   while (i.hasNext()) {
     Map.Entry me = (Map.Entry)i.next();
     Point pt = (Point) me.getValue();
     if ( (mouseX > pt.x - pt.icon.width/2 && mouseX < pt.x + pt.icon.width/2) && 
         (mouseY > pt.y - pt.icon.height/2 && mouseY < pt.y + pt.icon.height/2) ) {
-     // javascript.showLabel(pt.label);
+      javascript.showLabel(pt.label);
+      clicked_a_node = boolean("true");
         }
   }
-  //if(javascript!=null){
-    //javascript.showXYCoordinates(mouseX, mouseY);
-  //}
+  if (clicked_a_node) {
+  }
+  else {
+    //nodes.put("myRtr", new Point(mouseX,mouseY, "myRtr", router));
+    //redraw();
+  }
+}
+
+
+Edge addEdge(Point src, Point dst) {
+
+  Edge edge = new Edge(src, dst);
+  edges.add(edge);
+  return edge;
 }
 
 void setup() {
@@ -78,7 +90,6 @@ void draw() {
     //draw edges first so underneath icons
   for(int e=0, end=edges.size(); e < end; e++) {
     Edge myEdge = (Edge) edges.get(e);
-    println("Draw edge" + myEdge.src.label + "->" + myEdge.dst.label);
     myEdge.draw();
   }
 
@@ -143,13 +154,10 @@ class Edge {
 
   Edge(String src, String dst) {
     this.src = (Point)nodes.get(src);
-    println("src" + this.src.x);
     this.dst = (Point)nodes.get(dst);
-    println("dst" + this.dst.x);
   }
 
   void draw() {
-    println("drawing")
     fill(0, 0, 0);
     line(src.x,src.y, dst.x,dst.y);
   }

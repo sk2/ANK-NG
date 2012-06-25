@@ -47,8 +47,17 @@ class MyHandler(BaseHTTPRequestHandler):
                         'device_type': data['device_type'],
                         })
 
-                node_data = {'points': node_data_list}
-                data =  json.dumps(node_data)
+
+                edge_data_list = []
+                for src, dst in graph.edges():
+                    edge_data_list.append( {
+                        'src': graph.node[src]['label'],
+                        'dst': graph.node[dst]['label'],
+                        })
+                graph_data = {'points': node_data_list,
+                        'edges': edge_data_list}
+
+                data =  json.dumps(graph_data)
                 print "serving", data
                 self.send_response(200)
                 self.send_header('Content-type',    'text/json')

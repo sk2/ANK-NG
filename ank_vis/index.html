@@ -26,12 +26,15 @@ function plotPoints(data) {
   var id = "ank_vis";
   var pjs = Processing.getInstanceById(id);
 
-
   if(data) {
     // we know the JSON is an array of points, called "points"
     for(p=0, end=data.points.length; p<end; p++) {
       var point = data.points[p];
       pjs.addPoint(point.x, point.y, point.label, point.device_type);
+    }
+    for(p=0, end=data.edges.length; p<end; p++) {
+      var edge = data.edges[p];
+      pjs.addEdge(edge.src, edge.dst); 
     }
   }
 }
