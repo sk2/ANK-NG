@@ -126,7 +126,7 @@ else:
 ebgp_nodes = [d for d in G_bgp if any(edge.type == 'ebgp' for edge in d.edges())]
 G_bgp.update(ebgp_nodes, ebgp=True)
 
-ank_http_server.stream(G_in)
+ank_http_server.stream(G_phy)
 
 #ank.save(G_bgp)
 #ank.save(G_phy)
