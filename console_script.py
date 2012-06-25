@@ -7,6 +7,7 @@ import ank_diff
 import ank_deploy
 import pprint
 import ank_compiler
+import ank_http_server
 #import ank_plot
 
 import optparse
@@ -125,10 +126,13 @@ else:
 ebgp_nodes = [d for d in G_bgp if any(edge.type == 'ebgp' for edge in d.edges())]
 G_bgp.update(ebgp_nodes, ebgp=True)
 
+ank_http_server.stream(G_in)
+
 #ank.save(G_bgp)
 #ank.save(G_phy)
 
 #TODO: set fqdn property
+
 
 nidb = NIDB() 
 #TODO: build this on a platform by platform basis

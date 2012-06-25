@@ -129,36 +129,7 @@ def load_graphml(filename):
     return graph
 
 
-def stream(overlay_graph):
-    import json
-    import urllib2
 
-    proxy_handler = urllib2.ProxyHandler({})
-    opener = urllib2.build_opener(proxy_handler)
-    urllib2.install_opener(opener)
-    url = "http://localhost:8080/workspace0?operation=getGraph"
-    #req = urllib2.Request(url, data, {'Content-Type': 'application/json'})
-
-
-    graph = overlay_graph._graph.copy()
-    for node in overlay_graph:
-        graph.node[node.node_id]['label'] = node.overlay.input.label
-        graph.node[node.node_id]['x'] = node.overlay.graphics.x
-        graph.node[node.node_id]['y'] = node.overlay.graphics.y
-
-    for node, data in graph.nodes(data=True):
-        add_nodes = {'an': {node: {'label': data['label']}}}
-        data =  json.dumps(add_nodes)
-        print data
-        print 'curl "http://localhost:8080/workspace0?operation=updateGraph" -d "%s"' % data
-        req = urllib2.Request(url, data, {'Content-Type': 'application/json'})
-        f = urllib2.urlopen(req)
-        #response = f.read()
-        f.close()
-        #print response
-    #add_edges = {'ae':data['links']}
-    #print 'curl "http://localhost:8080/workspace0?operation=updateGraph -d "%s"' % pprint.pformat(add_nodes)
-    #pprint.pformat(add_edges)
 
 def save(overlay_graph):
     import netaddr
