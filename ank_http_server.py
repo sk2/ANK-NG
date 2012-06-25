@@ -21,6 +21,9 @@ class MyHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
             #TODO: handle "/" and return index.html
+            if self.path == "/":
+                self.path = "/index.html"
+
             if self.path.endswith("data.json"):
                 overlay_graph = self.server.get_overlay()
                 graph = overlay_graph._graph.copy()
@@ -61,6 +64,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 file_location = os.path.join(os.getcwd(), "vis", stripped_path)
 #note that this potentially makes every file on your computer readable by the internet
                 f = open(file_location, "r")
+                print "Serving", stripped_path
 
                 self.send_response(200)
                 self.send_header('Content-type',    'text/html')
