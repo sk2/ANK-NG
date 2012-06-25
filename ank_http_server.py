@@ -22,7 +22,6 @@ class MyHandler(BaseHTTPRequestHandler):
         try:
             #TODO: handle "/" and return index.html
             if self.path.endswith("data.json"):
-                print self.path
                 overlay_graph = self.server.get_overlay()
                 graph = overlay_graph._graph.copy()
                 for node in overlay_graph:
