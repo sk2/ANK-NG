@@ -1,7 +1,5 @@
-import string,cgi,time
 import os
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-import sys
 import json
 
 class MyServer(HTTPServer):
@@ -61,7 +59,7 @@ class MyHandler(BaseHTTPRequestHandler):
             else:
                 #TODO: use os path join here
                 stripped_path = self.path[1:] #TODO: See how BaseHTTPServer does this for example
-                file_location = os.path.join(os.getcwd(), "vis", stripped_path)
+                file_location = os.path.join(os.getcwd(), "ank_vis", stripped_path)
 #note that this potentially makes every file on your computer readable by the internet
                 f = open(file_location, "r")
                 print "Serving", stripped_path
@@ -77,10 +75,6 @@ class MyHandler(BaseHTTPRequestHandler):
             print "not found", self.path
             
             
-
-
-
-
 def stream(overlay_graph):
     import json
     import urllib2
