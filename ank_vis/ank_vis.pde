@@ -80,8 +80,8 @@ void setup() {
   router = loadImage("router.jpg");
   icon_switch = loadImage("switch.jpg");
   server = loadImage("server.jpg");
-  //font = loadFont("Helvetica.ttf");
-  //textFont(font, 14);
+  font = loadFont("Helvetica.ttf");
+  textFont(font, 14);
 }
 
 void draw() {
@@ -158,7 +158,8 @@ class Edge {
   }
 
   void draw() {
-    fill(0, 0, 0);
+    stroke(150);
+    strokeWeight(1.5);
     line(src.x,src.y, dst.x,dst.y);
   }
 
