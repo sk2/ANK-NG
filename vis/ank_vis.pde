@@ -68,7 +68,8 @@ PFont font;
      void draw() {
        image(icon, x - icon.width/2, y - icon.height/2);
        textAlign(CENTER);
-       text(label, x, y + icon.height/3);
+       fill(0, 0, 0);
+       text(label, x, y + 0.8 *icon.height);
        //stroke(255,0,0);
        //fill(255);
        //ellipse(x,y,10,10);
