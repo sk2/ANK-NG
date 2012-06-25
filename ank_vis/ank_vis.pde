@@ -1,4 +1,4 @@
-ArrayList edges;
+  ArrayList edges = new ArrayList();
 HashMap nodes = new HashMap();
 
 PImage router;
@@ -25,7 +25,6 @@ void mousePressed() {
     Point pt = (Point) me.getValue();
     if ( (mouseX > pt.x - pt.icon.width/2 && mouseX < pt.x + pt.icon.width/2) && 
         (mouseY > pt.y - pt.icon.height/2 && mouseY < pt.y + pt.icon.height/2) ) {
-        println("pressed" + pt.label);
         selectedNode = pt;
         }
   }
@@ -40,7 +39,8 @@ void mouseReleased() {
       Point pt = (Point) me.getValue();
       if ( (mouseX > pt.x - pt.icon.width/2 && mouseX < pt.x + pt.icon.width/2) && 
           (mouseY > pt.y - pt.icon.height/2 && mouseY < pt.y + pt.icon.height/2) ) {
-        println("from" + selectedNode.label + "->" + pt.label);
+        println("Adding edge" + selectedNode.label + "->" + pt.label);
+        edges.add(new Edge(selectedNode.label, pt.label));
           }
     }
   }
@@ -53,7 +53,7 @@ void mouseClicked() {
     Point pt = (Point) me.getValue();
     if ( (mouseX > pt.x - pt.icon.width/2 && mouseX < pt.x + pt.icon.width/2) && 
         (mouseY > pt.y - pt.icon.height/2 && mouseY < pt.y + pt.icon.height/2) ) {
-      javascript.showLabel(pt.label);
+     // javascript.showLabel(pt.label);
         }
   }
   //if(javascript!=null){
@@ -63,6 +63,7 @@ void mouseClicked() {
 
 void setup() {
   size(800, 600);
+  ArrayList edges = new ArrayList();
   HashMap nodes = new HashMap();
   router = loadImage("router.jpg");
   icon_switch = loadImage("switch.jpg");
@@ -74,12 +75,22 @@ void setup() {
 void draw() {
   background(255,255,255);
 
+    //draw edges first so underneath icons
+  for(int e=0, end=edges.size(); e < end; e++) {
+    Edge myEdge = (Edge) edges.get(e);
+    println("Draw edge" + myEdge.src.label + "->" + myEdge.dst.label);
+    myEdge.draw();
+  }
+
   Iterator i = nodes.entrySet().iterator();  // Get an iterator
   while (i.hasNext()) {
     Map.Entry me = (Map.Entry)i.next();
     Point pt = (Point) me.getValue();
     pt.draw();
   }
+
+
+
 }
 
 Point addPoint(int x, int y, String label, String device_type) {
@@ -127,18 +138,20 @@ class Point {
 }
 
 class Edge {
-  String src;
-  String dst;
+  Point src;
+  Point dst;
 
   Edge(String src, String dst) {
-    this.src = (Node)nodes.get(src);
-    this.dst = (Node)nodes.get(dst);
+    this.src = (Point)nodes.get(src);
+    println("src" + this.src.x);
+    this.dst = (Point)nodes.get(dst);
+    println("dst" + this.dst.x);
   }
 
   void draw() {
-    println(edges);
-
-
+    println("drawing")
+    fill(0, 0, 0);
+    line(src.x,src.y, dst.x,dst.y);
   }
 
 }
