@@ -1,0 +1,28 @@
+ <html>
+     <head>
+       <title>My Processing Page</title>
+       <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
+       </script>
+     </head>
+     <body>
+
+       <script type="text/javascript">
+$.getJSON("data.json",
+        function(data){
+          $.each(data.points, function(i,item){
+            $('#images').append(item.x + " " + item.y + "<br>");
+            
+            if ( i == 3 ) return false;
+          });
+        });
+
+       </script>
+
+       <div id = "images">
+         here
+       
+       </div>
+     
+
+     </body>
+   </html>
