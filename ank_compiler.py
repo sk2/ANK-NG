@@ -1,6 +1,7 @@
 import ank
 import itertools
 import netaddr
+import os
 
 #TODO: for any property not in nidb, try and pass through to obtain from respective overlay, eg ospf tries from G_ospf.node(node) etc
 
@@ -55,6 +56,7 @@ class RouterCompiler(object):
         G_ospf = self.anm.overlay.ospf
         phy_node = self.anm.overlay.phy.node(node)
         node.ospf.process_id = 1
+        node.ospf.lo_interface = "Loopback0"
         ospf_links = {}
         for link in G_ospf.edges(phy_node):
             ospf_links[link] = {
@@ -146,9 +148,6 @@ class Ios2Compiler(RouterCompiler):
         loopback_subnet = netaddr.IPNetwork("0.0.0.0/32")
 
         interfaces = super(Ios2Compiler, self).interfaces(node)
-        # OSPF cost
-        for link in interfaces:
-            interfaces[link]['ospf cost'] = link.overlay.ospf.cost
 
         interfaces['lo0'] = {
             'id': 'Loopback0',
@@ -166,6 +165,8 @@ class Ios2Compiler(RouterCompiler):
         ip_node = self.anm.overlay.ip.node(node)
         node.ospf.router_id = ip_node.loopback
         node.ospf.area = 0 #TODO: build area dict from node/links
+
+        node.ospf.lo_interface = "Loopback0"
         
         G_ospf = self.anm.overlay.ospf
         phy_node = self.anm.overlay.phy.node(node)
@@ -179,6 +180,7 @@ class Ios2Compiler(RouterCompiler):
                 'interface': nidb_edge.id,
                 'cost': link.cost,
                 }
+
         return ospf_links
 
 class JunosCompiler(RouterCompiler):
@@ -217,6 +219,10 @@ class PlatformCompiler(object):
         self.nidb = nidb
         self.anm = anm
         self.host = host
+
+    @property
+    def timestamp(self):
+        return self.nidb.timestamp
 
     def compile(self):
         #TODO: make this abstract
@@ -291,7 +297,7 @@ class CiscoCompiler(PlatformCompiler):
         for phy_node in G_phy.nodes('is_router', host = self.host, syntax='ios'):
             nidb_node = self.nidb.node(phy_node)
             nidb_node.render.template = "templates/ios.mako"
-            nidb_node.render.dst_folder = self.host
+            nidb_node.render.dst_folder = os.path.join(self.host, self.timestamp)
             nidb_node.render.dst_file = "%s.conf" % ank.name_folder_safe(phy_node.label)
 
             # Assign interfaces
@@ -304,8 +310,8 @@ class CiscoCompiler(PlatformCompiler):
         for phy_node in G_phy.nodes('is_router', host = self.host, syntax='ios2'):
             nidb_node = self.nidb.node(phy_node)
             nidb_node.render.base = "templates/ios2"
-            nidb_node.render.dst_folder = self.host
-            nidb_node.render.base_dst_folder = "%s/%s" % (self.host, phy_node)
+            nidb_node.render.dst_folder = os.path.join(self.host, self.timestamp)
+            nidb_node.render.base_dst_folder = os.path.join(self.host, self.timestamp, str(phy_node))
 
             # Assign interfaces
             int_ids = self.interface_ids_ios2()

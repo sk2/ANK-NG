@@ -390,10 +390,9 @@ class NIDB_base(object):
         if not os.path.isdir(pickle_dir):
             os.makedirs(pickle_dir)
 
-        pickle_file = "nidb_%s.pickle.tar.gz" % time.strftime("%Y%m%d_%H%M%S", time.localtime())
+        pickle_file = "nidb_%s.pickle.tar.gz" % self.timestamp
         pickle_path = os.path.join(pickle_dir, pickle_file)
         nx.write_gpickle(self._graph, pickle_path)
-
 
     @property
     def name(self):
@@ -531,6 +530,7 @@ class NIDB_base(object):
 class NIDB(NIDB_base):
     def __init__(self):
         self._graph = nx.Graph() # only for connectivity, any other information stored on node
+        self.timestamp =  time.strftime("%Y%m%d_%H%M%S", time.localtime())
 
     def subgraph(self, nbunch, name = None):
         nbunch = (n.node_id for n in nbunch) # only store the id in overlay

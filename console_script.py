@@ -15,7 +15,7 @@ import ank_change_monitor
 import optparse
 opt = optparse.OptionParser()
 opt.add_option('--file', '-f', default= None, help="Load topology from FILE")        
-opt.add_option('--monitor', '-m', default= False, help="Monitor input file for changes")        
+opt.add_option('--monitor', '-m',  action="store_true", default= False, help="Monitor input file for changes")        
 options, arguments = opt.parse_args()
 
 input_filename = options.file
@@ -186,9 +186,9 @@ def compile_network(anm):
         node.graphics.y = graphics_node.y
         node.graphics.device_type = graphics_node.device_type
 
-    nidb.save()
+    #nidb.save()
 
-    diff = ank_diff.diff_history("nidb_history")
+    #diff = ank_diff.diff_history("nidb_history")
 #pprint.pprint(diff)
 
 #TODO: plot the nidb
@@ -197,7 +197,6 @@ def compile_network(anm):
 # Now build the NIDB
 #TODO: don't need to transform, just need to pass a view of the nidb which does the wrapping: iterates through returned data, recursively, and wraps accordingly. ie pass the data to return through a recursive formatter which wraps
     ank_render.render(nidb)
-
 
     return nidb
 
@@ -218,11 +217,15 @@ nidb = compile_network(anm)
 
 #TODO: add support for nidb subgraphs, especially for platforms, and show boundary nodes and boundary edges easily
 if options.monitor:
-    print "Monitoring for updates..."
-    while True:
-        time.sleep(0.2)
-        if ank_change_monitor.check_for_change(input_filename, anm):
-            print "Input graph updated, recompiling network"
-            anm = build_network(input_filename)
-            nidb = compile_network(anm)
-            print "Monitoring for updates..."
+    try:
+        print "Monitoring for updates..."
+        while True:
+            time.sleep(0.2)
+            if ank_change_monitor.check_for_change(input_filename, anm):
+                print "Input graph updated, recompiling network"
+                anm = build_network(input_filename)
+                nidb = compile_network(anm)
+                print "Monitoring for updates..."
+    except KeyboardInterrupt:
+        print
+        print "Exiting"
