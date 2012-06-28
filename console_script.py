@@ -25,7 +25,6 @@ def build_network(input_filename):
 
     anm = AbstractNetworkModel()
 
-    anm.set_node_label(".",  ['label', 'asn'])
 
     input_graph = ank.load_graphml(input_filename)
 #input_graph = ank.load_graphml("graph_combined.graphml")
@@ -33,6 +32,9 @@ def build_network(input_filename):
     G_in = anm.add_overlay("input", input_graph)
     ank.set_node_default(G_in, G_in.nodes(), platform="cisco")
     ank.set_node_default(G_in, G_in.nodes(), host="demo")
+    if len(ank.unique_attr(G_in, "asn")) > 1:
+        # Multiple ASNs set, use label format device.asn 
+        anm.set_node_label(".",  ['label', 'asn'])
 
 # set syntax for routers according to platform
     G_in.update(G_in.nodes("is_router", platform = "junosphere"), syntax="junos")
@@ -84,7 +86,8 @@ def build_network(input_filename):
     G_ip.update(split_created_nodes, collision_domain=True)
 # allocate costs
     for link in G_ospf.edges():
-        link.cost = link.src.degree() # arbitrary deterministic cost
+        #link.cost = link.src.degree() # arbitrary deterministic cost
+        link.cost = 1
         link.area = 0
 
 # set collision domain IPs

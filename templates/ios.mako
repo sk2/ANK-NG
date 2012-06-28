@@ -82,9 +82,3 @@ router bgp ${node.asn}
 % endfor    
 % endif 
 </%doc>  
-!
-!
-ip forward-protocol nd
-!
-no ip http server
-!

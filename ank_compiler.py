@@ -110,7 +110,7 @@ class IosCompiler(RouterCompiler):
         interfaces = super(IosCompiler, self).interfaces(node)
         # OSPF cost
         for link in interfaces:
-            interfaces[link]['ospf cost'] = link.overlay.ospf.cost
+            interfaces[link]['ospf_cost'] = link.overlay.ospf.cost
 
         interfaces['lo0'] = {
             'id': 'lo0',
@@ -263,7 +263,7 @@ class CiscoCompiler(PlatformCompiler):
 
     def interface_ids_ios2(self):
         for x in itertools.count(0):
-            yield "GigabitEthernet/0/0/%s" % x
+            yield "GigabitEthernet0/0/0/%s" % x
 
     def compile(self):
         print "Compiling Cisco for", self.host
