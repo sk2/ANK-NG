@@ -14,3 +14,4 @@ rendered/*
 *.ps
 cache/*
 nidb_history/*
+demo/*

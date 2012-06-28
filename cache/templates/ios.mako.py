@@ -4,7 +4,7 @@ UNDEFINED = runtime.UNDEFINED
 __M_dict_builtin = dict
 __M_locals_builtin = locals
 _magic_number = 8
-_modified_time = 1340523477.937563
+_modified_time = 1340780360.643532
 _enable_loop = True
 _template_filename = 'templates/ios.mako'
 _template_uri = 'templates/ios.mako'
@@ -16,7 +16,6 @@ def render_body(context,**pageargs):
     __M_caller = context.caller_stack._push_frame()
     try:
         __M_locals = __M_dict_builtin(pageargs=pageargs)
-        loop = __M_loop = runtime.LoopStack()
         node = context.get('node', UNDEFINED)
         __M_writer = context.writer()
         # SOURCE LINE 1
@@ -82,119 +81,9 @@ def render_body(context,**pageargs):
             __M_writer(u'       \n')
             pass
         # SOURCE LINE 38
-        __M_writer(u'!\n!  \n')
-        # SOURCE LINE 40
-        if node.bgp: 
-            # SOURCE LINE 41
-            __M_writer(u'router bgp ')
-            __M_writer(unicode(node.asn))
-            __M_writer(u'   \n\tno synchronization\n')
-            # SOURCE LINE 43
-            for subnet in node.bgp.advertise_subnets:
-                # SOURCE LINE 44
-                __M_writer(u'\tnetwork ')
-                __M_writer(unicode(subnet.network))
-                __M_writer(u' mask ')
-                __M_writer(unicode(subnet.netmask))
-                __M_writer(u'                                                          \n')
-                pass
-            # SOURCE LINE 46
-            __M_writer(u'! ibgp\n')
-            # SOURCE LINE 47
-            loop = __M_loop._enter(node.bgp.ibgp_rr_clients)
-            try:
-                for client in loop:
-                    # SOURCE LINE 48
-                    if loop.first:
-                        # SOURCE LINE 49
-                        __M_writer(u'\t! ibgp clients\n')
-                        pass
-                    # SOURCE LINE 51
-                    __M_writer(u'\t! ')
-                    __M_writer(unicode(client.neighbor))
-                    __M_writer(u'\n\tneighbor remote-as ')
-                    # SOURCE LINE 52
-                    __M_writer(unicode(client.neighbor.asn))
-                    __M_writer(u'\n\tneighbor ')
-                    # SOURCE LINE 53
-                    __M_writer(unicode(client.loopback))
-                    __M_writer(u' update-source ')
-                    __M_writer(unicode(client.update_source))
-                    __M_writer(u' \n\tneighbor ')
-                    # SOURCE LINE 54
-                    __M_writer(unicode(client.loopback))
-                    __M_writer(u' route-reflector-client                                                   \n\tneighbor send-community      \n')
-                    pass
-            finally:
-                loop = __M_loop._exit()
-            # SOURCE LINE 57
-            loop = __M_loop._enter(node.bgp.ibgp_rr_parents)
-            try:
-                for parent in loop:
-                    # SOURCE LINE 58
-                    if loop.first:
-                        # SOURCE LINE 59
-                        __M_writer(u'\t! ibgp route reflector servers\n')
-                        pass
-                    # SOURCE LINE 61
-                    __M_writer(u'\t! ')
-                    __M_writer(unicode(parent.neighbor))
-                    __M_writer(u'\n\tneighbor remote-as ')
-                    # SOURCE LINE 62
-                    __M_writer(unicode(parent.neighbor.asn))
-                    __M_writer(u'\n\tneighbor ')
-                    # SOURCE LINE 63
-                    __M_writer(unicode(parent.loopback))
-                    __M_writer(u' update-source ')
-                    __M_writer(unicode(parent.update_source))
-                    __M_writer(u' \n\tneighbor send-community      \n')
-                    pass
-            finally:
-                loop = __M_loop._exit()
-            # SOURCE LINE 66
-            loop = __M_loop._enter(node.bgp.ibgp_neighbors)
-            try:
-                for neigh in loop:
-                    # SOURCE LINE 67
-                    if loop.first:
-                        # SOURCE LINE 68
-                        __M_writer(u'\t! ibgp peers\n')
-                        pass
-                    # SOURCE LINE 70
-                    __M_writer(u'\t! ')
-                    __M_writer(unicode(neigh.neighbor))
-                    __M_writer(u'\n\tneighbor remote-as ')
-                    # SOURCE LINE 71
-                    __M_writer(unicode(neigh.neighbor.asn))
-                    __M_writer(u'\n\tneighbor ')
-                    # SOURCE LINE 72
-                    __M_writer(unicode(neigh.loopback))
-                    __M_writer(u' update-source ')
-                    __M_writer(unicode(neigh.update_source))
-                    __M_writer(u'                                                     \n\tneighbor send-community      \n')
-                    pass
-            finally:
-                loop = __M_loop._exit()
-            # SOURCE LINE 75
-            __M_writer(u'! ebgp\n')
-            # SOURCE LINE 76
-            for neigh in node.bgp.ebgp_neighbors:      
-                # SOURCE LINE 77
-                __M_writer(u'\t! ')
-                __M_writer(unicode(neigh.neighbor))
-                __M_writer(u' \n\tneighbor remote-as ')
-                # SOURCE LINE 78
-                __M_writer(unicode(neigh.neighbor.asn))
-                __M_writer(u'\n\tneighbor ')
-                # SOURCE LINE 79
-                __M_writer(unicode(neigh.loopback))
-                __M_writer(u' update-source ')
-                __M_writer(unicode(neigh.update_source))
-                __M_writer(u'                                                     \n\tneighbor send-community\n')
-                pass
-            pass
-        # SOURCE LINE 83
-        __M_writer(u'!\n!\nip forward-protocol nd\n!\nno ip http server\n!')
+        __M_writer(u'!\n!                \n')
+        # SOURCE LINE 84
+        __M_writer(u'  \n!\n!\nip forward-protocol nd\n!\nno ip http server\n!')
         return ''
     finally:
         context.caller_stack._pop_frame()

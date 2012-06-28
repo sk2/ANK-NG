@@ -1,4 +1,4 @@
-  ArrayList edges = new ArrayList();
+ArrayList edges = new ArrayList();
 HashMap nodes = new HashMap();
 
 PImage router;
@@ -55,7 +55,7 @@ void mouseClicked() {
         (mouseY > pt.y - pt.icon.height/2 && mouseY < pt.y + pt.icon.height/2) ) {
       javascript.showLabel(pt.label);
       clicked_a_node = boolean("true");
-        }
+    }
   }
   if (clicked_a_node) {
   }
@@ -74,6 +74,7 @@ Edge addEdge(Point src, Point dst) {
 }
 
 void setup() {
+  frameRate(1);
   size(800, 600);
   ArrayList edges = new ArrayList();
   HashMap nodes = new HashMap();
@@ -99,9 +100,6 @@ void draw() {
     Point pt = (Point) me.getValue();
     pt.draw();
   }
-
-
-
 }
 
 Point addPoint(int x, int y, String label, String device_type) {

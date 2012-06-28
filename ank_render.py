@@ -9,12 +9,25 @@ import shutil
 from collections import defaultdict
 import fnmatch
 
+def resource_path(relative):
+    """Used to refer to templates inside installed exe
+    from http://stackoverflow.com/questions/7674790
+    """
+
+    return os.path.join(
+        os.environ.get(
+            "_MEIPASS2",
+            os.path.abspath(".")
+        ),
+        relative
+    )
+
 
 #TODO: fix support here for template lookups, internal, user provided
 #template_cache_dir = config.template_cache_dir
 template_cache_dir = "cache"
 
-lookup = TemplateLookup(directories=[""],
+lookup = TemplateLookup(directories=[resource_path("")],
                         module_directory= template_cache_dir,
                         cache_type='memory',
                         cache_enabled=True,

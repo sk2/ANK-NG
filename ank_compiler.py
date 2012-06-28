@@ -4,6 +4,7 @@ import netaddr
 
 #TODO: for any property not in nidb, try and pass through to obtain from respective overlay, eg ospf tries from G_ospf.node(node) etc
 
+
 def dict_to_sorted_list(data, sort_key):
     """Returns values in dict, sorted by sort_key"""
     return sorted(data.values(), key = lambda x: x[sort_key])
@@ -120,6 +121,48 @@ class IosCompiler(RouterCompiler):
 
         return interfaces
 
+class Ios2Compiler(RouterCompiler):
+
+    def interfaces(self, node):
+        ip_node = self.anm.overlay.ip.node(node)
+        loopback_subnet = netaddr.IPNetwork("0.0.0.0/32")
+
+        interfaces = super(Ios2Compiler, self).interfaces(node)
+        # OSPF cost
+        for link in interfaces:
+            interfaces[link]['ospf cost'] = link.overlay.ospf.cost
+
+        interfaces['lo0'] = {
+            'id': 'Loopback0',
+            'description': "Loopback",
+            'ip_address': ip_node.loopback,
+            'subnet': loopback_subnet,
+            }
+
+        return interfaces
+
+    def ospf(self, node):
+        """Returns OSPF links
+        Also sets process_id
+        """
+        ip_node = self.anm.overlay.ip.node(node)
+        node.ospf.router_id = ip_node.loopback
+        node.ospf.area = 0 #TODO: build area dict from node/links
+        
+        G_ospf = self.anm.overlay.ospf
+        phy_node = self.anm.overlay.phy.node(node)
+        node.ospf.process_id = 1
+        ospf_links = {}
+       
+        for link in G_ospf.edges(phy_node):
+            nidb_edge = self.nidb.edge(link)
+            ospf_links[link] = {
+                'network': link.overlay.ip.dst.subnet,
+                'interface': nidb_edge.id,
+                'cost': link.cost,
+                }
+        return ospf_links
+
 class JunosCompiler(RouterCompiler):
 
     def compile(self, node):
@@ -212,6 +255,48 @@ class NetkitCompiler(PlatformCompiler):
 
             ios_compiler.compile(nidb_node)
 
+class CiscoCompiler(PlatformCompiler):
+    def interface_ids_ios(self):
+        id_pairs = ( (slot, port) for (slot, port) in itertools.product(range(17), range(5))) 
+        for (slot, port) in id_pairs:
+            yield "Ethernet%s/%s" % (slot, port)
+
+    def interface_ids_ios2(self):
+        for x in itertools.count(0):
+            yield "GigabitEthernet/0/0/%s" % x
+
+    def compile(self):
+        print "Compiling Cisco for", self.host
+        G_phy = self.anm.overlay.phy
+        ios_compiler = IosCompiler(self.nidb, self.anm)
+        ios2_compiler = Ios2Compiler(self.nidb, self.anm)
+        for phy_node in G_phy.nodes('is_router', host = self.host, syntax='ios'):
+            nidb_node = self.nidb.node(phy_node)
+            nidb_node.render.template = "templates/ios.mako"
+            nidb_node.render.dst_folder = self.host
+            nidb_node.render.dst_file = "%s.conf" % ank.name_folder_safe(phy_node.label)
+
+            # Assign interfaces
+            int_ids = self.interface_ids_ios()
+            for edge in self.nidb.edges(nidb_node):
+                edge.id = int_ids.next()
+
+            ios_compiler.compile(nidb_node)
+
+        for phy_node in G_phy.nodes('is_router', host = self.host, syntax='ios2'):
+            nidb_node = self.nidb.node(phy_node)
+            nidb_node.render.template = "templates/ios2.mako"
+            nidb_node.render.dst_folder = self.host
+            nidb_node.render.dst_file = "%s.conf" % ank.name_folder_safe(phy_node.label)
+
+            # Assign interfaces
+            int_ids = self.interface_ids_ios2()
+            for edge in self.nidb.edges(nidb_node):
+                edge.id = int_ids.next()
+
+            ios2_compiler.compile(nidb_node)
+
+
 class DynagenCompiler(PlatformCompiler):
     def interface_ids(self):
         for x in itertools.count(0):
@@ -236,3 +321,26 @@ class DynagenCompiler(PlatformCompiler):
 
             ios_compiler.compile(nidb_node)
 
+class DynagenCompiler(PlatformCompiler):
+    def interface_ids(self):
+        for x in itertools.count(0):
+            yield "gigabitethernet0/0/0/%s" % x
+
+    def compile(self):
+        print "Compiling Dynagen for", self.host
+        G_phy = self.anm.overlay.phy
+        ios_compiler = IosCompiler(self.nidb, self.anm)
+        for phy_node in G_phy.nodes('is_router', host = self.host, syntax='ios'):
+            nidb_node = self.nidb.node(phy_node)
+            nidb_node.render.template = "templates/ios.mako"
+            nidb_node.render.dst_folder = "rendered/%s/%s" % (self.host, "dynagen")
+            nidb_node.render.dst_file = "%s.conf" % ank.name_folder_safe(phy_node.label)
+
+            # Allocate edges
+            # assign interfaces
+            # Note this could take external data
+            int_ids = self.interface_ids()
+            for edge in self.nidb.edges(nidb_node):
+                edge.id = int_ids.next()
+
+            ios_compiler.compile(nidb_node)

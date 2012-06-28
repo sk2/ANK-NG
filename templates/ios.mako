@@ -36,7 +36,8 @@ router isis ${node.isis.process_id}
 router eigrp ${node.eigrp.process_id}       
 % endif   
 !
-!  
+!                
+<%doc>
 % if node.bgp: 
 router bgp ${node.asn}   
 	no synchronization
@@ -79,7 +80,8 @@ router bgp ${node.asn}
 	neighbor ${neigh.loopback} update-source ${neigh.update_source}                                                     
 	neighbor send-community
 % endfor    
-% endif   
+% endif 
+</%doc>  
 !
 !
 ip forward-protocol nd

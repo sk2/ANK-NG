@@ -14,8 +14,6 @@ class MyServer(HTTPServer):
 
 class MyHandler(BaseHTTPRequestHandler):
 
-
-
     def do_GET(self):
         try:
             #TODO: handle "/" and return index.html
@@ -46,7 +44,6 @@ class MyHandler(BaseHTTPRequestHandler):
                         'label': data['label'],
                         'device_type': data['device_type'],
                         })
-
 
                 edge_data_list = []
                 for src, dst in graph.edges():

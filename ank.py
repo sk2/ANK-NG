@@ -47,6 +47,7 @@ def load_graphml(filename):
         nx.write_gpickle(graph, pickle_file)
 #TODO: node labels if not set, need to set from a sequence, ensure unique... etc
     graph = nx.read_graphml(filename)
+    graph.graph['timestamp'] =  os.stat(filename).st_mtime
 
     # remove selfloops
     graph.remove_edges_from(edge for edge in graph.selfloop_edges())
@@ -125,7 +126,6 @@ def load_graphml(filename):
 # relabel based on label: assume unique by now!
     mapping = dict( (n, d['label']) for n, d in graph.nodes(data=True))
     nx.relabel_nodes(graph, mapping, copy=False)
-    print graph.nodes()
     return graph
 
 
