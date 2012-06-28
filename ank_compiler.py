@@ -5,6 +5,8 @@ import netaddr
 #TODO: for any property not in nidb, try and pass through to obtain from respective overlay, eg ospf tries from G_ospf.node(node) etc
 
 
+#TODO: tidy up the dict to list, and sorting formats
+
 def dict_to_sorted_list(data, sort_key):
     """Returns values in dict, sorted by sort_key"""
     return sorted(data.values(), key = lambda x: x[sort_key])
@@ -15,6 +17,8 @@ class RouterCompiler(object):
         self.anm = anm
 
     def compile(self, node):
+        ip_node = self.anm.overlay.ip.node(node)
+        node.loopback = ip_node.loopback
         node.interfaces = dict_to_sorted_list(self.interfaces(node), 'id')
         if node in self.anm.overlay.ospf:
             node.ospf.ospf_links = dict_to_sorted_list(self.ospf(node), 'network')
@@ -122,6 +126,20 @@ class IosCompiler(RouterCompiler):
         return interfaces
 
 class Ios2Compiler(RouterCompiler):
+
+    def compile(self, node):
+        ip_node = self.anm.overlay.ip.node(node)
+        node.loopback = ip_node.loopback
+        node.interfaces = dict_to_sorted_list(self.interfaces(node), 'id')
+        if node in self.anm.overlay.ospf:
+            node.ospf.ospf_links = dict_to_sorted_list(self.ospf(node), 'interface')
+        
+        if node in self.anm.overlay.bgp:
+            bgp_data = self.bgp(node)
+            node.bgp.ibgp_rr_clients = dict_to_sorted_list(bgp_data['ibgp_rr_clients'], 'neighbor')
+            node.bgp.ibgp_rr_parents = dict_to_sorted_list(bgp_data['ibgp_rr_parents'], 'neighbor')
+            node.bgp.ibgp_neighbors = dict_to_sorted_list(bgp_data['ibgp_neighbors'], 'neighbor')
+            node.bgp.ebgp_neighbors = dict_to_sorted_list(bgp_data['ebgp_neighbors'], 'neighbor')
 
     def interfaces(self, node):
         ip_node = self.anm.overlay.ip.node(node)
@@ -285,9 +303,9 @@ class CiscoCompiler(PlatformCompiler):
 
         for phy_node in G_phy.nodes('is_router', host = self.host, syntax='ios2'):
             nidb_node = self.nidb.node(phy_node)
-            nidb_node.render.template = "templates/ios2.mako"
+            nidb_node.render.base = "templates/ios2"
             nidb_node.render.dst_folder = self.host
-            nidb_node.render.dst_file = "%s.conf" % ank.name_folder_safe(phy_node.label)
+            nidb_node.render.base_dst_folder = "%s/%s" % (self.host, phy_node)
 
             # Assign interfaces
             int_ids = self.interface_ids_ios2()
@@ -295,31 +313,6 @@ class CiscoCompiler(PlatformCompiler):
                 edge.id = int_ids.next()
 
             ios2_compiler.compile(nidb_node)
-
-
-class DynagenCompiler(PlatformCompiler):
-    def interface_ids(self):
-        for x in itertools.count(0):
-            yield "gigabitethernet0/0/0/%s" % x
-
-    def compile(self):
-        print "Compiling Dynagen for", self.host
-        G_phy = self.anm.overlay.phy
-        ios_compiler = IosCompiler(self.nidb, self.anm)
-        for phy_node in G_phy.nodes('is_router', host = self.host, syntax='ios'):
-            nidb_node = self.nidb.node(phy_node)
-            nidb_node.render.template = "templates/ios.mako"
-            nidb_node.render.dst_folder = "rendered/%s/%s" % (self.host, "dynagen")
-            nidb_node.render.dst_file = "%s.conf" % ank.name_folder_safe(phy_node.label)
-
-            # Allocate edges
-            # assign interfaces
-            # Note this could take external data
-            int_ids = self.interface_ids()
-            for edge in self.nidb.edges(nidb_node):
-                edge.id = int_ids.next()
-
-            ios_compiler.compile(nidb_node)
 
 class DynagenCompiler(PlatformCompiler):
     def interface_ids(self):

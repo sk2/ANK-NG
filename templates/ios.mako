@@ -10,6 +10,20 @@ no aaa new-model
 ip cef
 ! 
 !      
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+enable password cisco
+ip classless
+ip subnet-zero
+no ip domain lookup
+line vty 0 4
+ exec-timeout 720 0
+ password cisco
+ login
+line con 0
+ password cisco
+!
 % for interface in node.interfaces:  
 interface ${interface.id}
 	description ${interface.description}
@@ -25,8 +39,11 @@ interface ${interface.id}
 !               
 % if node.ospf: 
 router ospf ${node.ospf.process_id} 
+  network ${node.loopback} 0.0.0.0 area 0
+  log-adjacency-changes
+  passive-interface Loopback0
 % for ospf_link in node.ospf.ospf_links:
-	network ${ospf_link.network.network} ${ospf_link.network.hostmask} area ${ospf_link.area} 
+  network ${ospf_link.network.network} ${ospf_link.network.hostmask} area ${ospf_link.area} 
 % endfor    
 % endif           
 % if node.isis: 

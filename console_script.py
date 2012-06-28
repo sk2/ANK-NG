@@ -15,6 +15,7 @@ import ank_change_monitor
 import optparse
 opt = optparse.OptionParser()
 opt.add_option('--file', '-f', default= None, help="Load topology from FILE")        
+opt.add_option('--monitor', '-m', default= False, help="Monitor input file for changes")        
 options, arguments = opt.parse_args()
 
 input_filename = options.file
@@ -216,9 +217,12 @@ nidb = compile_network(anm)
 #ank_http_server.stream(anm.overlay.phy)
 
 #TODO: add support for nidb subgraphs, especially for platforms, and show boundary nodes and boundary edges easily
-while False:
-    time.sleep(0.2)
-    if ank_change_monitor.check_for_change(input_filename, anm):
-        print "Input graph updated, recompiling network"
-        anm = build_network(input_filename)
-        nidb = compile_network(anm)
+if options.monitor:
+    print "Monitoring for updates..."
+    while True:
+        time.sleep(0.2)
+        if ank_change_monitor.check_for_change(input_filename, anm):
+            print "Input graph updated, recompiling network"
+            anm = build_network(input_filename)
+            nidb = compile_network(anm)
+            print "Monitoring for updates..."
