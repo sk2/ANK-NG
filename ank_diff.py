@@ -14,7 +14,9 @@ def diff_history(directory, length = 1):
     for fileA, fileB in pairs:
         graphA = nx.read_gpickle(fileA)
         graphB = nx.read_gpickle(fileB)
-        diffs.append(compare(graphA, graphB))
+        diff = compare(graphA, graphB)
+        # remove render folder which is timestamps
+        diffs.append(diff)
 
     return diffs
 
@@ -35,7 +37,9 @@ def element_diff(elemA, elemB):
                 return list_diff(elemA, elemB)
             else:
                 pass # single element in each list, compare as elements
-    if elemA != elemB:
+    if elemA == elemB:
+        return #TODO: see why this performs different to elemA != elemB
+    else:
         return { '1': elemA, '2': elemB, }
 
 def list_diff(listA, listB):

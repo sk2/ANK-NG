@@ -469,6 +469,7 @@ def allocate_ips(G_ip):
         asn_loopback_tree_node = None #keep track of to allocate loopbacks at end
         while True:
             cds = size_list[current_level]
+            cds = sorted(cds, key = lambda x: x.node_id)
 # initialse with leaves
 #TODO: see if can get loopback on leftmost of tree -> then can have allocated with .1 .2 etc rather than .19 .20 etc
             ip_tree[current_level] += list(TreeNode(cd=cd) for cd in sorted(cds))
