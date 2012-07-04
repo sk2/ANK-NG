@@ -11,6 +11,8 @@ import ank_compiler
 import ank_http_server
 import ank_change_monitor
 #import ank_plot
+import os
+import sys
 
 import optparse
 opt = optparse.OptionParser()
@@ -25,7 +27,6 @@ if not options.file:
 def build_network(input_filename):
 
     anm = AbstractNetworkModel()
-
 
     input_graph = ank.load_graphml(input_filename)
 #input_graph = ank.load_graphml("graph_combined.graphml")
@@ -213,7 +214,7 @@ ank_deploy.extract(server, tar_file, cd_dir)
 anm = build_network(input_filename)
 nidb = compile_network(anm)
 
-ank_http_server.stream(anm)
+#ank_http_server.stream(anm)
 
 #TODO: add support for nidb subgraphs, especially for platforms, and show boundary nodes and boundary edges easily
 if options.monitor:

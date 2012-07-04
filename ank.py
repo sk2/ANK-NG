@@ -43,7 +43,11 @@ def load_graphml(filename):
         graph = nx.read_gpickle(pickle_file)
     else:
         # No pickle file, or is outdated
-        graph = nx.read_graphml(filename)
+        try:
+            graph = nx.read_graphml(filename)
+        except IOError:
+            print "Unable to read GraphML", filename
+            return
         nx.write_gpickle(graph, pickle_file)
 #TODO: node labels if not set, need to set from a sequence, ensure unique... etc
     graph = nx.read_graphml(filename)
