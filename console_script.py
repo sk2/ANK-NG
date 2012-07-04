@@ -186,9 +186,9 @@ def compile_network(anm):
         node.graphics.y = graphics_node.y
         node.graphics.device_type = graphics_node.device_type
 
-    #nidb.save()
+    nidb.save()
 
-    #diff = ank_diff.diff_history("nidb_history")
+    diff = ank_diff.diff_history("nidb_history")
     #pprint.pprint(diff)
 
 #TODO: plot the nidb
@@ -213,7 +213,7 @@ ank_deploy.extract(server, tar_file, cd_dir)
 anm = build_network(input_filename)
 nidb = compile_network(anm)
 
-#ank_http_server.stream(anm.overlay.phy)
+ank_http_server.stream(anm)
 
 #TODO: add support for nidb subgraphs, especially for platforms, and show boundary nodes and boundary edges easily
 if options.monitor:

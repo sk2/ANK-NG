@@ -506,7 +506,7 @@ def allocate_ips(G_ip):
         # Get loopback from loopback tree node
         loopback_hosts = asn_loopback_tree_node.subnet.iter_hosts()
         #router.loopback = loopback_hosts.next()
-        for router in routers_by_asn[asn]:
+        for router in sorted(routers_by_asn[asn], key = lambda x: x.label):
             router.overlay.ip.loopback = loopback_hosts.next()
 
         # now allocate to the links of each cd

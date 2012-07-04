@@ -15,3 +15,5 @@ rendered/*
 cache/*
 nidb_history/*
 demo/*
+ank_vis/rmq/*
+ank_vis/vis3d/*

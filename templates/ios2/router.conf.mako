@@ -17,11 +17,12 @@ exec-timeout 720 0
 !
 vty-pool default 0 50
 control-plane
-management-plane
- inband
- interface all
-  allow all
- !
+ management-plane
+  inband
+   interface all
+    allow all
+   !
+  !
  !
 !
 !
@@ -37,13 +38,15 @@ router ospf ${node.ospf.process_id}
   router-id ${node.ospf.router_id}         
   address-family ipv4
   area ${node.ospf.area}
-  interface ${node.ospf.lo_interface}
+   interface ${node.ospf.lo_interface}
     passive enable
-  !
-  % for ospf_link in node.ospf.ospf_links:
-  interface ${ospf_link.interface}
+   !
+   % for ospf_link in node.ospf.ospf_links:
+   interface ${ospf_link.interface}
     cost ${ospf_link.cost}
-  !
-  % endfor    
-% endif             
+   !
+   % endfor    
+ % endif             
+ !
 !
+end

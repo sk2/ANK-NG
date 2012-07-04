@@ -5,12 +5,11 @@ import json
 class MyServer(HTTPServer):
     #TODO: inherit __init__
 
-    def set_overlay(self, overlay_graph):
-        self.overlay_graph = overlay_graph
+    def set_overlay(self, anm):
+        self.anm = anm
 
-    def get_overlay(self):
-        return self.overlay_graph
-
+    def get_overlay(self, overlay_id):
+        return self.anm.overlay.get(overlay_id)
 
 class MyHandler(BaseHTTPRequestHandler):
 
@@ -21,7 +20,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.path = "/index.html"
 
             if self.path.endswith("data.json"):
-                overlay_graph = self.server.get_overlay()
+                overlay_graph = self.server.get_overlay("phy")
                 graph = overlay_graph._graph.copy()
                 for node in overlay_graph:
                     graph.node[node.node_id]['label'] = node.overlay.input.label

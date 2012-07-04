@@ -177,7 +177,7 @@ class overlay_node(object):
 
     def dump(self):
         return str(self._graph.node[self.node_id])
-
+    
     @property
     def overlay(self):
         """Access node in another overlay graph"""
@@ -578,6 +578,9 @@ class overlay_accessor(object):
     def __getattr__(self, key):
         """Access overlay graph"""
         return overlay_graph(self.anm, key)
+
+    def get(self, key):
+        return getattr(self, key)
 
 class AbstractNetworkModel(object):
     
