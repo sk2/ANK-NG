@@ -7,6 +7,7 @@ import time
 import ank_diff
 import ank_deploy
 import pprint
+import ank_plot
 import ank_compiler
 import ank_http_server
 import ank_change_monitor
@@ -45,9 +46,11 @@ def build_network(input_filename):
 
     G_phy = anm.overlay.phy #G_phy created automatically by ank
 
+
 # build physical graph
     G_phy.add_nodes_from(G_in, retain=['label', 'device_type', 'asn', 'platform', 'host', 'syntax'])
     G_phy.add_edges_from([edge for edge in G_in.edges() if edge.type == "physical"])
+    #G_phy2 = anm['phy']
 
     """
     r1 = G_phy.node("r1")
@@ -106,7 +109,7 @@ def build_network(input_filename):
             graphics_node.label = label
 
     ank.allocate_ips(G_ip)
-#ank.save(G_ip)
+    ank.save(G_ip)
 
     G_bgp = anm.add_overlay("bgp", directed = True)
     G_bgp.add_nodes_from(G_in.nodes("is_router"), color = 'red')
@@ -131,12 +134,18 @@ def build_network(input_filename):
 
     ebgp_nodes = [d for d in G_bgp if any(edge.type == 'ebgp' for edge in d.edges())]
     G_bgp.update(ebgp_nodes, ebgp=True)
+    #ank.save(G_bgp)
+    #ank.save(G_phy)
+
+    #ank_plot.plot_pylab(G_bgp, edge_label_attribute = 'type', node_label_attribute='asn')
+    #ank_plot.plot_pylab(G_phy, edge_label_attribute = 'edge_id')
+    #ank_plot.plot_pylab(G_ospf, edge_label_attribute='cost')
+    #ank_plot.plot_pylab(G_ip, edge_label_attribute = 'ip_address', node_label_attribute = 'loopback')
 
     return anm
 
 
-#ank.save(G_bgp)
-#ank.save(G_phy)
+
 
 #TODO: set fqdn property
 
@@ -161,10 +170,7 @@ def compile_network(anm):
 
 #print G_ip.dump()
     """
-    ank_plot.plot_pylab(G_bgp, edge_label_attribute = 'type', node_label_attribute='asn')
-    ank_plot.plot_pylab(G_phy, edge_label_attribute = 'edge_id')
-    ank_plot.plot_pylab(G_ospf, edge_label_attribute='cost')
-    ank_plot.plot_pylab(G_ip, edge_label_attribute = 'ip_address', node_label_attribute = 'loopback')
+
     """
 
     host = "demo"

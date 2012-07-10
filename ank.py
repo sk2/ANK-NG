@@ -132,9 +132,6 @@ def load_graphml(filename):
     nx.relabel_nodes(graph, mapping, copy=False)
     return graph
 
-
-
-
 def save(overlay_graph):
     import netaddr
     graph = overlay_graph._graph.copy() # copy as want to annotate
@@ -153,7 +150,7 @@ def save(overlay_graph):
         graph.node[node.node_id].update(data)
 #TODO: tidy this up
 
-    replace_as_string = set([type(None), netaddr.ip.IPAddress, netaddr.ip.IPNetwork, dict])
+    replace_as_string = set([type(None), netaddr.ip.IPAddress, netaddr.ip.IPNetwork, dict, defaultdict])
 #TODO: see if should handle dict specially, eg expand to __ ?
 
     for key, val in graph.graph.items():
@@ -189,7 +186,6 @@ def wrap_nodes(overlay_graph, nodes):
     """ wraps node id into node overlay """
     return ( overlay_node(overlay_graph._anm, overlay_graph._overlay_id, node)
             for node in nodes)
-
 
 #TODO: use these wrap and unwrap functions inside overlays
 def unwrap_nodes(nodes):

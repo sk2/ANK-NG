@@ -75,7 +75,7 @@ Edge addEdge(Point src, Point dst) {
 
 void setup() {
   frameRate(1);
-  size(800, 600);
+  size(800, 800);
   ArrayList edges = new ArrayList();
   HashMap nodes = new HashMap();
   router = loadImage("router.jpg");

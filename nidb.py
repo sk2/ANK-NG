@@ -384,6 +384,8 @@ class NIDB_base(object):
                 pprint.pformat(self._graph.edges(data=True))
                 )
 
+    #TODO: add restore function
+
     def save(self):
         import os
         pickle_dir = "nidb_history"

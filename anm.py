@@ -145,6 +145,9 @@ class overlay_node(object):
         """
         return self.is_router or self.is_server
 
+    def __getitem__(self, key):
+        return overlay_node(self.anm, key, self.node_id)
+
 #TODO: Add other base device_types
 
     @property
@@ -634,6 +637,9 @@ class AbstractNetworkModel(object):
 
     def devices(self, *args, **kwargs):
         return self._phy.filter(*args, **kwargs)
+
+    def __getitem__(self, key):
+        return overlay_graph(self, key)
 
     def node_label(self, node):
         """Returns node label from physical graph"""
