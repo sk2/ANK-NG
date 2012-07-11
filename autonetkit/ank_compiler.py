@@ -268,7 +268,6 @@ class NetkitCompiler(PlatformCompiler):
             nidb_node.render.dst_folder = "rendered/%s/%s" % (self.host, "netkit")
             nidb_node.render.base_dst_folder = "rendered/%s/%s/%s" % (self.host, "netkit", phy_node)
             nidb_node.render.dst_file = "%s.startup" % ank.name_folder_safe(phy_node.label)
-            
 
             # Allocate edges
             # assign interfaces
@@ -295,6 +294,7 @@ class CiscoCompiler(PlatformCompiler):
         ios_compiler = IosCompiler(self.nidb, self.anm)
         ios2_compiler = Ios2Compiler(self.nidb, self.anm)
         for phy_node in G_phy.nodes('is_router', host = self.host, syntax='ios'):
+            print phy_node, "is ios"
             nidb_node = self.nidb.node(phy_node)
             nidb_node.render.template = "templates/ios.mako"
             nidb_node.render.dst_folder = os.path.join(self.host, self.timestamp)
@@ -308,10 +308,12 @@ class CiscoCompiler(PlatformCompiler):
             ios_compiler.compile(nidb_node)
 
         for phy_node in G_phy.nodes('is_router', host = self.host, syntax='ios2'):
+            print phy_node, "is ios2"
             nidb_node = self.nidb.node(phy_node)
             nidb_node.render.base = "templates/ios2"
             nidb_node.render.dst_folder = os.path.join(self.host, self.timestamp)
             nidb_node.render.base_dst_folder = os.path.join(self.host, self.timestamp, str(phy_node))
+            print nidb_node.render
 
             # Assign interfaces
             int_ids = self.interface_ids_ios2()

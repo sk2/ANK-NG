@@ -9,19 +9,25 @@ import shutil
 from collections import defaultdict
 import fnmatch
 
+import pkg_resources
+
+
+#def resource_path(relative):
+    #"""Used to refer to templates inside installed exe
+    #from http://stackoverflow.com/questions/7674790
+    #"""
+#
+    #return os.path.join(
+        #os.environ.get(
+            #"_MEIPASS2",
+            #os.path.abspath(".")
+        #),
+        #relative
+    #)
+
 def resource_path(relative):
-    """Used to refer to templates inside installed exe
-    from http://stackoverflow.com/questions/7674790
-    """
-
-    return os.path.join(
-        os.environ.get(
-            "_MEIPASS2",
-            os.path.abspath(".")
-        ),
-        relative
-    )
-
+    """Makes relative to package"""
+    return pkg_resources.resource_filename(__name__, relative)
 
 #TODO: fix support here for template lookups, internal, user provided
 #template_cache_dir = config.template_cache_dir
@@ -37,8 +43,11 @@ lookup = TemplateLookup(directories=[resource_path("")],
 
 #TODO: Add support for both src template and src folder (eg for quagga, servers)
 def render_node(node):
+        print node
+        print node.render.dst_folder
         try:
             render_output_dir = node.render.dst_folder
+            print "render to", render_output_dir
             render_base = node.render.base
             render_base_output_dir = node.render.base_dst_folder
             render_template_file = node.render.template
@@ -75,6 +84,7 @@ def render_node(node):
                     print "Unable to render %s: %s. Check all variables used are defined" % (node, error)
 
         if render_base:
+            render_base = resource_path(render_base)
             fs_mako_templates = []
             for root, dirnames, filenames in os.walk(render_base):
                 for filename in fnmatch.filter(filenames, '*.mako'):

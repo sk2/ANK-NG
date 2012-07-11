@@ -5,11 +5,11 @@ from nidb import NIDB
 import ank_render
 import time
 import ank_diff
-import ank_deploy
-import pprint
-import ank_plot
+#import ank_deploy
+#import pprint
+#import ank_plot
 import ank_compiler
-import ank_http_server
+#import ank_http_server
 import ank_change_monitor
 #import ank_plot
 import os
@@ -144,11 +144,7 @@ def build_network(input_filename):
 
     return anm
 
-
-
-
 #TODO: set fqdn property
-
 
 def compile_network(anm):
     nidb = NIDB() 
@@ -203,7 +199,6 @@ def compile_network(anm):
 
 # Now build the NIDB
 #TODO: don't need to transform, just need to pass a view of the nidb which does the wrapping: iterates through returned data, recursively, and wraps accordingly. ie pass the data to return through a recursive formatter which wraps
-    ank_render.render(nidb)
 
     return nidb
 
@@ -219,6 +214,7 @@ ank_deploy.extract(server, tar_file, cd_dir)
 
 anm = build_network(input_filename)
 nidb = compile_network(anm)
+ank_render.render(nidb)
 
 #ank_http_server.stream(anm)
 
@@ -232,6 +228,7 @@ if options.monitor:
                 print "Input graph updated, recompiling network"
                 anm = build_network(input_filename)
                 nidb = compile_network(anm)
+                ank_render.render(nidb)
                 print "Monitoring for updates..."
     except KeyboardInterrupt:
         print
