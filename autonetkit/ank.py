@@ -29,6 +29,8 @@ def set_node_default(overlay_graph, nbunch, **kwargs):
 def load_graphml(filename):
     import string
     import os
+
+    """
     pickle_dir = os.getcwd() + os.sep + "cache"
     if not os.path.isdir(pickle_dir):
         os.mkdir(pickle_dir)
@@ -50,7 +52,12 @@ def load_graphml(filename):
             return
         nx.write_gpickle(graph, pickle_file)
 #TODO: node labels if not set, need to set from a sequence, ensure unique... etc
-    graph = nx.read_graphml(filename)
+    """
+    try:
+        graph = nx.read_graphml(filename)
+    except IOError:
+        print "Unable to read GraphML", filename
+        return
     graph.graph['timestamp'] =  os.stat(filename).st_mtime
 
     # remove selfloops
@@ -130,6 +137,29 @@ def load_graphml(filename):
 # relabel based on label: assume unique by now!
     mapping = dict( (n, d['label']) for n, d in graph.nodes(data=True))
     nx.relabel_nodes(graph, mapping, copy=False)
+    return graph
+
+
+def stringify_netaddr(graph):
+    import netaddr
+# converts netaddr from iterables to strings so can use with json
+    replace_as_string = set([netaddr.ip.IPAddress, netaddr.ip.IPNetwork])
+#TODO: see if should handle dict specially, eg expand to __ ?
+
+    for key, val in graph.graph.items():
+        if type(val) in replace_as_string:
+            graph.graph[key] = str(val)
+
+    for node, data in graph.nodes(data=True):
+        for key, val in data.items():
+            if type(val) in replace_as_string:
+                graph.node[node][key] = str(val)
+
+    for src, dst, data in graph.edges(data=True):
+        for key, val in data.items():
+            if type(val) in replace_as_string:
+                graph[src][dst][key] = str(val)
+
     return graph
 
 def save(overlay_graph):
@@ -488,8 +518,8 @@ def allocate_ips(G_ip):
                 ip_tree[current_level+1].append(TreeNode(final_tree_node, None))
 
             current_level += 1
-            if len(ip_tree[current_level]) < 2:
-                # Reached top of tree
+            if asn_loopback_tree_node and len(ip_tree[current_level]) < 2:
+                # loopback has been allocated, and reached top of tree
                 break
 
             #if leaf, assign back to collision domain

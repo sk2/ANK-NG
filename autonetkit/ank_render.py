@@ -12,6 +12,9 @@ import fnmatch
 import pkg_resources
 
 
+#TODO: clean up cache enable/disable
+
+
 #def resource_path(relative):
     #"""Used to refer to templates inside installed exe
     #from http://stackoverflow.com/questions/7674790
@@ -33,8 +36,10 @@ def resource_path(relative):
 #template_cache_dir = config.template_cache_dir
 template_cache_dir = "cache"
 
+#disable cache for cleaner folder structure
+
 lookup = TemplateLookup(directories=[resource_path("")],
-                        module_directory= template_cache_dir,
+                        #module_directory= template_cache_dir,
                         cache_type='memory',
                         cache_enabled=True,
                        )
@@ -43,11 +48,8 @@ lookup = TemplateLookup(directories=[resource_path("")],
 
 #TODO: Add support for both src template and src folder (eg for quagga, servers)
 def render_node(node):
-        print node
-        print node.render.dst_folder
         try:
             render_output_dir = node.render.dst_folder
-            print "render to", render_output_dir
             render_base = node.render.base
             render_base_output_dir = node.render.base_dst_folder
             render_template_file = node.render.template
@@ -104,7 +106,10 @@ def render_node(node):
 # now use templates
             for template_file in fs_mako_templates:
                 template_file_path = os.path.normpath(os.path.join(render_base, template_file))
-                mytemplate = mako.template.Template(filename=template_file_path, module_directory= mako_tmp_dir)
+                mytemplate = mako.template.Template(filename=template_file_path,
+# disabled cache
+                        #module_directory= mako_tmp_dir
+                        )
                 dst_file = os.path.normpath((os.path.join(render_base_output_dir, template_file)))
                 dst_file, _ = os.path.splitext(dst_file) # remove .mako suffix
                 #print("Writing %s"% dst_file)

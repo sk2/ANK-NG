@@ -1,15 +1,40 @@
 import os
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import json
+import glob
+from networkx.readwrite import json_graph
+import pickle
+import ank
+#TODO use cPickle
 
 class MyServer(HTTPServer):
     #TODO: inherit __init__
 
-    def set_overlay(self, anm):
-        self.anm = anm
+#TODO: use @property for setters/getters here
 
-    def get_overlay(self, overlay_id):
-        return self.anm.overlay.get(overlay_id)
+    def get_anm(self):
+        #TODO: Store directory from __init__ argument rather than hard-coded
+        directory = "anm_versions"
+        glob_dir = os.path.join(directory, "*.pickle.tar.gz")
+        pickle_files = glob.glob(glob_dir)
+        pickle_files = sorted(pickle_files)
+# check if most recent outdates current most recent
+        latest_file = pickle_files[-1]
+#TODO: put this in __init__
+        try:
+            self.latest_file
+        except AttributeError:
+            self.latest_file = None
+        if self.latest_file != latest_file:
+# new latest file
+            self.latest_file = latest_file
+            with open(latest_file, "r") as latest_fh:
+                anm = pickle.load(latest_fh)
+                self.anm = anm
+        return self.anm
+
+    def get_overlay(self, overlay):
+        return self.anm[overlay]
 
 class MyHandler(BaseHTTPRequestHandler):
 
@@ -19,46 +44,26 @@ class MyHandler(BaseHTTPRequestHandler):
             if self.path == "/":
                 self.path = "/index.html"
 
-            if self.path.endswith("data.json"):
-                overlay_graph = self.server.get_overlay("phy")
-                graph = overlay_graph._graph.copy()
-                for node in overlay_graph:
-                    graph.node[node.node_id]['label'] = node.overlay.input.label
-                    graph.node[node.node_id]['x'] = node.overlay.graphics.x
-                    graph.node[node.node_id]['y'] = node.overlay.graphics.y
-                    graph.node[node.node_id]['device_type'] = node.overlay.graphics.device_type
+            pathparts = self.path.split("/")
 
-                #TODO: need  to normalize
-                x_min = min(data['x'] for n, data in graph.nodes(data=True))
-                y_min = min(data['y'] for n, data in graph.nodes(data=True))
-                for node in graph.nodes():
-                    graph.node[node]['x'] = graph.node[node]['x'] - x_min
-                    graph.node[node]['y'] = graph.node[node]['y'] - y_min
+            if pathparts[1] == "data":
+                overlay_id = pathparts[2]
+                overlay_graph = self.server.get_overlay(overlay_id)._graph.copy()
+                overlay_graph = ank.stringify_netaddr(overlay_graph)
+# JSON writer doesn't handle 'id' already present in nodes
+                #for n in graph:
+                    #del graph.node[n]['id']
 
-                node_data_list = []
-                for node, data in graph.nodes(data=True):
-                    node_data_list.append( {
-                        'x': int(data['x']),
-                        'y': int(data['y']),
-                        'label': data['label'],
-                        'device_type': data['device_type'],
-                        })
+# strip out graph data
+                overlay_graph.graph = {}
 
-                edge_data_list = []
-                for src, dst in graph.edges():
-                    edge_data_list.append( {
-                        'src': graph.node[src]['label'],
-                        'dst': graph.node[dst]['label'],
-                        })
-                graph_data = {'points': node_data_list,
-                        'edges': edge_data_list}
-
-                data =  json.dumps(graph_data)
-                print "serving", data
+                data = json_graph.dumps(overlay_graph)
                 self.send_response(200)
                 self.send_header('Content-type',    'text/json')
                 self.end_headers()
                 self.wfile.write(data)
+                return
+
 
 # server up overlay
             else:
@@ -80,47 +85,24 @@ class MyHandler(BaseHTTPRequestHandler):
             print "not found", self.path
             
             
-def stream(overlay_graph):
-    import json
-    import urllib2
 
+def main():
     PORT = 8000
 
     try:
         server = MyServer(('', PORT), MyHandler)
-        server.set_overlay(overlay_graph)
+        server.get_anm()
         print 'started httpserver...'
         server.serve_forever()
     except KeyboardInterrupt:
         print '^C received, shutting down server'
         server.socket.close()
 
-    proxy_handler = urllib2.ProxyHandler({})
-    opener = urllib2.build_opener(proxy_handler)
-    urllib2.install_opener(opener)
-    url = "http://localhost:8080/workspace0?operation=getGraph"
-    #req = urllib2.Request(url, data, {'Content-Type': 'application/json'})
 
 
-    return
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
 
-
-    graph = overlay_graph._graph.copy()
-    for node in overlay_graph:
-        graph.node[node.node_id]['label'] = node.overlay.input.label
-        graph.node[node.node_id]['x'] = node.overlay.graphics.x
-        graph.node[node.node_id]['y'] = node.overlay.graphics.y
-
-    for node, data in graph.nodes(data=True):
-        add_nodes = {'an': {node: {'label': data['label']}}}
-        data =  json.dumps(add_nodes)
-        print data
-        print 'curl "http://localhost:8080/workspace0?operation=updateGraph" -d "%s"' % data
-        req = urllib2.Request(url, data, {'Content-Type': 'application/json'})
-        f = urllib2.urlopen(req)
-        #response = f.read()
-        f.close()
-        #print response
-    #add_edges = {'ae':data['links']}
-    #print 'curl "http://localhost:8080/workspace0?operation=updateGraph -d "%s"' % pprint.pformat(add_nodes)
-    #pprint.pformat(add_edges)

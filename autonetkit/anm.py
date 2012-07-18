@@ -1,6 +1,7 @@
 import networkx as nx
 import itertools
 import pprint
+import time
 
 #TODO: add helper functions such as router, ie ank.router(device): return device.overlay.phys.device_type == "router"
 
@@ -321,7 +322,6 @@ class overlay_graph_data(object):
         """Sets edge property"""
         self._graph.graph[key] = val
 
-
 class OverlayBase(object):
     """Base class for overlays - overlay graphs, subgraphs, projections, etc"""
 
@@ -451,14 +451,14 @@ class OverlayBase(object):
 
         return (n for n in nbunch if filter_func(n))
 
-    def edges(self, nbunch = None, *args, **kwargs):
+    def edges(self, src_nbunch = None, dst_nbunch = None, *args, **kwargs):
 # nbunch may be single node
 #TODO: Apply edge filters
-        if nbunch:
+        if src_nbunch:
             try:
-                nbunch = nbunch.node_id
+                src_nbunch = src_nbunch.node_id
             except AttributeError:
-                nbunch = (n.node_id for n in nbunch) # only store the id in overlay
+                src_nbunch = (n.node_id for n in src_nbunch) # only store the id in overlay
 
         def filter_func(edge):
             return (
@@ -466,17 +466,29 @@ class OverlayBase(object):
                     all(getattr(edge, key) == val for key, val in kwargs.items())
                     )
 
+        valid_edges = ( (src, dst) for (src, dst) in self._graph.edges_iter(src_nbunch))
+        if dst_nbunch:
+            try:
+                dst_nbunch = dst_nbunch.node_id
+            except AttributeError:
+                dst_nbunch = (n.node_id for n in dst_nbunch) # only store the id in overlay_edge
+
+            dst_nbunch = set(dst_nbunch) # faster membership test than other sequences
+            valid_edges  = ((src, dst) for (src, dst) in valid_edges
+                    if dst in dst_nbunch)
+
         if len(args) or len(kwargs):
             all_edges = iter(overlay_edge(self._anm, self._overlay_id, src, dst)
-                    for (src, dst) in self._graph.edges_iter(nbunch)
-                    )
-            return (edge for edge in all_edges if filter_func(edge))
+                    for (src, dst) in valid_edges)
+            result =  (edge for edge in all_edges if filter_func(edge))
         else:
-            return (overlay_edge(self._anm, self._overlay_id, src, dst)
-                    for (src, dst) in self._graph.edges_iter(nbunch))
+            result =  (overlay_edge(self._anm, self._overlay_id, src, dst)
+                    for (src, dst) in valid_edges)
+
+
+        return result
 
 class overlay_subgraph(OverlayBase):
-
     def __init__(self, anm, overlay_id, graph, name = None):
         super(overlay_subgraph, self).__init__(anm, overlay_id)
         self._graph = graph
@@ -484,7 +496,6 @@ class overlay_subgraph(OverlayBase):
 
     def __repr__(self):
         return self._subgraph_name
-
 
 class overlay_graph(OverlayBase):
     """API to interact with an overlay graph in ANM"""
@@ -586,7 +597,6 @@ class overlay_accessor(object):
         return getattr(self, key)
 
 class AbstractNetworkModel(object):
-    
     def __init__(self):
         self._overlays = {}
         self.add_overlay("phy")
@@ -594,15 +604,15 @@ class AbstractNetworkModel(object):
         self.label_seperator = "_"
         self.label_attrs = ['label']
         self._build_node_label()
+        self.timestamp =  time.strftime("%Y%m%d_%H%M%S", time.localtime())
         
-
+        
     def __getnewargs__(self):
         return ()
 
     def __getstate__(self):
         """For pickling"""
         return (self._overlays, self.label_seperator, self.label_attrs)
-
 
     def __setstate__(self, state):
         """For pickling"""
@@ -611,6 +621,19 @@ class AbstractNetworkModel(object):
         self.label_seperator = label_seperator
         self.label_attrs = label_attrs
         self._build_node_label()
+
+    def save(self):
+        import os
+        import pickle
+#TODO: try cPickle
+        pickle_dir = "anm_versions"
+        if not os.path.isdir(pickle_dir):
+            os.makedirs(pickle_dir)
+
+        pickle_file = "anm_%s.pickle.tar.gz" % self.timestamp
+        pickle_path = os.path.join(pickle_dir, pickle_file)
+        with open(pickle_path, "wb") as pickle_fh:
+            pickle.dump(self, pickle_fh, -1)
 
     @property
     def _phy(self):

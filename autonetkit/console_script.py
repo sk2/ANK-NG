@@ -3,6 +3,7 @@ import ank
 import itertools
 from nidb import NIDB
 import ank_render
+import pprint
 import time
 import ank_diff
 #import ank_deploy
@@ -15,15 +16,40 @@ import ank_change_monitor
 import os
 import sys
 
-import optparse
-opt = optparse.OptionParser()
-opt.add_option('--file', '-f', default= None, help="Load topology from FILE")        
-opt.add_option('--monitor', '-m',  action="store_true", default= False, help="Monitor input file for changes")        
-options, arguments = opt.parse_args()
+def main():
 
-input_filename = options.file
-if not options.file:
-    input_filename = "ank.graphml"
+    import optparse
+    opt = optparse.OptionParser()
+    opt.add_option('--file', '-f', default= None, help="Load topology from FILE")        
+    opt.add_option('--monitor', '-m',  action="store_true", default= False, help="Monitor input file for changes")        
+    options, arguments = opt.parse_args()
+
+    input_filename = options.file
+    if not options.file:
+        input_filename = "ank.graphml"
+
+    anm = build_network(input_filename)
+    anm.save()
+    nidb = compile_network(anm)
+    ank_render.render(nidb)
+
+#ank_http_server.stream(anm)
+
+#TODO: add support for nidb subgraphs, especially for platforms, and show boundary nodes and boundary edges easily
+    if options.monitor:
+        try:
+            print "Monitoring for updates..."
+            while True:
+                time.sleep(0.2)
+                if ank_change_monitor.check_for_change(input_filename, anm):
+                    print "Input graph updated, recompiling network"
+                    anm = build_network(input_filename)
+                    nidb = compile_network(anm)
+                    ank_render.render(nidb)
+                    print "Monitoring for updates..."
+        except KeyboardInterrupt:
+            print
+            print "Exiting"
 
 def build_network(input_filename):
 
@@ -51,6 +77,11 @@ def build_network(input_filename):
     G_phy.add_nodes_from(G_in, retain=['label', 'device_type', 'asn', 'platform', 'host', 'syntax'])
     G_phy.add_edges_from([edge for edge in G_in.edges() if edge.type == "physical"])
     #G_phy2 = anm['phy']
+
+    #dst_nbunch = [n for n in G_phy if n.asn != 20965 and n.degree() > 15]
+    #test_edges = G_phy.edges(G_phy.nodes(asn=20965), dst_nbunch)
+    #print list(test_edges)
+
 
     """
     r1 = G_phy.node("r1")
@@ -142,6 +173,9 @@ def build_network(input_filename):
     #ank_plot.plot_pylab(G_ospf, edge_label_attribute='cost')
     #ank_plot.plot_pylab(G_ip, edge_label_attribute = 'ip_address', node_label_attribute = 'loopback')
 
+
+    
+
     return anm
 
 #TODO: set fqdn property
@@ -189,7 +223,7 @@ def compile_network(anm):
         node.graphics.y = graphics_node.y
         node.graphics.device_type = graphics_node.device_type
 
-    nidb.save()
+    #nidb.save()
 
     diff = ank_diff.diff_history("nidb_history")
     #pprint.pprint(diff)
@@ -212,24 +246,9 @@ ank_deploy.extract(server, tar_file, cd_dir)
 """
 
 
-anm = build_network(input_filename)
-nidb = compile_network(anm)
-ank_render.render(nidb)
 
-#ank_http_server.stream(anm)
-
-#TODO: add support for nidb subgraphs, especially for platforms, and show boundary nodes and boundary edges easily
-if options.monitor:
+if __name__ == "__main__":
     try:
-        print "Monitoring for updates..."
-        while True:
-            time.sleep(0.2)
-            if ank_change_monitor.check_for_change(input_filename, anm):
-                print "Input graph updated, recompiling network"
-                anm = build_network(input_filename)
-                nidb = compile_network(anm)
-                ank_render.render(nidb)
-                print "Monitoring for updates..."
+        main()
     except KeyboardInterrupt:
-        print
-        print "Exiting"
+        pass
