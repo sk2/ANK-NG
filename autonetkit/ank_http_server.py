@@ -49,10 +49,20 @@ class MyHandler(BaseHTTPRequestHandler):
             if pathparts[1] == "data":
                 overlay_id = pathparts[2]
                 overlay_graph = self.server.get_overlay(overlay_id)._graph.copy()
+                graphics_graph = self.server.get_overlay("graphics")._graph.copy()
                 overlay_graph = ank.stringify_netaddr(overlay_graph)
 # JSON writer doesn't handle 'id' already present in nodes
                 #for n in graph:
                     #del graph.node[n]['id']
+
+
+                for n in overlay_graph:
+                    overlay_graph.node[n].update( {
+                        'x': graphics_graph.node[n]['x'],
+                        'y': graphics_graph.node[n]['y'],
+                        'device_type': graphics_graph.node[n]['device_type'],
+                        })
+
 
 # strip out graph data
                 overlay_graph.graph = {}
@@ -80,6 +90,9 @@ class MyHandler(BaseHTTPRequestHandler):
                 self.wfile.write(f.read())
                 f.close()
                 return
+
+
+            #TODO: if .js transfer as MIME type script
 
         except IOError:
             print "not found", self.path

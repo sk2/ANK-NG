@@ -1,58 +1,62 @@
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
-    <title>AutoNetkit-NG</title>
-    <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
-    <script type="text/javascript" src="processing-1.3.6.min.js"></script>
+    <script type="text/javascript" src="d3.v2.min.js"></script>
+
+  <style type="text/css">
+    circle {
+      fill: steelblue;
+    }
+
+
+     .chart div {
+   font: 10px sans-serif;
+   background-color: steelblue;
+   text-align: right;
+   padding: 3px;
+   margin: 1px;
+   color: white;
+ }
+  </style>
+
+  </head>
+  <body>
     <script type="text/javascript">
 
-      var bound = false;
+  var chart = d3.select("body").append("svg")
+     .attr("class", "chart")
+     .attr("width", 1000)
+     .attr("height", 1000);
 
-      function bindJavascript() {
-         var pjs = Processing.getInstanceById('ank_vis');
-         if(pjs!=null) {
-           pjs.bindJavascript(this);
-           bound = true; }
-         if(!bound) setTimeout(bindJavascript, 250);
-      }
-bindJavascript();
+  d3.json(
+  'data/ip',
+  function (jsondata) {
 
-      function showLabel(label) {
-        document.getElementById('label').value = label;
-        $.get("data.json?clicked=" + label);
-      }
+    // create the chart here with
+    // the returned data
 
-function plotPoints(data) {
-  var id = "ank_vis";
-  var pjs = Processing.getInstanceById(id);
+    console.log(jsondata);
+    console.log(jsondata.nodes);
 
-  if(data) {
-    // we know the JSON is an array of points, called "points"
-    for(p=0, end=data.points.length; p<end; p++) {
-      var point = data.points[p];
-      pjs.addPoint(point.x, point.y, point.label, point.device_type);
-    }
-    for(p=0, end=data.edges.length; p<end; p++) {
-      var edge = data.edges[p];
-      pjs.addEdge(edge.src, edge.dst); 
-    }
-  }
-}
-function loadPoints(id) {
-  $.get("data.json", function(data){
-      plotPoints(data);
-      });
+    chart.selectAll("circle")
+      .data(jsondata.nodes)
+      .enter().append("circle")
+      .attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y; })
+      .attr("r", 10 );
 
-}
-</script>
-     </head>
-     <body onload="loadPoints('ank_vis')">
-       <center>
-       <canvas id="ank_vis" data-processing-sources="ank_vis.pde"></canvas>
-       </center>
-         <div id="device_data">
-           <input type="textfield" id="label">
-         </div>
+  chart.selectAll("text")
+      .data(jsondata.nodes)
+    .enter().append("text")
+      .attr("x", function(d) { return d.x; })
+      .attr("y", function(d) { return d.y; } )
+      .attr("dx", -3) // padding-right
+      .attr("dy", ".35em") // vertical-align: middle
+      .attr("text-anchor", "end") // text-align: right
+      .text(function (d) { return d.id; } );
 
-       </body>
-     </html>
+  });
+
+    </script>
+  </body>
+</html>
