@@ -28,9 +28,29 @@
      .attr("width", 1000)
      .attr("height", 1000);
 
-     var icon = function(d) {
-       return "router.jpg";
+  var nodes = d3.map;
+
+  var icon_ordinal = d3.scale.ordinal()
+      .domain(["router", "switch", "collision_domain"])
+      .range(["router.jpg", "switch.jpg", "switch.jpg"]);
+
+      var icon = function(d) {
+        return icon_ordinal(d.device_type);
      }
+
+  var source_x = function(d) {
+    return nodes[d.source].x + 32;
+  }
+  var source_y = function(d) {
+    return nodes[d.source].y + 32;
+  }
+
+  var target_x = function(d) {
+    return nodes[d.target].x + 32;
+  }
+  var target_y = function(d) {
+    return nodes[d.target].y + 32;
+  }
 
   d3.json(
   'data/ip',
@@ -42,8 +62,25 @@
     console.log(jsondata);
     console.log(jsondata.nodes);
 
+    nodes = jsondata.nodes;
+
+    jsondata.links.forEach( function(d) {
+      console.log(d);
+      });
+
+    //TODO: filter the json data x and y ranges: store in nodes, and use this for the image plotting
+
+    chart.selectAll("line")
+    .data(jsondata.links)
+    .enter().append("line")
+    .attr("x1", source_x)
+    .attr("y1", source_y)
+    .attr("x2", target_x)
+    .attr("y2", target_y)
+    .style("stroke", "rgb(6,120,155)");
+
     chart.selectAll("image")
-      .data(jsondata.nodes)
+      .data(nodes)
       .enter().append("image")
       .attr("x", function(d) { return d.x; })
       .attr("y", function(d) { return d.y; })
@@ -51,7 +88,6 @@
       .attr("width", 64)
       .attr("height", 64);
       
-
   chart.selectAll("text")
       .data(jsondata.nodes)
     .enter().append("text")
@@ -59,10 +95,13 @@
       .attr("y", function(d) { return d.y; } )
       .attr("dx", 32) // padding-right
       .attr("dy", 72) // vertical-align: middle
-      .attr("text-anchor", "middle") // text-align: right
+      .attr("text-anchor", "middle") 
+      .attr("font-family", "helvetica") 
+      .attr("font-size", "small") 
       .text(function (d) { return d.id; } );
-
   });
+
+//TODO: set hover to display properties
 
     </script>
   </body>
