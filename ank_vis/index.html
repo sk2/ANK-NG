@@ -28,6 +28,10 @@
      .attr("width", 1000)
      .attr("height", 1000);
 
+     var icon = function(d) {
+       return "router.jpg";
+     }
+
   d3.json(
   'data/ip',
   function (jsondata) {
@@ -38,21 +42,24 @@
     console.log(jsondata);
     console.log(jsondata.nodes);
 
-    chart.selectAll("circle")
+    chart.selectAll("image")
       .data(jsondata.nodes)
-      .enter().append("circle")
-      .attr("cx", function(d) { return d.x; })
-      .attr("cy", function(d) { return d.y; })
-      .attr("r", 10 );
+      .enter().append("image")
+      .attr("x", function(d) { return d.x; })
+      .attr("y", function(d) { return d.y; })
+      .attr("xlink:href", icon)
+      .attr("width", 64)
+      .attr("height", 64);
+      
 
   chart.selectAll("text")
       .data(jsondata.nodes)
     .enter().append("text")
       .attr("x", function(d) { return d.x; })
       .attr("y", function(d) { return d.y; } )
-      .attr("dx", -3) // padding-right
-      .attr("dy", ".35em") // vertical-align: middle
-      .attr("text-anchor", "end") // text-align: right
+      .attr("dx", 32) // padding-right
+      .attr("dy", 72) // vertical-align: middle
+      .attr("text-anchor", "middle") // text-align: right
       .text(function (d) { return d.id; } );
 
   });
