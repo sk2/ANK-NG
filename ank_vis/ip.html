@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="text/javascript" src="d3.v2.min.js"></script>
+
+  <style type="text/css">
+    circle {
+      fill: steelblue;
+    }
+
+
+     .chart div {
+   font: 10px sans-serif;
+   background-color: steelblue;
+   text-align: right;
+   padding: 3px;
+   margin: 1px;
+   color: white;
+ }
+  </style>
+
+  </head>
+  <body>
+    <div>
+    <script type="text/javascript">
+
+  var chart = d3.select("body").append("svg")
+     .attr("class", "chart")
+     .attr("width", 1000)
+     .attr("height", 1000);
+
+     d3.json("json/ip", function(json) {
+         tree.nodes(json); 
+         });
+
+ 
+//TODO: set hover to display properties
+
+    </script>
+
+    </div>
+  </body>
+</html>

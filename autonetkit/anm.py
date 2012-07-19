@@ -2,6 +2,10 @@ import networkx as nx
 import itertools
 import pprint
 import time
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 #TODO: add helper functions such as router, ie ank.router(device): return device.overlay.phys.device_type == "router"
 
@@ -624,7 +628,6 @@ class AbstractNetworkModel(object):
 
     def save(self):
         import os
-        import pickle
 #TODO: try cPickle
         pickle_dir = os.path.join("versions", "anm")
         if not os.path.isdir(pickle_dir):

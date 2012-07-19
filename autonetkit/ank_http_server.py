@@ -20,22 +20,48 @@ class MyServer(HTTPServer):
         pickle_files = glob.glob(glob_dir)
         pickle_files = sorted(pickle_files)
 # check if most recent outdates current most recent
-        latest_file = pickle_files[-1]
+        latest_anm_file = pickle_files[-1]
 #TODO: put this in __init__
         try:
-            self.latest_file
+            self.latest_anm_file
         except AttributeError:
-            self.latest_file = None
-        if self.latest_file != latest_file:
+            self.latest_anm_file = None
+        if self.latest_anm_file != latest_anm_file:
 # new latest file
-            self.latest_file = latest_file
-            with open(latest_file, "r") as latest_fh:
+            self.latest_anm_file = latest_anm_file
+            with open(latest_anm_file, "r") as latest_fh:
                 anm = pickle.load(latest_fh)
                 self.anm = anm
         return self.anm
 
     def get_overlay(self, overlay):
         return self.anm[overlay]
+
+    def get_ip(self):
+        try:
+            self.latest_ip_file
+        except AttributeError:
+            self.latest_ip_file = None
+
+        #TODO: Store directory from __init__ argument rather than hard-coded
+        directory = os.path.join("versions", "ip")
+        glob_dir = os.path.join(directory, "*.pickle.tar.gz")
+        pickle_files = glob.glob(glob_dir)
+        pickle_files = sorted(pickle_files)
+# check if most recent outdates current most recent
+        latest_ip_file = pickle_files[-1]
+#TODO: put this in __init__
+        try:
+            self.latest_ip_file
+        except AttributeError:
+            self.latest_ip_file = None
+        if self.latest_ip_file != latest_ip_file:
+# new latest file
+            self.latest_ip_file = latest_ip_file
+            with open(latest_ip_file, "r") as latest_fh:
+                ip = pickle.load(latest_fh)
+                self.ip = ip
+        return self.ip
 
 class MyHandler(BaseHTTPRequestHandler):
 
@@ -47,33 +73,44 @@ class MyHandler(BaseHTTPRequestHandler):
 
             pathparts = self.path.split("/")
 
-            if pathparts[1] == "data":
-                overlay_id = pathparts[2]
-                overlay_graph = self.server.get_overlay(overlay_id)._graph.copy()
-                graphics_graph = self.server.get_overlay("graphics")._graph.copy()
-                overlay_graph = ank.stringify_netaddr(overlay_graph)
+            if pathparts[1] == "json":
+
+                if pathparts[2] == "overlay":
+                    overlay_id = pathparts[3]
+                    overlay_graph = self.server.get_overlay(overlay_id)._graph.copy()
+                    graphics_graph = self.server.get_overlay("graphics")._graph.copy()
+                    overlay_graph = ank.stringify_netaddr(overlay_graph)
 # JSON writer doesn't handle 'id' already present in nodes
-                #for n in graph:
-                    #del graph.node[n]['id']
+                    #for n in graph:
+                        #del graph.node[n]['id']
 
-
-                for n in overlay_graph:
-                    overlay_graph.node[n].update( {
-                        'x': graphics_graph.node[n]['x'],
-                        'y': graphics_graph.node[n]['y'],
-                        'device_type': graphics_graph.node[n]['device_type'],
-                        })
-
+                    for n in overlay_graph:
+                        overlay_graph.node[n].update( {
+                            'x': graphics_graph.node[n]['x'],
+                            'y': graphics_graph.node[n]['y'],
+                            'device_type': graphics_graph.node[n]['device_type'],
+                            })
 
 # strip out graph data
-                overlay_graph.graph = {}
+                    overlay_graph.graph = {}
 
-                data = json_graph.dumps(overlay_graph)
-                self.send_response(200)
-                self.send_header('Content-type',    'text/json')
-                self.end_headers()
-                self.wfile.write(data)
-                return
+                    data = json_graph.dumps(overlay_graph)
+                    self.send_response(200)
+                    self.send_header('Content-type',    'text/json')
+                    self.end_headers()
+                    self.wfile.write(data)
+                    return
+
+                
+                if pathparts[2] == "ip":
+                    ip_tree = self.server.get_ip()
+
+                    data = ip_tree.json()
+                    self.send_response(200)
+                    self.send_header('Content-type',    'text/json')
+                    self.end_headers()
+                    self.wfile.write(data)
+                    return
 
 
 # server up overlay

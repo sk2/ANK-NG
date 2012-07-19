@@ -21,6 +21,7 @@
 
   </head>
   <body>
+    <div>
     <script type="text/javascript">
 
   var chart = d3.select("body").append("svg")
@@ -53,7 +54,7 @@
   }
 
   d3.json(
-  'data/ip',
+  'json/overlay/ip',
   function (jsondata) {
 
     // create the chart here with
@@ -104,5 +105,7 @@
 //TODO: set hover to display properties
 
     </script>
+
+    </div>
   </body>
 </html>

@@ -5,6 +5,11 @@ import itertools
 import pprint
 import time
 import json
+import os
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 def fqdn(node):
     return "%s.%s" % (node.label, node.asn)
@@ -398,6 +403,28 @@ class Tree:
         self.timestamp =  time.strftime("%Y%m%d_%H%M%S", time.localtime())
         self.root_node = root_node
 
+    def __getstate__(self):
+        """For pickling"""
+        return (self.timestamp, self.root_node)
+
+    def __setstate__(self, state):
+        """For pickling"""
+        (timestamp, root_node) = state
+        self.timestamp = timestamp
+        self.root_node = root_node
+
+
+    def save(self):
+#TODO: try cPickle
+        pickle_dir = os.path.join("versions", "ip")
+        if not os.path.isdir(pickle_dir):
+            os.makedirs(pickle_dir)
+
+        pickle_file = "ip_%s.pickle.tar.gz" % self.timestamp
+        pickle_path = os.path.join(pickle_dir, pickle_file)
+        with open(pickle_path, "wb") as pickle_fh:
+            pickle.dump(self, pickle_fh, -1)
+
     def __str__(self):
         print self.walk_tree(self.root_node)
 
@@ -405,10 +432,10 @@ class Tree:
         print self.walk_tree(self.root_node)
 
     def json(self):
-        print json.dumps(self._json_element(self.root_node))
-        return self._json_element(self.root_node)
+        return json.dumps(self._json_element(self.root_node))
 
     def _json_element(self, node):
+        #TODO: need to case IP addresses to string for JSON
         nodes = []
         if node.left:
             nodes.append(self._json_element(node.left))
@@ -416,10 +443,10 @@ class Tree:
             nodes.append(self._json_element(node.right))
         if nodes:
             return {
-                    node: nodes
+                    str(node): nodes
                 }
 
-        return  node
+        return str(node)
 
 
     def walk_tree(self, node):
@@ -446,8 +473,10 @@ class TreeNode:
         return False
 
     def __repr__(self):
-        return '(%s %s)' % (
-                self.subnet, self.cd)
+        if self.cd:
+            return '(%s %s)' % ( self.subnet, self.cd)
+
+        return str(self.subnet)
 
 def allocate_to_tree_node(node):
     node_subnet = node.subnet
@@ -576,9 +605,7 @@ def allocate_ips(G_ip):
         allocate_ips_to_cds(tree_root)
 
         my_tree = Tree(tree_root)
-        print "dumping"
-        print my_tree.dump()
-        pprint.pprint( my_tree.json())
+        my_tree.save()
 
         # Get loopback from loopback tree node
         loopback_hosts = asn_loopback_tree_node.subnet.iter_hosts()
@@ -592,11 +619,13 @@ def allocate_ips(G_ip):
             for edge in sorted(cd.edges()):
                 edge.ip_address = hosts.next()
 
+        #TODO: Also want to store this ordering of what is assigned to which node, not just the tree...
+
         # traverse tree, allocate back to loopbacks, and to nodes
         # TODO: should loopbacks be a sentinel type node for faster traversal rather than checking each time?
 
 def allocate_route_reflectors(G_phy, G_bgp):
-    print "allocating rr"
+    print "allocating route reflectors"
     graph_phy = G_phy._graph
     for asn, devices in G_phy.groupby("asn").items():
         routers = [d for d in devices if d.is_router]
