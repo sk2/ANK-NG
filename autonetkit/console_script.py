@@ -44,6 +44,7 @@ def main():
                 if ank_change_monitor.check_for_change(input_filename, anm):
                     print "Input graph updated, recompiling network"
                     anm = build_network(input_filename)
+                    anm.save()
                     nidb = compile_network(anm)
                     ank_render.render(nidb)
                     print "Monitoring for updates..."
@@ -225,7 +226,7 @@ def compile_network(anm):
 
     #nidb.save()
 
-    diff = ank_diff.diff_history("nidb_history")
+    #diff = ank_diff.diff_history(os.path.join("versions", "anm")
     #pprint.pprint(diff)
 
 #TODO: plot the nidb

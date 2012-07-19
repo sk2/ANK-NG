@@ -626,7 +626,7 @@ class AbstractNetworkModel(object):
         import os
         import pickle
 #TODO: try cPickle
-        pickle_dir = "anm_versions"
+        pickle_dir = os.path.join("versions", "anm")
         if not os.path.isdir(pickle_dir):
             os.makedirs(pickle_dir)
 

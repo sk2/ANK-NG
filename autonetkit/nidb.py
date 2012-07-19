@@ -388,7 +388,7 @@ class NIDB_base(object):
 
     def save(self):
         import os
-        pickle_dir = "nidb_history"
+        pickle_dir = os.path.join("versions", "nidb")
         if not os.path.isdir(pickle_dir):
             os.makedirs(pickle_dir)
 

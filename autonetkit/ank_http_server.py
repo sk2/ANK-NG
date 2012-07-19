@@ -14,7 +14,7 @@ class MyServer(HTTPServer):
 
     def get_anm(self):
         #TODO: Store directory from __init__ argument rather than hard-coded
-        directory = "anm_versions"
+        directory = os.path.join("versions", "anm")
         glob_dir = os.path.join(directory, "*.pickle.tar.gz")
         pickle_files = glob.glob(glob_dir)
         pickle_files = sorted(pickle_files)
