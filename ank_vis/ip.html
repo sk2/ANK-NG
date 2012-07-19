@@ -8,6 +8,17 @@
       fill: steelblue;
     }
 
+                svg {
+                border: solid 1px #ccc;
+                font: 10px sans-serif;
+
+            }
+            .link {
+                fill: none;
+                stroke: #ccc;
+                stroke-width: 1.5px;
+            }
+
 
      .chart div {
    font: 10px sans-serif;
@@ -24,13 +35,48 @@
     <div>
     <script type="text/javascript">
 
-  var chart = d3.select("body").append("svg")
+  var svg = d3.select("body").append("svg")
      .attr("class", "chart")
-     .attr("width", 1000)
-     .attr("height", 1000);
+     .attr("width", 600)
+     .attr("height", 600);
 
-     d3.json("json/ip", function(json) {
-         tree.nodes(json); 
+    var layout = d3.layout.tree().size([300,300]);
+
+       var diagonal = d3.svg.diagonal()
+                // change x and y (for the left to right tree)
+                .projection(function(d) { return [d.x, d.y]; });
+
+
+     d3.json("json/ip", function(data) {
+         console.log(data);
+         var nodes = layout.nodes(data);
+         var links = layout.links(nodes);
+
+         var link = svg.selectAll("pathlink")
+         .data(links)
+         .enter().append("svg:path")
+         .attr("class", "link")
+         .attr("d", diagonal)
+
+
+         var node = svg.selectAll("g.node")
+         .data(nodes)
+         .enter().append("svg:g")
+         .attr("transform", function(d) { return "translate(" + d.x + "," + d.y +  ")"; })
+
+
+         // Add the dot at every node
+         node.append("svg:circle")
+         .attr("r", 3.5);
+
+     // place the name atribute left or right depending if children
+     node.append("svg:text")
+       .attr("dx", function(d) { return d.children ? -8 : 8; })
+       .attr("dy", 9)
+       .attr("text-anchor", function(d) { return d.children ? "end" : "start"; })
+       .text(function(d) { return d.name; });
+
+
          });
 
  

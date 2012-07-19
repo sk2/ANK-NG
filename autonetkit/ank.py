@@ -432,6 +432,7 @@ class Tree:
         print self.walk_tree(self.root_node)
 
     def json(self):
+        print json.dumps(self._json_element(self.root_node))
         return json.dumps(self._json_element(self.root_node))
 
     def _json_element(self, node):
@@ -443,10 +444,11 @@ class Tree:
             nodes.append(self._json_element(node.right))
         if nodes:
             return {
-                    str(node): nodes
+                    "name": str(node),
+                    "children": nodes,
                 }
 
-        return str(node)
+        return {"name": str(node)}
 
 
     def walk_tree(self, node):
@@ -605,6 +607,7 @@ def allocate_ips(G_ip):
         allocate_ips_to_cds(tree_root)
 
         my_tree = Tree(tree_root)
+        print my_tree.json()
         my_tree.save()
 
         # Get loopback from loopback tree node
