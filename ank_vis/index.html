@@ -32,7 +32,7 @@
 
   var icon_ordinal = d3.scale.ordinal()
       .domain(["router", "switch", "collision_domain"])
-      .range(["router.jpg", "switch.jpg", "switch.jpg"]);
+      .range(["router.svg", "switch.svg", "switch.svg"]);
 
       var icon = function(d) {
         return icon_ordinal(d.device_type);
@@ -94,7 +94,7 @@
       .attr("x", function(d) { return d.x; })
       .attr("y", function(d) { return d.y; } )
       .attr("dx", 32) // padding-right
-      .attr("dy", 72) // vertical-align: middle
+      .attr("dy", 65) // vertical-align: middle
       .attr("text-anchor", "middle") 
       .attr("font-family", "helvetica") 
       .attr("font-size", "small") 

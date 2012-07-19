@@ -4,6 +4,7 @@ import json
 import glob
 from networkx.readwrite import json_graph
 import pickle
+import mimetypes
 import ank
 #TODO use cPickle
 
@@ -83,9 +84,10 @@ class MyHandler(BaseHTTPRequestHandler):
 #note that this potentially makes every file on your computer readable by the internet
                 f = open(file_location, "r")
                 print "Serving", stripped_path
+                mimetype, encoding =  mimetypes.guess_type(file_location)
 
                 self.send_response(200)
-                self.send_header('Content-type',    'text/html')
+                self.send_header('Content-type', mimetype)
                 self.end_headers()
                 self.wfile.write(f.read())
                 f.close()

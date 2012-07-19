@@ -2,6 +2,9 @@ import networkx as nx
 from anm import overlay_node, overlay_edge
 from collections import defaultdict
 import itertools
+import pprint
+import time
+import json
 
 def fqdn(node):
     return "%s.%s" % (node.label, node.asn)
@@ -390,6 +393,43 @@ def subnet_size(host_count):
     host_count += 2 # network and broadcast
     return int(math.ceil(math.log(host_count, 2)))
 
+class Tree:
+    def __init__(self, root_node):
+        self.timestamp =  time.strftime("%Y%m%d_%H%M%S", time.localtime())
+        self.root_node = root_node
+
+    def __str__(self):
+        print self.walk_tree(self.root_node)
+
+    def dump(self):
+        print self.walk_tree(self.root_node)
+
+    def json(self):
+        print json.dumps(self._json_element(self.root_node))
+        return self._json_element(self.root_node)
+
+    def _json_element(self, node):
+        nodes = []
+        if node.left:
+            nodes.append(self._json_element(node.left))
+        if node.right:
+            nodes.append(self._json_element(node.right))
+        if nodes:
+            return {
+                    node: nodes
+                }
+
+        return  node
+
+
+    def walk_tree(self, node):
+        #TODO: combine this with JSON and printing
+        if node.left:
+            walk_tree(node.left)
+        print node
+        if node.right:
+            walk_tree(node.right)
+
 class TreeNode:
     """Adapted from http://stackoverflow.com/questions/2078669"""
     def __init__(self,left=None,right=None, cd = None):
@@ -427,6 +467,8 @@ def walk_tree(node):
     print node
     if node.right:
         walk_tree(node.right)
+
+# need to be able to save and restore tree
 
 def allocate_ips_to_cds(node):
     if node.left:
@@ -532,6 +574,11 @@ def allocate_ips(G_ip):
         allocate_to_tree_node(tree_root)
         #walk_tree(tree_root)
         allocate_ips_to_cds(tree_root)
+
+        my_tree = Tree(tree_root)
+        print "dumping"
+        print my_tree.dump()
+        pprint.pprint( my_tree.json())
 
         # Get loopback from loopback tree node
         loopback_hosts = asn_loopback_tree_node.subnet.iter_hosts()
