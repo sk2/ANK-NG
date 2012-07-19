@@ -9,9 +9,7 @@
     }
 
                 svg {
-                border: solid 1px #ccc;
                 font: 10px sans-serif;
-
             }
             .link {
                 fill: none;
@@ -38,13 +36,13 @@
   var svg = d3.select("body").append("svg")
      .attr("class", "chart")
      .attr("width", 600)
-     .attr("height", 600);
+     .attr("height", 300);
 
     var layout = d3.layout.tree().size([300,300]);
 
        var diagonal = d3.svg.diagonal()
                 // change x and y (for the left to right tree)
-                .projection(function(d) { return [d.x, d.y]; });
+                .projection(function(d) { return [d.y + 100, d.x]; });
 
 
      d3.json("json/ip", function(data) {
@@ -62,7 +60,7 @@
          var node = svg.selectAll("g.node")
          .data(nodes)
          .enter().append("svg:g")
-         .attr("transform", function(d) { return "translate(" + d.x + "," + d.y +  ")"; })
+         .attr("transform", function(d) { return "translate(" + (d.y + 100) + "," + d.x +  ")"; })
 
 
          // Add the dot at every node
@@ -72,7 +70,7 @@
      // place the name atribute left or right depending if children
      node.append("svg:text")
        .attr("dx", function(d) { return d.children ? -8 : 8; })
-       .attr("dy", 9)
+       .attr("dy", 3)
        .attr("text-anchor", function(d) { return d.children ? "end" : "start"; })
        .text(function(d) { return d.name; });
 

@@ -607,7 +607,6 @@ def allocate_ips(G_ip):
         allocate_ips_to_cds(tree_root)
 
         my_tree = Tree(tree_root)
-        print my_tree.json()
         my_tree.save()
 
         # Get loopback from loopback tree node

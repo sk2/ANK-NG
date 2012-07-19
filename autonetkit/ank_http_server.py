@@ -26,7 +26,9 @@ class MyServer(HTTPServer):
             self.latest_anm_file
         except AttributeError:
             self.latest_anm_file = None
+
         if self.latest_anm_file != latest_anm_file:
+            print "new file"
 # new latest file
             self.latest_anm_file = latest_anm_file
             with open(latest_anm_file, "r") as latest_fh:
@@ -35,6 +37,7 @@ class MyServer(HTTPServer):
         return self.anm
 
     def get_overlay(self, overlay):
+        self.anm = self.get_anm() #TODO: update this to be clearer for refresh/cache or even @property
         return self.anm[overlay]
 
     def get_ip(self):
