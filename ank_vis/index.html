@@ -32,8 +32,8 @@
   var nodes = d3.map;
 
   var icon_ordinal = d3.scale.ordinal()
-      .domain(["router", "switch", "collision_domain"])
-      .range(["router.svg", "switch.svg", "switch.svg"]);
+      .domain(["router", "switch", "collision_domain", "server"])
+      .range(["router.svg", "switch.svg", "switch.svg", "server.svg"]);
 
       var icon = function(d) {
         return icon_ordinal(d.device_type);
@@ -54,7 +54,7 @@
   }
 
   d3.json(
-  'json/overlay/ip',
+  'json/overlay/bgp',
   function (jsondata) {
 
     // create the chart here with

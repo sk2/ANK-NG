@@ -3,30 +3,30 @@
   <head>
     <script type="text/javascript" src="d3.v2.min.js"></script>
 
-  <style type="text/css">
-    circle {
-      fill: steelblue;
-    }
+    <style type="text/css">
+      circle {
+        fill: #02709F;
+      }
 
-                svg {
-                font: 10px sans-serif;
-            }
-            .link {
-                fill: none;
-                stroke: #ccc;
-                stroke-width: 1.5px;
-            }
+      svg {
+        font: 10px sans-serif;
+      }
+      .link {
+        fill: none;
+        stroke: #ccc;
+        stroke-width: 1.5px;
+      }
 
 
-     .chart div {
-   font: 10px sans-serif;
-   background-color: steelblue;
-   text-align: right;
-   padding: 3px;
-   margin: 1px;
-   color: white;
- }
-  </style>
+      .chart div {
+        font: 10px sans-serif;
+        background-color: steelblue;
+        text-align: right;
+        padding: 3px;
+        margin: 1px;
+        color: white;
+      }
+    </style>
 
   </head>
   <body>
@@ -69,7 +69,7 @@
 
          // Add the dot at every node
          node.append("svg:circle")
-         .attr("r", 3.5);
+         .attr("r", 5);
 
      // place the name atribute left or right depending if children
      node.append("svg:text")

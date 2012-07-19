@@ -114,8 +114,14 @@ def build_network(input_filename):
 
 #TODO: add sanity checks like only routers can cross ASes: can't have an eBGP server
     G_ospf = anm.add_overlay("ospf")
-    G_ospf.add_nodes_from(G_in, retain=['asn'])
+    G_ospf.add_nodes_from(G_in.nodes("is_router"), retain=['asn'])
+    G_ospf.add_nodes_from(G_in.nodes("is_switch"), retain=['asn'])
     G_ospf.add_edges_from(G_in.edges(), retain = ['edge_id', 'ospf_cost'])
+    ank.aggregate_nodes(G_ospf, G_ospf.nodes("is_switch"), retain = "edge_id")
+    ank.explode_nodes(G_ospf, G_ospf.nodes("is_switch"))
+
+#TODO: OSPF needs to aggregate switches out
+
     added_edges = ank.aggregate_nodes(G_ospf, G_ospf.nodes("is_switch"), retain='edge_id')
 
     switch_nodes = G_ip.nodes("is_switch")# regenerate due to aggregated
@@ -134,11 +140,13 @@ def build_network(input_filename):
         graphics_node.device_type = "collision_domain"
         cd_id = collision_domain_id.next()
         node.cd_id = cd_id
-        label = "_".join(sorted(ank.neigh_attr(G_ip, node, "label", G_phy)))
 #TODO: Use this label
         if not node.is_switch:
-            node.label = "cd_%s" % cd_id # switches keep their names
-            graphics_node.label = label
+            label = "_".join(sorted(ank.neigh_attr(G_ip, node, "label", G_phy)))
+            cd_label = "cd_%s" % label # switches keep their names
+            node.label = cd_label 
+            node.cd_id = cd_label
+            graphics_node.label = cd_label
 
     ank.allocate_ips(G_ip)
     ank.save(G_ip)

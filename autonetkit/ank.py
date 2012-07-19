@@ -266,7 +266,7 @@ def split(overlay_graph, edges, retain = []):
 
     return wrap_nodes(overlay_graph, added_nodes)
 
-def explode(overlay_graph, nodes, retain = []):
+def explode_nodes(overlay_graph, nodes, retain = []):
     """Explodes all nodes in nodes
     TODO: explain better
     """
@@ -280,13 +280,14 @@ def explode(overlay_graph, nodes, retain = []):
     nodes = unwrap_nodes(nodes)
     added_edges = []
 #TODO: need to keep track of edge_ids here also?
+    nodes = list(nodes)
     for node in nodes:
         neighbors = graph.neighbors(node)
         neigh_edge_pairs = ( (s,t) for s in neighbors for t in neighbors if s != t)
         edges_to_add = []
         for (src, dst) in neigh_edge_pairs:
             data = dict( (key, graph[src][dst][key]) for key in retain)
-            edges_to_add.append(src, dst, data)
+            edges_to_add.append((src, dst, data))
 
         graph.add_edges_from(edges_to_add)
         added_edges.append(edges_to_add)
@@ -399,19 +400,21 @@ def subnet_size(host_count):
     return int(math.ceil(math.log(host_count, 2)))
 
 class Tree:
-    def __init__(self, root_node):
+    def __init__(self, root_node, asn):
         self.timestamp =  time.strftime("%Y%m%d_%H%M%S", time.localtime())
         self.root_node = root_node
+        self.asn = asn
 
     def __getstate__(self):
         """For pickling"""
-        return (self.timestamp, self.root_node)
+        return (self.timestamp, self.root_node, self.asn)
 
     def __setstate__(self, state):
         """For pickling"""
-        (timestamp, root_node) = state
+        (timestamp, root_node, asn) = state
         self.timestamp = timestamp
         self.root_node = root_node
+        self.asn = asn
 
 
     def save(self):
@@ -420,7 +423,7 @@ class Tree:
         if not os.path.isdir(pickle_dir):
             os.makedirs(pickle_dir)
 
-        pickle_file = "ip_%s.pickle.tar.gz" % self.timestamp
+        pickle_file = "ip_as%s_%s.pickle.tar.gz" % (self.asn, self.timestamp)
         pickle_path = os.path.join(pickle_dir, pickle_file)
         with open(pickle_path, "wb") as pickle_fh:
             pickle.dump(self, pickle_fh, -1)
@@ -605,7 +608,7 @@ def allocate_ips(G_ip):
         #walk_tree(tree_root)
         allocate_ips_to_cds(tree_root)
 
-        my_tree = Tree(tree_root)
+        my_tree = Tree(tree_root, asn)
         my_tree.save()
 
         # Get loopback from loopback tree node
