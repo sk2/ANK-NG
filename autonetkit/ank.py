@@ -432,8 +432,7 @@ class Tree:
         print self.walk_tree(self.root_node)
 
     def json(self):
-        print json.dumps(self._json_element(self.root_node))
-        return json.dumps(self._json_element(self.root_node))
+        return json.dumps(self._json_element(self.root_node), indent=4)
 
     def _json_element(self, node):
         #TODO: need to case IP addresses to string for JSON

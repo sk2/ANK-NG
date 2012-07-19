@@ -97,7 +97,7 @@ class MyHandler(BaseHTTPRequestHandler):
 # strip out graph data
                     overlay_graph.graph = {}
 
-                    data = json_graph.dumps(overlay_graph)
+                    data = json_graph.dumps(overlay_graph, indent=4)
                     self.send_response(200)
                     self.send_header('Content-type',    'text/json')
                     self.end_headers()
