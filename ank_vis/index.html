@@ -76,6 +76,11 @@ doPoll(); //start the polling
     return d.id;
   }
 
+  var edge_id = function(d) {
+    return d.edge_id;
+  }
+
+
   //d3.json(
   //'json/overlay/ip',
   //function (jsondata) {
@@ -85,12 +90,13 @@ doPoll(); //start the polling
     // the returned data
 
     nodes = jsondata.nodes;
-    //console.log(jsondata.nodes);
 
     //TODO: filter the json data x and y ranges: store in nodes, and use this for the image plotting
 
     var line = chart.selectAll("line")
-    .data(jsondata.links)
+      .data(jsondata.links, edge_id)
+
+      //TODO: see why edge_id changes sometimes even though appears the same
 
     line.enter().append("line")
     .style("stroke", "rgb(6,120,155)");
@@ -109,12 +115,6 @@ doPoll(); //start the polling
       var image = chart.selectAll("image")
       .data(nodes, label);
 
-    console.log("enter");
-    console.log(image.enter());
-    console.log("update");
-    console.log(image);
-    console.log("exit");
-    console.log(image.exit());
 
     image.enter().append("image")
       .attr("x", function(d) { return d.x; })
