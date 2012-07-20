@@ -26,17 +26,17 @@
     <script type="text/javascript">
 
 
+      var jsondata;
 
+      function doPoll(){
+        $.get('json/overlay/ip', function(data) {
+            jsondata = data;
+            redraw();
+            setTimeout(doPoll, 1000);
+            });
+    }
 
-function doPoll(){
-    $.get('json/overlay/ip', function(data) {
-      console.log(data);
-      console.log("aa");
-        setTimeout(doPoll,1000);
-    });
-}
-
-doPoll();
+doPoll(); //start the polling 
 
 
     </script>
@@ -45,8 +45,8 @@ doPoll();
 
   var chart = d3.select("body").append("svg")
      .attr("class", "chart")
-     .attr("width", 1000)
-     .attr("height", 1000);
+     .attr("width", 800)
+     .attr("height", 400);
 
   var nodes = d3.map;
 
@@ -72,54 +72,93 @@ doPoll();
     return nodes[d.target].y + 32;
   }
 
-  d3.json(
-  'json/overlay/ip',
-  function (jsondata) {
+  var label = function(d) {
+    return d.id;
+  }
+
+  //d3.json(
+  //'json/overlay/ip',
+  //function (jsondata) {
+ function redraw() {
 
     // create the chart here with
     // the returned data
 
-    console.log(jsondata);
-    console.log(jsondata.nodes);
-
     nodes = jsondata.nodes;
-
-    jsondata.links.forEach( function(d) {
-      console.log(d);
-      });
+    //console.log(jsondata.nodes);
 
     //TODO: filter the json data x and y ranges: store in nodes, and use this for the image plotting
 
-    chart.selectAll("line")
+    var line = chart.selectAll("line")
     .data(jsondata.links)
-    .enter().append("line")
-    .attr("x1", source_x)
-    .attr("y1", source_y)
-    .attr("x2", target_x)
-    .attr("y2", target_y)
+
+    line.enter().append("line")
     .style("stroke", "rgb(6,120,155)");
 
-    chart.selectAll("image")
-      .data(nodes)
-      .enter().append("image")
+    line 
+      .attr("x1", source_x)
+      .attr("y1", source_y)
+      .attr("x2", target_x)
+      .attr("y2", target_y)
+
+    line.exit().transition()
+      .duration(1000)
+      .style("opacity",0)
+      .remove();
+
+      var image = chart.selectAll("image")
+      .data(nodes, label);
+
+    console.log("enter");
+    console.log(image.enter());
+    console.log("update");
+    console.log(image);
+    console.log("exit");
+    console.log(image.exit());
+
+    image.enter().append("image")
+      .attr("x", function(d) { return d.x; })
+      .attr("y", function(d) { return d.y; })
+      .attr("width", 64)
+      .attr("height", 64)
+      ;
+
+    image
       .attr("x", function(d) { return d.x; })
       .attr("y", function(d) { return d.y; })
       .attr("xlink:href", icon)
-      .attr("width", 64)
-      .attr("height", 64);
-      
-  chart.selectAll("text")
+
+    image.exit().transition()
+      .duration(1000)
+      .style("opacity",0)
+      .remove();
+
+    text = chart.selectAll("text")
       .data(jsondata.nodes)
-    .enter().append("text")
+
+    text.enter().append("text")
+      .attr("text-anchor", "middle") 
+      .attr("font-family", "helvetica") 
+      .attr("font-size", "small") 
+
+    text 
       .attr("x", function(d) { return d.x; })
       .attr("y", function(d) { return d.y; } )
       .attr("dx", 32) // padding-right
       .attr("dy", 65) // vertical-align: middle
-      .attr("text-anchor", "middle") 
-      .attr("font-family", "helvetica") 
-      .attr("font-size", "small") 
       .text(function (d) { return d.id; } );
-  });
+
+    text.exit().transition()
+      .duration(1000)
+      .style("opacity",0)
+      .remove();
+  //});
+      }
+
+
+function drawEdges() {
+
+}
 
 //TODO: set hover to display properties
 

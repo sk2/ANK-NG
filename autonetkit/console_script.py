@@ -115,7 +115,6 @@ def build_network(input_filename):
 
 #TODO: OSPF needs to aggregate switches out
 
-    added_edges = ank.aggregate_nodes(G_ospf, G_ospf.nodes("is_switch"), retain='edge_id')
 
     switch_nodes = G_ip.nodes("is_switch")# regenerate due to aggregated
     G_ip.update(switch_nodes, collision_domain=True) # switches are part of collision domain

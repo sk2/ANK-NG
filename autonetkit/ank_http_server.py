@@ -94,6 +94,16 @@ class MyHandler(BaseHTTPRequestHandler):
                             'device_type': graphics_graph.node[n]['device_type'],
                             })
 
+
+                    # remove leading space
+                    x = (overlay_graph.node[n]['x'] for n in overlay_graph)
+                    y = (overlay_graph.node[n]['y'] for n in overlay_graph)
+                    x_min = min(x)
+                    y_min = min(y)
+                    for n in overlay_graph:
+                        overlay_graph.node[n]['x'] += - x_min
+                        overlay_graph.node[n]['y'] += - y_min
+
 # strip out graph data
                     overlay_graph.graph = {}
 
