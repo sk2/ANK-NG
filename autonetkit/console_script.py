@@ -112,13 +112,6 @@ def build_network(input_filename):
         node.overlay.graphics.x = ank.neigh_average(G_ip, node, "x", G_graphics)
         node.overlay.graphics.y = ank.neigh_average(G_ip, node, "y", G_graphics)
 
-#TODO: add sanity checks like only routers can cross ASes: can't have an eBGP server
-    G_ospf = anm.add_overlay("ospf")
-    G_ospf.add_nodes_from(G_in.nodes("is_router"), retain=['asn'])
-    G_ospf.add_nodes_from(G_in.nodes("is_switch"), retain=['asn'])
-    G_ospf.add_edges_from(G_in.edges(), retain = ['edge_id', 'ospf_cost'])
-    ank.aggregate_nodes(G_ospf, G_ospf.nodes("is_switch"), retain = "edge_id")
-    ank.explode_nodes(G_ospf, G_ospf.nodes("is_switch"))
 
 #TODO: OSPF needs to aggregate switches out
 
@@ -127,11 +120,7 @@ def build_network(input_filename):
     switch_nodes = G_ip.nodes("is_switch")# regenerate due to aggregated
     G_ip.update(switch_nodes, collision_domain=True) # switches are part of collision domain
     G_ip.update(split_created_nodes, collision_domain=True)
-# allocate costs
-    for link in G_ospf.edges():
-        #link.cost = link.src.degree() # arbitrary deterministic cost
-        link.cost = 1
-        link.area = 0
+
 
 # set collision domain IPs
     collision_domain_id = (i for i in itertools.count(0))
@@ -150,6 +139,14 @@ def build_network(input_filename):
 
     ank.allocate_ips(G_ip)
     ank.save(G_ip)
+    
+#TODO: add sanity checks like only routers can cross ASes: can't have an eBGP server
+    G_ospf = anm.add_overlay("ospf")
+    G_ospf.add_nodes_from(G_in.nodes("is_router"), retain=['asn'])
+    G_ospf.add_nodes_from(G_in.nodes("is_switch"), retain=['asn'])
+    G_ospf.add_edges_from(G_in.edges(), retain = ['edge_id', 'ospf_cost'])
+    ank.aggregate_nodes(G_ospf, G_ospf.nodes("is_switch"), retain = "edge_id")
+    ank.explode_nodes(G_ospf, G_ospf.nodes("is_switch"))
 
     G_bgp = anm.add_overlay("bgp", directed = True)
     G_bgp.add_nodes_from(G_in.nodes("is_router"), color = 'red')

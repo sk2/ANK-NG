@@ -1,0 +1,39 @@
+info it worked if it ends with ok
+verbose cli [ 'node', '/usr/local/bin/npm', 'install', 'd3' ]
+info using npm@1.1.23
+info using node@v0.7.9
+verbose config file /Users/sk2/.npmrc
+verbose config file /usr/local/etc/npmrc
+verbose config file /usr/local/lib/node_modules/npm/npmrc
+verbose caching /Users/sk2/node_modules/amqp/package.json
+verbose caching /Users/sk2/node_modules/socket.io/package.json
+verbose cache add [ 'd3', null ]
+silly cache add: name, spec, args [ undefined, 'd3', [ 'd3', null ] ]
+verbose parsed url { pathname: 'd3', path: 'd3', href: 'd3' }
+verbose addNamed [ 'd3', '' ]
+verbose addNamed [ null, '' ]
+silly name, range, hasData [ 'd3', '', false ]
+verbose raw, before any munging d3
+verbose url resolving [ 'https://registry.npmjs.org/', './d3' ]
+verbose url resolved https://registry.npmjs.org/d3
+http GET https://registry.npmjs.org/d3
+ERR! Error: tunneling socket could not be established, cause=socket hang up
+ERR!     at ClientRequest.onError (/usr/local/lib/node_modules/npm/node_modules/request/tunnel.js:161:17)
+ERR!     at ClientRequest.g (events.js:184:14)
+ERR!     at ClientRequest.emit (events.js:87:17)
+ERR!     at Socket.socketOnEnd [as onend] (http.js:1338:9)
+ERR!     at TCP.onread (net.js:414:26)
+ERR! You may report this log at:
+ERR!     <http://github.com/isaacs/npm/issues>
+ERR! or email it to:
+ERR!     <npm-@googlegroups.com>
+ERR! 
+ERR! System Darwin 11.4.0
+ERR! command "node" "/usr/local/bin/npm" "install" "d3"
+ERR! cwd /Users/sk2/Dropbox/PhD/Dev/ANK-NG/ank_vis/node
+ERR! node -v v0.7.9
+ERR! npm -v 1.1.23
+ERR! code ECONNRESET
+ERR! message tunneling socket could not be established, cause=socket hang up
+ERR! errno {}
+verbose exit [ 1, true ]

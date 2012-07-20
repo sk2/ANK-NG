@@ -2,6 +2,7 @@
 <html>
   <head>
     <script type="text/javascript" src="d3.v2.min.js"></script>
+    <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
 
   <style type="text/css">
     circle {
@@ -22,6 +23,24 @@
   </head>
   <body>
     <div>
+    <script type="text/javascript">
+
+
+
+
+function doPoll(){
+    $.get('json/overlay/ip', function(data) {
+      console.log(data);
+      console.log("aa");
+        setTimeout(doPoll,1000);
+    });
+}
+
+doPoll();
+
+
+    </script>
+
     <script type="text/javascript">
 
   var chart = d3.select("body").append("svg")
@@ -54,7 +73,7 @@
   }
 
   d3.json(
-  'json/overlay/bgp',
+  'json/overlay/ip',
   function (jsondata) {
 
     // create the chart here with
