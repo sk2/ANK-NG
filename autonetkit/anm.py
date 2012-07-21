@@ -661,6 +661,9 @@ class AbstractNetworkModel(object):
     def overlay(self):
         return overlay_accessor(self)
 
+    def overlays(self):
+        return self._overlays.keys()
+
     def devices(self, *args, **kwargs):
         return self._phy.filter(*args, **kwargs)
 

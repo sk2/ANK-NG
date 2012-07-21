@@ -79,7 +79,15 @@ class MyHandler(BaseHTTPRequestHandler):
             if pathparts[1] == "json":
 
                 if pathparts[2] == "overlay":
-                    overlay_id = pathparts[3]
+                    try:
+                        overlay_id = pathparts[3]
+                    except IndexError:
+                        data = json.dumps(self.server.get_anm().overlays())
+                        self.send_response(200)
+                        self.send_header('Content-type', 'text/json')
+                        self.end_headers()
+                        self.wfile.write(data)
+
                     overlay_graph = self.server.get_overlay(overlay_id)._graph.copy()
                     graphics_graph = self.server.get_overlay("graphics")._graph.copy()
                     overlay_graph = ank.stringify_netaddr(overlay_graph)
