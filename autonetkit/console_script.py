@@ -14,6 +14,7 @@ import ank_compiler
 import ank_change_monitor
 #import ank_plot
 import os
+import math
 import sys
 
 def main():
@@ -96,7 +97,7 @@ def build_network(input_filename):
 #G_phy.add_edge(G_phy.node("r1"), G_phy.node("r4"))
 
     G_graphics = anm.add_overlay("graphics") # plotting data
-    G_graphics.add_nodes_from(G_in, retain=['x', 'y', 'device_type'])
+    G_graphics.add_nodes_from(G_in, retain=['x', 'y', 'device_type', 'asn'])
 
     G_ip = anm.add_overlay("ip")
     G_ip.add_nodes_from(G_in)
@@ -111,6 +112,8 @@ def build_network(input_filename):
     for node in split_created_nodes:
         node.overlay.graphics.x = ank.neigh_average(G_ip, node, "x", G_graphics)
         node.overlay.graphics.y = ank.neigh_average(G_ip, node, "y", G_graphics)
+        node.overlay.graphics.asn = math.floor(ank.neigh_average(G_ip, node, "asn", G_phy)) # arbitrary choice
+#TODO: assign ASN when splitting?
 
 
 #TODO: OSPF needs to aggregate switches out

@@ -95,10 +95,12 @@ class MyHandler(BaseHTTPRequestHandler):
                     #for n in graph:
                         #del graph.node[n]['id']
 
+#TODO: only update, don't over write if already set
                     for n in overlay_graph:
                         overlay_graph.node[n].update( {
                             'x': graphics_graph.node[n]['x'],
                             'y': graphics_graph.node[n]['y'],
+                            'asn': graphics_graph.node[n]['asn'],
                             'device_type': graphics_graph.node[n]['device_type'],
                             })
 
