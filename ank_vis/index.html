@@ -134,16 +134,16 @@ function redraw() {
 
   var groups = d3.nest().key(asn).entries(nodes);
 
-  chart.selectAll("path")
-    .data(groups)
-      .attr("d", groupPath)
-    .enter().insert("path", "circle")
-      .style("fill", groupFill)
-      .style("stroke", groupFill)
-      .style("stroke-width", 100)
-      .style("stroke-linejoin", "round")
-      .style("opacity", 0.1)
-      .attr("d", groupPath);
+  //chart.selectAll("path")
+    //.data(groups)
+      //.attr("d", groupPath)
+    //.enter().insert("path", "circle")
+      //.style("fill", groupFill)
+      //.style("stroke", groupFill)
+      //.style("stroke-width", 100)
+      //.style("stroke-linejoin", "round")
+      //.style("opacity", 0.1)
+      //.attr("d", groupPath);
 
   //TODO: filter the json data x and y ranges: store in nodes, and use this for the image plotting
 
