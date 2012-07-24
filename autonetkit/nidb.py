@@ -8,6 +8,9 @@ class overlay_data_dict(collections.MutableMapping):
     Based on http://stackoverflow.com/questions/3387691
     """
 
+    def __repr__(self):
+        return ", ".join(self.store.keys())
+
     def __init__(self, *args, **kwargs):
         self.store = dict()
         self.update(dict(*args, **kwargs)) # use the free update to set keys

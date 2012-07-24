@@ -6,14 +6,10 @@ import threading
 import Queue
 import time
 import shutil
-from collections import defaultdict
 import fnmatch
-
 import pkg_resources
 
-
 #TODO: clean up cache enable/disable
-
 
 #def resource_path(relative):
     #"""Used to refer to templates inside installed exe
@@ -56,6 +52,9 @@ def render_node(node):
         except KeyError, error:
             return
 
+        ank_version = pkg_resources.get_distribution("AutoNetkit").version
+        date = time.strftime("%Y-%m-%d %H:%M", time.localtime())
+
 #TODO: make sure is an abspath here so don't wipe user directory!!!
         
         if not os.path.isdir(render_output_dir):
@@ -77,6 +76,8 @@ def render_node(node):
                 try:
                     dst_fh.write(render_template.render(
                         node = node,
+                        ank_version = ank_version,
+                        date = date,
                         ))
                 except KeyError, error:
                     print "Unable to render %s: %s not set" % (node, error)
@@ -116,6 +117,8 @@ def render_node(node):
                 with open( dst_file, 'wb') as dst_fh:
                     dst_fh.write(mytemplate.render(
                         node = node, 
+                        ank_version = ank_version,
+                        date = date,
                         ))
 
 

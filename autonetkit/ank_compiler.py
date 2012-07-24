@@ -107,6 +107,20 @@ class RouterCompiler(object):
                 'ebgp_neighbors': ebgp_neighbors,
                 }
 
+
+class QuaggaCompiler(RouterCompiler):
+    def interfaces(self, node):
+        ip_node = self.anm.overlay.ip.node(node)
+        loopback_subnet = netaddr.IPNetwork("0.0.0.0/32")
+
+        interfaces = super(QuaggaCompiler, self).interfaces(node)
+        # OSPF cost
+        for link in interfaces:
+            print link['ospf'].cost
+            interfaces[link]['ospf_cost'] = link['ospf'].cost
+
+        return interfaces
+
 class IosCompiler(RouterCompiler):
 
     def interfaces(self, node):
@@ -260,7 +274,7 @@ class NetkitCompiler(PlatformCompiler):
     def compile(self):
         print "Compiling Netkit for", self.host
         G_phy = self.anm.overlay.phy
-        ios_compiler = IosCompiler(self.nidb, self.anm)
+        quagga_compiler = QuaggaCompiler(self.nidb, self.anm)
         for phy_node in G_phy.nodes('is_router', host = self.host, syntax='quagga'):
             nidb_node = self.nidb.node(phy_node)
             nidb_node.render.base = "templates/quagga"
@@ -268,8 +282,10 @@ class NetkitCompiler(PlatformCompiler):
             nidb_node.render.dst_folder = "rendered/%s/%s" % (self.host, "netkit")
             nidb_node.render.base_dst_folder = "rendered/%s/%s/%s" % (self.host, "netkit", phy_node)
             nidb_node.render.dst_file = "%s.startup" % ank.name_folder_safe(phy_node.label)
-            
 
+# allocate zebra information
+            nidb_node.zebra.password = "1234"
+            
             # Allocate edges
             # assign interfaces
             # Note this could take external data
@@ -277,7 +293,7 @@ class NetkitCompiler(PlatformCompiler):
             for edge in self.nidb.edges(nidb_node):
                 edge.id = int_ids.next()
 
-            ios_compiler.compile(nidb_node)
+            quagga_compiler.compile(nidb_node)
 
 class CiscoCompiler(PlatformCompiler):
     def interface_ids_ios(self):

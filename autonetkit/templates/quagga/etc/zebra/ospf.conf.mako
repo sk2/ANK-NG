@@ -1,33 +1,18 @@
-${node}
-<%doc>
-!
-hostname ${hostname}
-password ${password}   
+hostname ${node}
+password ${node.zebra.password}   
 banner motd file /etc/quagga/motd.txt
 !
-#Setup interfaces         
-% for i in sorted(interface_list, key = lambda x: x['id']):
-interface ${i['id']}
-	#Link to ${i['remote_router']}
-	ip ospf cost ${i['weight']}        
-!
+% for interface in node.interfaces:  
+  interface ${interface.id}
+  #Link to ${interface.description}
+  ip ospf cost ${interface.ospf_cost}
+  !
 %endfor
-##Setup networks             
-router ospf    
-% for n in sorted(network_list, key = lambda x: x['cidr']):
-	network ${n['cidr']} area ${n['area']}
-## TODO: check if this is needed  ${n['remote_ip']}
-%endfor           
 !
-##IGP specific options
-%if use_igp:
-redistribute connected
-%endif
-##Logfile settings
+% if node.ospf: 
+router ospf
+% for ospf_link in node.ospf.ospf_links:
+  network ${ospf_link.network.cidr} area ${ospf_link.area} 
+% endfor    
+% endif           
 !
-log file ${logfile}
-##Debug level
-%if use_debug:
-debug ospf
-%endif 
-</%doc>      

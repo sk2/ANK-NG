@@ -149,6 +149,9 @@ def build_network(input_filename):
     G_ospf.add_edges_from(G_in.edges(), retain = ['edge_id', 'ospf_cost'])
     ank.aggregate_nodes(G_ospf, G_ospf.nodes("is_switch"), retain = "edge_id")
     ank.explode_nodes(G_ospf, G_ospf.nodes("is_switch"))
+    for link in G_ospf.edges():
+           link.cost = 1
+           link.area = 0
 
     G_bgp = anm.add_overlay("bgp", directed = True)
     G_bgp.add_nodes_from(G_in.nodes("is_router"), color = 'red')
@@ -210,16 +213,16 @@ def compile_network(anm):
     """
 
     """
+    for node in G_phy:
+        print node.host, node.platform, node.syntax
 
     host = "demo"
-    """
     junosphere_compiler = ank_compiler.JunosphereCompiler(nidb, anm, host)
     junosphere_compiler.compile()
     netkit_compiler = ank_compiler.NetkitCompiler(nidb, anm, host)
     netkit_compiler.compile()
     dynagen_compiler = ank_compiler.DynagenCompiler(nidb, anm, host)
     dynagen_compiler.compile()
-    """
 
     cisco_compiler = ank_compiler.CiscoCompiler(nidb, anm, host)
     cisco_compiler.compile()

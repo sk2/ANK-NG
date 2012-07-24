@@ -247,6 +247,10 @@ class overlay_edge(object):
     def __getnewargs__(self):
         return ()
 
+    def __getitem__(self, key):
+        overlay  = overlay_graph(self.anm, key)
+        return overlay.edge(self)
+
     def __getstate__(self):
         """For pickling"""
         return (self.anm, self.overlay_id, self.src_id, self.dst_id)
