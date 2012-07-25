@@ -23,9 +23,17 @@ class RouterCompiler(object):
         node.interfaces = dict_to_sorted_list(self.interfaces(node), 'id')
         if node in self.anm.overlay.ospf:
             node.ospf.ospf_links = dict_to_sorted_list(self.ospf(node), 'network')
+
+        #print "|", type(node.ospf.ospf_links), "|"
+        #for val in node.ospf.ospf_links:
+            #print val, type(val)
         
         if node in self.anm.overlay.bgp:
             bgp_data = self.bgp(node)
+#TODO: could do this as a sorted dict, but then have problem of clashing keys: keep as list for simplicity
+# TODO: talk about edge id and uniqueness in thesis
+#TODO: keep as a list, but use edge_id property when iterating.... so can avoid this passing around dict stuff
+#and can then just sort as a normal list
             node.bgp.ibgp_rr_clients = dict_to_sorted_list(bgp_data['ibgp_rr_clients'], 'neighbor')
             node.bgp.ibgp_rr_parents = dict_to_sorted_list(bgp_data['ibgp_rr_parents'], 'neighbor')
             node.bgp.ibgp_neighbors = dict_to_sorted_list(bgp_data['ibgp_neighbors'], 'neighbor')
@@ -70,7 +78,9 @@ class RouterCompiler(object):
         G_bgp = self.anm.overlay.bgp
         G_ip = self.anm.overlay.ip
         asn = phy_node.asn # easy reference for cleaner code
+        node.asn = asn
         node.bgp.advertise_subnets = G_ip.data.asn_blocks[asn]
+        
         ibgp_neighbors = {}
         ibgp_rr_clients = {}
         ibgp_rr_parents = {}
@@ -116,7 +126,6 @@ class QuaggaCompiler(RouterCompiler):
         interfaces = super(QuaggaCompiler, self).interfaces(node)
         # OSPF cost
         for link in interfaces:
-            print link['ospf'].cost
             interfaces[link]['ospf_cost'] = link['ospf'].cost
 
         return interfaces
@@ -294,6 +303,9 @@ class NetkitCompiler(PlatformCompiler):
                 edge.id = int_ids.next()
 
             quagga_compiler.compile(nidb_node)
+
+        for node in self.nidb:
+            print node.dump()
 
 class CiscoCompiler(PlatformCompiler):
     def interface_ids_ios(self):

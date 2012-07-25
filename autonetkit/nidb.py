@@ -49,7 +49,6 @@ class overlay_data_list_of_dicts(object):
     def __setstate__(self, state):
         self.data = state
 
-
     def __len__(self):
         return len(self.data)
 
@@ -239,6 +238,7 @@ class nidb_node_category(object):
         data = self._category_data.get(key)
         try:
             [item.keys() for item in data]
+#TODO: replace this with an OrderedDict
             return overlay_data_list_of_dicts(data)
         except AttributeError:
             pass # not a dict
@@ -252,6 +252,7 @@ class nidb_node_category(object):
     def add_list_of_dicts(self, key, data, sortkey = None):
         pass #TODO: use this to store data, and this will return list of dicts -> simplifies logic elsewhere
         # and allows sorting
+#TODO: in this step, allow sorting on setting, ie take a dict and a sort key
 
     def __setattr__(self, key, val):
         """Sets edge property"""

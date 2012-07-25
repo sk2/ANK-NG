@@ -152,9 +152,10 @@ def build_network(input_filename):
     for link in G_ospf.edges():
            link.cost = 1
            link.area = 0
+           print link.edge_id
 
     G_bgp = anm.add_overlay("bgp", directed = True)
-    G_bgp.add_nodes_from(G_in.nodes("is_router"), color = 'red')
+    G_bgp.add_nodes_from(G_in.nodes("is_router"))
 
 # eBGP
     ebgp_edges = [edge for edge in G_in.edges() if edge.src.asn != edge.dst.asn]

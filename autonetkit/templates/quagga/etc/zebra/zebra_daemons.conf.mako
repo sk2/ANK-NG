@@ -1,38 +1,36 @@
-<%doc>      
 # daemons file
-%if "zebra" in entryList:
+% if node.zebra:
 zebra=yes
 %else:
 zebra=no
 %endif
 ##  
-%if "bgpd" in entryList:
+% if node.bgp:
 bgpd=yes
 %else:
 bgpd=no
 %endif
 ##  
-%if "ripd" in entryList:
+% if node.rip:
 ripd=yes
 %else:
 ripd=no
 %endif
 ##  
-%if "ospf6d" in entryList:
+% if node.ospf6:
 ospf6d=yes
 %else:
 ospf6d=no
 %endif
 ##  
-%if "ospfd" in entryList:
+% if node.ospf:
 ospfd=yes
 %else:
 ospfd=no
 %endif
 ##
-%if "ripngd" in entryList:
+% if node.ripngd:
 ripngd=yes
 %else:
 ripngd=no
 %endif      
-</%doc>      
