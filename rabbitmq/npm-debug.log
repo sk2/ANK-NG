@@ -1,0 +1,226 @@
+info it worked if it ends with ok
+verbose cli [ 'node',
+verbose cli   '/usr/local/bin/npm',
+verbose cli   'install',
+verbose cli   'postwait-node-amqp-v0.1.3-13-g76cab75.tar.gz' ]
+info using npm@1.1.23
+info using node@v0.7.9
+verbose config file /Users/sk2/.npmrc
+verbose config file /usr/local/etc/npmrc
+verbose config file /usr/local/lib/node_modules/npm/npmrc
+verbose caching /Users/sk2/node_modules/socket.io/package.json
+verbose cache add [ 'postwait-node-amqp-v0.1.3-13-g76cab75.tar.gz', null ]
+silly cache add: name, spec, args [ undefined,
+silly cache add: name, spec, args   'postwait-node-amqp-v0.1.3-13-g76cab75.tar.gz',
+silly cache add: name, spec, args   [ 'postwait-node-amqp-v0.1.3-13-g76cab75.tar.gz', null ] ]
+verbose parsed url { pathname: 'postwait-node-amqp-v0.1.3-13-g76cab75.tar.gz',
+verbose parsed url   path: 'postwait-node-amqp-v0.1.3-13-g76cab75.tar.gz',
+verbose parsed url   href: 'postwait-node-amqp-v0.1.3-13-g76cab75.tar.gz' }
+verbose chmod /var/folders/f5/trgvys4n32x9y1qjffw1zx9h0000gp/T/npm-1343218855347/1343218855347-0.4668321148492396/tmp.tgz 644
+verbose unpack /var/folders/f5/trgvys4n32x9y1qjffw1zx9h0000gp/T/npm-1343218855347/1343218855347-0.4668321148492396/tmp.tgz
+silly gunzTarPerm modes [ '755', '644' ]
+silly extracting entry 
+silly modified mode [ '', 509, 493 ]
+silly extracting entry .gitignore
+silly modified mode [ '.gitignore', 436, 420 ]
+silly extracting entry History.md
+silly modified mode [ 'History.md', 436, 420 ]
+silly extracting entry LICENSE-MIT
+silly modified mode [ 'LICENSE-MIT', 436, 420 ]
+silly extracting entry Makefile
+silly modified mode [ 'Makefile', 436, 420 ]
+silly extracting entry README.md
+silly modified mode [ 'README.md', 436, 420 ]
+silly extracting entry amqp-0-9-1.xml
+silly modified mode [ 'amqp-0-9-1.xml', 436, 420 ]
+silly extracting entry amqp-definitions-0-9-1.js
+silly modified mode [ 'amqp-definitions-0-9-1.js', 436, 420 ]
+silly extracting entry amqp.js
+silly modified mode [ 'amqp.js', 436, 420 ]
+silly extracting entry constants.js
+silly modified mode [ 'constants.js', 436, 420 ]
+silly extracting entry index.js
+silly modified mode [ 'index.js', 511, 493 ]
+silly extracting entry jspack.js
+silly modified mode [ 'jspack.js', 436, 420 ]
+silly extracting entry package.json
+silly modified mode [ 'package.json', 436, 420 ]
+silly extracting entry promise.js
+silly modified mode [ 'promise.js', 436, 420 ]
+silly extracting entry qparser.rb
+silly modified mode [ 'qparser.rb', 509, 493 ]
+silly extracting entry test.js
+silly modified mode [ 'test.js', 436, 420 ]
+silly extracting entry test/
+silly modified mode [ 'test/', 509, 493 ]
+silly extracting entry test/harness.js
+silly modified mode [ 'test/harness.js', 436, 420 ]
+silly extracting entry test/test-auto-delete-queue.js
+silly modified mode [ 'test/test-auto-delete-queue.js', 436, 420 ]
+silly extracting entry test/test-basic-return.js
+silly modified mode [ 'test/test-basic-return.js', 436, 420 ]
+silly extracting entry test/test-buffer.js
+silly modified mode [ 'test/test-buffer.js', 436, 420 ]
+silly extracting entry test/test-connection-callbacks.js
+silly modified mode [ 'test/test-connection-callbacks.js', 436, 420 ]
+silly extracting entry test/test-default-exchange.js
+silly modified mode [ 'test/test-default-exchange.js', 436, 420 ]
+silly extracting entry test/test-destroy-close-delete.js
+silly modified mode [ 'test/test-destroy-close-delete.js', 436, 420 ]
+silly extracting entry test/test-ex-and-q-deletions.js
+silly modified mode [ 'test/test-ex-and-q-deletions.js', 436, 420 ]
+silly extracting entry test/test-exchange-callbacks.js
+silly modified mode [ 'test/test-exchange-callbacks.js', 436, 420 ]
+silly extracting entry test/test-headers.js
+silly modified mode [ 'test/test-headers.js', 436, 420 ]
+silly extracting entry test/test-heartbeat.js
+silly modified mode [ 'test/test-heartbeat.js', 436, 420 ]
+silly extracting entry test/test-json.js
+silly modified mode [ 'test/test-json.js', 436, 420 ]
+silly extracting entry test/test-large-body.js
+silly modified mode [ 'test/test-large-body.js', 436, 420 ]
+silly extracting entry test/test-parser.js
+silly modified mode [ 'test/test-parser.js', 436, 420 ]
+silly extracting entry test/test-properties.js
+silly modified mode [ 'test/test-properties.js', 436, 420 ]
+silly extracting entry test/test-queue-args.js
+silly modified mode [ 'test/test-queue-args.js', 436, 420 ]
+silly extracting entry test/test-queue-bind-callbacks-cascaded.js
+silly modified mode [ 'test/test-queue-bind-callbacks-cascaded.js', 436, 420 ]
+silly extracting entry test/test-queue-bind-callbacks-sequential.js
+silly modified mode [ 'test/test-queue-bind-callbacks-sequential.js', 436, 420 ]
+silly extracting entry test/test-queue-bind-callbacks-single.js
+silly modified mode [ 'test/test-queue-bind-callbacks-single.js', 436, 420 ]
+silly extracting entry test/test-queue-creation.js
+silly modified mode [ 'test/test-queue-creation.js', 436, 420 ]
+silly extracting entry test/test-reject.js
+silly modified mode [ 'test/test-reject.js', 436, 420 ]
+silly extracting entry test/test-shift.js
+silly modified mode [ 'test/test-shift.js', 436, 420 ]
+silly extracting entry test/test-simple.js
+silly modified mode [ 'test/test-simple.js', 436, 420 ]
+silly extracting entry test/test-type-and-headers.js
+silly modified mode [ 'test/test-type-and-headers.js', 436, 420 ]
+silly extracting entry test/test-unbind.js
+silly modified mode [ 'test/test-unbind.js', 436, 420 ]
+silly extracting entry test/test-unsubscribe.js
+silly modified mode [ 'test/test-unsubscribe.js', 436, 420 ]
+silly extracting entry util/
+silly modified mode [ 'util/', 509, 493 ]
+silly extracting entry util/delete-exchange.js
+silly modified mode [ 'util/delete-exchange.js', 509, 493 ]
+silly extracting entry util/delete-queue.js
+silly modified mode [ 'util/delete-queue.js', 509, 493 ]
+WARN excluding symbolic link index.js -> amqp.js
+verbose caching /var/folders/f5/trgvys4n32x9y1qjffw1zx9h0000gp/T/npm-1343218855347/1343218855347-0.4668321148492396/package/package.json
+verbose loadDefaults amqp@0.1.3
+verbose from cache /var/folders/f5/trgvys4n32x9y1qjffw1zx9h0000gp/T/npm-1343218855347/1343218855347-0.4668321148492396/package/package.json
+verbose tar.pack [ '/Users/sk2/.npm/amqp/0.1.3/package.tgz',
+verbose tar.pack   '/var/folders/f5/trgvys4n32x9y1qjffw1zx9h0000gp/T/npm-1343218855347/1343218855347-0.4668321148492396/package' ]
+verbose tarball /Users/sk2/.npm/amqp/0.1.3/package.tgz
+verbose folder /var/folders/f5/trgvys4n32x9y1qjffw1zx9h0000gp/T/npm-1343218855347/1343218855347-0.4668321148492396/package
+verbose unpack /Users/sk2/.npm/amqp/0.1.3/package.tgz
+silly gunzTarPerm modes [ '755', '644' ]
+silly extracting entry package.json
+silly extracting entry .npmignore
+silly extracting entry README.md
+silly extracting entry amqp-definitions-0-9-1.js
+silly extracting entry amqp.js
+silly extracting entry constants.js
+silly extracting entry jspack.js
+silly extracting entry promise.js
+silly extracting entry test.js
+silly extracting entry History.md
+silly extracting entry util/delete-exchange.js
+silly extracting entry util/delete-queue.js
+silly extracting entry qparser.rb
+silly extracting entry LICENSE-MIT
+silly extracting entry test/harness.js
+silly extracting entry test/test-headers.js
+silly extracting entry test/test-heartbeat.js
+silly extracting entry test/test-json.js
+silly extracting entry test/test-large-body.js
+silly extracting entry test/test-exchange-callbacks.js
+silly extracting entry test/test-properties.js
+silly extracting entry test/test-queue-args.js
+silly extracting entry test/test-queue-bind-callbacks-cascaded.js
+silly extracting entry test/test-queue-bind-callbacks-sequential.js
+silly extracting entry test/test-queue-bind-callbacks-single.js
+silly extracting entry test/test-ex-and-q-deletions.js
+silly extracting entry test/test-queue-creation.js
+silly extracting entry test/test-destroy-close-delete.js
+silly extracting entry test/test-reject.js
+silly extracting entry test/test-default-exchange.js
+silly extracting entry test/test-shift.js
+silly extracting entry test/test-connection-callbacks.js
+silly extracting entry test/test-simple.js
+silly extracting entry test/test-buffer.js
+silly extracting entry test/test-type-and-headers.js
+silly extracting entry test/test-basic-return.js
+silly extracting entry test/test-unbind.js
+silly extracting entry test/test-auto-delete-queue.js
+silly extracting entry test/test-unsubscribe.js
+silly extracting entry test/test-parser.js
+silly extracting entry amqp-0-9-1.xml
+silly extracting entry Makefile
+verbose caching /Users/sk2/.npm/amqp/0.1.3/package/package.json
+verbose loadDefaults amqp@0.1.3
+silly updated sha bytes 40960
+silly updated sha bytes 14824
+info shasum 157c88de6e2ee5e4eb3ba97f44f5cfbb0286bbee
+info shasum /Users/sk2/.npm/amqp/0.1.3/package.tgz
+verbose from cache /Users/sk2/.npm/amqp/0.1.3/package/package.json
+verbose chmod /Users/sk2/.npm/amqp/0.1.3/package.tgz 644
+verbose chown [ '/Users/sk2/.npm/amqp/0.1.3/package.tgz', 502, 502 ]
+silly resolved [ { name: 'amqp',
+silly resolved     description: 'AMQP driver for node',
+silly resolved     keywords: [ 'amqp' ],
+silly resolved     version: '0.1.3',
+silly resolved     preferGlobal: true,
+silly resolved     author: { name: 'Ryan Dahl' },
+silly resolved     contributors: 
+silly resolved      [ { name: 'Vasili Sviridov' },
+silly resolved        { name: 'Theo Schlossnagle' },
+silly resolved        { name: 'Vincent Desjardins' },
+silly resolved        { name: 'Liang-Chi Hsieh' },
+silly resolved        { name: 'Tim Baga' },
+silly resolved        { name: 'Stéphane Alnet' },
+silly resolved        { name: 'Alen Mujezinovic' },
+silly resolved        { name: 'Michael Bridgen' },
+silly resolved        { name: 'Chris Bond' },
+silly resolved        { name: 'Andrei Vereha' },
+silly resolved        { name: 'Mike Bardzinski' },
+silly resolved        { name: 'James Carr' } ],
+silly resolved     repository: { type: 'git', url: 'git://github.com/postwait/node-amqp.git' },
+silly resolved     bugs: { url: 'http://github.com/postwait/node-amqp/issues' },
+silly resolved     main: './amqp',
+silly resolved     engines: { node: '0.4 || 0.5 || 0.6 || 0.8' },
+silly resolved     licenses: 
+silly resolved      [ { type: 'MIT',
+silly resolved          url: 'http://github.com/postwait/node-amqp/raw/master/LICENSE-MIT' } ],
+silly resolved     _id: 'amqp@0.1.3',
+silly resolved     dependencies: {},
+silly resolved     devDependencies: {},
+silly resolved     optionalDependencies: {},
+silly resolved     _engineSupported: false,
+silly resolved     _npmVersion: '1.1.23',
+silly resolved     _nodeVersion: 'v0.7.9',
+silly resolved     _defaultsLoaded: true,
+silly resolved     dist: { shasum: '157c88de6e2ee5e4eb3ba97f44f5cfbb0286bbee' },
+silly resolved     _from: 'postwait-node-amqp-v0.1.3-13-g76cab75.tar.gz' } ]
+info into /Users/sk2 amqp@0.1.3
+info installOne amqp@0.1.3
+ERR! Unsupported
+ERR! Not compatible with your version of node/npm: amqp@0.1.3
+ERR! Required: {"node":"0.4 || 0.5 || 0.6 || 0.8"}
+ERR! Actual:   {"npm":"1.1.23","node":"0.7.9"}
+ERR! 
+ERR! System Darwin 11.4.0
+ERR! command "node" "/usr/local/bin/npm" "install" "postwait-node-amqp-v0.1.3-13-g76cab75.tar.gz"
+ERR! cwd /Users/sk2/Dropbox/PhD/Dev/ANK-NG/rabbitmq
+ERR! node -v v0.7.9
+ERR! npm -v 1.1.23
+ERR! code ENOTSUP
+ERR! message Unsupported
+ERR! errno {}
+verbose exit [ 1, true ]

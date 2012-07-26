@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+
+  </head>
+  <body>
+
+    <script type="text/javascript">
+      var ws = new WebSocket("ws://129.127.12.122:8888");
+      ws.onopen = function() {
+        console.log("opened socket");
+        ws.send("Hello, world");
+      };
+ws.onmessage = function (evt) {
+  console.log("got data" + evt);
+  alert(evt.data);
+};
+
+
+
+</script>
+
+  </body>
+</html>
+
