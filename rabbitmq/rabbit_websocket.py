@@ -19,6 +19,7 @@ class MyWebSocketHandler(websocket.WebSocketHandler):
 
     def on_message(self, message):
         print message
+        self.application.pc.send_message(message)
 
 class PikaClient(object):
     def __init__(self, io_loop):
@@ -73,6 +74,11 @@ class PikaClient(object):
     def on_message(self, channel, method, header, body):
         pika.log.info('PikaClient: message received: %s' % body)
         self.notify_listeners(body)
+
+    def send_message(self, body):
+        self.channel.basic_publish(exchange='',
+                      routing_key='hello',
+                      body=body)
  
     def notify_listeners(self, body):
         for listener in self.event_listeners:
