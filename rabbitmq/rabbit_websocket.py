@@ -3,8 +3,6 @@ import pika
 import tornado
 import tornado.websocket as websocket
 from pika.adapters.tornado_connection import TornadoConnection
-import json
-
 
 class MyWebSocketHandler(websocket.WebSocketHandler):
     def open(self, *args, **kwargs):
@@ -22,12 +20,10 @@ class PikaClient(object):
     def __init__(self, io_loop):
         pika.log.info('PikaClient: __init__')
         self.io_loop = io_loop
- 
         self.connected = False
         self.connecting = False
         self.connection = None
         self.channel = None
- 
         self.event_listeners = set([])
  
     def connect(self):
@@ -75,10 +71,6 @@ class PikaClient(object):
         self.notify_listeners(body)
  
     def notify_listeners(self, body):
-        # here we assume the message the sourcing app
-        # post to the message queue is in JSON format
-        #event_json = json.dumps(event_obj)
- 
         for listener in self.event_listeners:
             print listener
             listener.write_message(body)
@@ -96,7 +88,6 @@ class PikaClient(object):
         except KeyError:
             pass
 
-
 application = tornado.web.Application([
     (r'/ws', MyWebSocketHandler),
 ])
@@ -108,10 +99,8 @@ def main():
     pc = PikaClient(io_loop)
     application.pc = pc
     application.pc.connect()
- 
     application.listen(8888)
     io_loop.start()
-
 
 if __name__ == '__main__':
     main()

@@ -16,7 +16,6 @@ class Handler(WebSocketHandler):
         def on_close(self):
                 print "Connection closed."
 
-
 class EchoWebSocket(websocket.WebSocketHandler):
     def open(self):
         print "WebSocket opened"
