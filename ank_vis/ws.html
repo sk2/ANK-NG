@@ -7,13 +7,15 @@
 
     <script type="text/javascript">
 
+      radius = 10;
+
 
       var ws = new WebSocket("ws://129.127.215.184:8888/ws");
       ws.onopen = function() {
         ws.send("Hello, world");
       };
 ws.onmessage = function (evt) {
-  $('div.messages').html(evt.data);
+  $('div.messages').append("<br>" + evt.data);
 }
 
 
