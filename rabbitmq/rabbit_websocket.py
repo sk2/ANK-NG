@@ -5,10 +5,14 @@ import tornado.websocket as websocket
 from pika.adapters.tornado_connection import TornadoConnection
 
 class MyWebSocketHandler(websocket.WebSocketHandler):
+    def allow_draft76(self):
+        # for iOS 5.0 Safari
+        return True
+
     def open(self, *args, **kwargs):
         self.application.pc.add_event_listener(self)
         pika.log.info("WebSocket opened")
- 
+
     def on_close(self):
         pika.log.info("WebSocket closed")
         self.application.pc.remove_event_listener(self)
@@ -72,7 +76,6 @@ class PikaClient(object):
  
     def notify_listeners(self, body):
         for listener in self.event_listeners:
-            print listener
             listener.write_message(body)
             pika.log.info('PikaClient: notified %s' % repr(listener))
  
