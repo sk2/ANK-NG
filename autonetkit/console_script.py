@@ -115,14 +115,14 @@ def build_network(input_filename):
         node.overlay.graphics.asn = math.floor(ank.neigh_average(G_ip, node, "asn", G_phy)) # arbitrary choice
 #TODO: assign ASN when splitting?
 
-
 #TODO: OSPF needs to aggregate switches out
-
-
     switch_nodes = G_ip.nodes("is_switch")# regenerate due to aggregated
     G_ip.update(switch_nodes, collision_domain=True) # switches are part of collision domain
     G_ip.update(split_created_nodes, collision_domain=True)
-
+# Assign collision domain to a host if all neighbours from same host
+    for node in split_created_nodes:
+        if ank.neigh_equal(G_ip, node, "host", G_phy):
+            node.host = ank.neigh_attr(G_ip, node, "host", G_phy).next() # first attribute
 
 # set collision domain IPs
     collision_domain_id = (i for i in itertools.count(0))
@@ -185,9 +185,6 @@ def build_network(input_filename):
     #ank_plot.plot_pylab(G_ospf, edge_label_attribute='cost')
     #ank_plot.plot_pylab(G_ip, edge_label_attribute = 'ip_address', node_label_attribute = 'loopback')
 
-
-    
-
     return anm
 
 #TODO: set fqdn property
@@ -198,8 +195,9 @@ def compile_network(anm):
     G_ip = anm.overlay.ip
     G_graphics = anm.overlay.graphics
 #TODO: build this on a platform by platform basis
-    nidb.add_nodes_from(G_phy, retain=['label', 'platform'])
-    nidb.add_nodes_from(G_ip, retain='label', collision_domain = True)
+    nidb.add_nodes_from(G_phy, retain=['label', 'host', 'platform'])
+
+    nidb.add_nodes_from(G_ip.nodes("collision_domain"), retain=['label', 'host'], collision_domain = True)
 # add edges to switches
     edges_to_add = [edge for edge in G_phy.edges() if edge.src.is_switch or edge.dst.is_switch]
     edges_to_add += [edge for edge in G_ip.edges() if edge.src.collision_domain or edge.dst.collision_domain]
@@ -210,14 +208,7 @@ def compile_network(anm):
 
 #TODO: add platform and host
 
-#print G_ip.dump()
-    """
-
-    """
-    for node in G_phy:
-        print node.host, node.platform, node.syntax
-
-    host = "demo"
+    host = "nectar1"
     junosphere_compiler = ank_compiler.JunosphereCompiler(nidb, anm, host)
     junosphere_compiler.compile()
     netkit_compiler = ank_compiler.NetkitCompiler(nidb, anm, host)
@@ -240,11 +231,6 @@ def compile_network(anm):
     #diff = ank_diff.diff_history(os.path.join("versions", "anm")
     #pprint.pprint(diff)
 
-#TODO: plot the nidb
-#ank_plot.plot_pylab(nidb2, edge_label_attribute = 'id', node_label_attribute='platform')
-
-# Now build the NIDB
-#TODO: don't need to transform, just need to pass a view of the nidb which does the wrapping: iterates through returned data, recursively, and wraps accordingly. ie pass the data to return through a recursive formatter which wraps
 
     return nidb
 
@@ -256,8 +242,6 @@ print "server", server
 cd_dir = "rendered/trc1/netkit/"
 ank_deploy.extract(server, tar_file, cd_dir)
 """
-
-
 
 if __name__ == "__main__":
     try:

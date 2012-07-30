@@ -369,6 +369,7 @@ def neigh_average(overlay_graph, node, attribute, attribute_graph = None):
 
 def neigh_attr(overlay_graph, node, attribute, attribute_graph = None):
     #TODO: tidy up parameters to take attribute_graph first, and then evaluate if attribute_graph set, if not then use attribute_graph as attribute
+#TODO: explain how overlay_graph and attribute_graph work, eg for G_ip and G_phy
     """Boolean, True if neighbors in overlay_graph all have same attribute in attribute_graph"""
     graph = unwrap_graph(overlay_graph)
     node = unwrap_nodes(node)

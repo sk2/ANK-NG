@@ -6,6 +6,8 @@ import os
 #TODO: for any property not in nidb, try and pass through to obtain from respective overlay, eg ospf tries from G_ospf.node(node) etc
 
 
+#TODO: rename compiler to build
+
 #TODO: tidy up the dict to list, and sorting formats
 
 def dict_to_sorted_list(data, sort_key):
@@ -282,6 +284,7 @@ class NetkitCompiler(PlatformCompiler):
 
     def compile(self):
         print "Compiling Netkit for", self.host
+        print [(node, node.platform) for node in self.nidb.nodes()]
         G_phy = self.anm.overlay.phy
         quagga_compiler = QuaggaCompiler(self.nidb, self.anm)
         for phy_node in G_phy.nodes('is_router', host = self.host, syntax='quagga'):
@@ -304,8 +307,10 @@ class NetkitCompiler(PlatformCompiler):
 
             quagga_compiler.compile(nidb_node)
 
-        for node in self.nidb:
-            print node.dump()
+        # and lab.conf
+        host_nodes = self.nidb.nodes(host = self.host)
+        subgraph = self.nidb.subgraph(host_nodes)
+        print subgraph.dump()
 
 class CiscoCompiler(PlatformCompiler):
     def interface_ids_ios(self):
