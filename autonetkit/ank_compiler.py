@@ -287,6 +287,7 @@ class NetkitCompiler(PlatformCompiler):
         print [(node, node.platform) for node in self.nidb.nodes()]
         G_phy = self.anm.overlay.phy
         quagga_compiler = QuaggaCompiler(self.nidb, self.anm)
+#TODO: this should be all l3 devices not just routers
         for phy_node in G_phy.nodes('is_router', host = self.host, syntax='quagga'):
             nidb_node = self.nidb.node(phy_node)
             nidb_node.render.base = "templates/quagga"
@@ -305,18 +306,52 @@ class NetkitCompiler(PlatformCompiler):
             for edge in self.nidb.edges(nidb_node):
                 edge.id = int_ids.next()
 
+# and allocate tap interface
+            nidb_node.tap.id = int_ids.next()
+
             quagga_compiler.compile(nidb_node)
 
         # and lab.conf
+        self.lab_topology()
+
+    def lab_topology(self):
         host_nodes = self.nidb.nodes(host = self.host)
 #TODO: replace name/label and use attribute from subgraph
         lab_topology = self.nidb.topology.add(self.host)
         lab_topology.render_template = "templates/netkit_lab_conf.mako"
         lab_topology.render_dst_folder = "rendered/%s/%s" % (self.host, "netkit")
-        lab_topology.render_dst_file = "%s.startup" % ank.name_folder_safe(phy_node.label)
+        lab_topology.render_dst_file = "lab.conf" 
         subgraph = self.nidb.subgraph(host_nodes, self.host)
+        lab_topology.description = "AutoNetkit Lab"
+        lab_topology.author = "AutoNetkit"
+        lab_topology.web = "www.autonetkit.org"
+
+        G_ip = self.anm['ip']
+        config_items = {}
         for node in subgraph:
-            print self.nidb.edges(nidb_node)
+            node_config_data = {}
+            for edge in node.edges():
+                node_config_data[edge.id] = G_ip.edge(edge).ip_address
+            config_items[node] = node_config_data
+
+#TODO: include ram, etc from here
+
+
+        lab_topology.config_items = config_items
+# taps
+        for node in subgraph:
+            if node.tap:
+                #print node, node.tap.id
+                pass
+        
+        for config_item in lab_topology.config_items:
+            print "item", config_item
+            print type(config_item)
+            for elem in config_item:
+                #print elem
+                pass
+
+
 
 class CiscoCompiler(PlatformCompiler):
     def interface_ids_ios(self):

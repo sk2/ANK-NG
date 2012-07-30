@@ -153,7 +153,6 @@ class overlay_edge(object):
         """Sets edge property"""
         self._graph[self.src_id][self.dst_id][key] = val
 
-
 class overlay_node_accessor(object):
 #TODO: do we even need this?
     def __init__(self, nidb, node_id):
@@ -250,11 +249,6 @@ class nidb_node_category(object):
     def dump(self):
         return str(self._node_data)
 
-    def add_list_of_dicts(self, key, data, sortkey = None):
-        pass #TODO: use this to store data, and this will return list of dicts -> simplifies logic elsewhere
-        # and allows sorting
-#TODO: in this step, allow sorting on setting, ie take a dict and a sort key
-
     def __setattr__(self, key, val):
         """Sets edge property"""
         try:
@@ -293,6 +287,10 @@ class nidb_node(object):
 
     def dump(self):
         return str(self._node_data)
+
+    def edges(self, *args, **kwargs):
+        #TODO: want to add filter for *args and **kwargs here too
+        return self.nidb.edges(self, *args, **kwargs)
 
     @property
     def id(self):
@@ -383,6 +381,17 @@ class lab_topology(object):
 
     def __getattr__(self, key):
         """Returns topology property"""
+        print "returning", key
+        data = self._category_data.get(key)
+        try:
+            [item.keys() for item in data]
+#TODO: replace this with an OrderedDict
+            return overlay_data_list_of_dicts(data)
+        except AttributeError:
+            pass # not a dict
+        except TypeError:
+            pass # also not a dict
+        return data
         return self._topology_data.get(key)
 
     def __setattr__(self, key, val):
