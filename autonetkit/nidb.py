@@ -67,6 +67,7 @@ class overlay_data_list_of_dicts(object):
         return iter(overlay_data_dict(item) for item in self.data)
 
 class overlay_edge_accessor(object):
+#TODO: do we even need this?
     """API to access overlay nodes in ANM"""
 #TODO: fix consistency between node_id (id) and edge (overlay edge)
     def __init__(self, nidb, edge):
@@ -154,6 +155,7 @@ class overlay_edge(object):
 
 
 class overlay_node_accessor(object):
+#TODO: do we even need this?
     def __init__(self, nidb, node_id):
 #Set using this method to bypass __setattr__ 
         object.__setattr__(self, 'nidb', nidb)
@@ -184,7 +186,6 @@ class nidb_node_subcategory(object):
 
 class nidb_node_category(object):
     #TODO: make this custom dict like above?
-
     def __init__(self, nidb, node_id, category_id):
 #Set using this method to bypass __setattr__ 
         object.__setattr__(self, 'nidb', nidb)
@@ -261,7 +262,6 @@ class nidb_node_category(object):
         except KeyError:
             self._node_data[self.category_id] = {} # create dict for this data category
             setattr(self, key, val)
-
 
 #TODO: this should also inherit from collections, so don't break __getnewargs__ etc
 
@@ -342,9 +342,9 @@ class nidb_node(object):
         return overlay_node_accessor(self.nidb, self.node_id)
 
 class nidb_graph_data(object):
-    """API to access overlay graph node in network"""
+    """API to access overlay graph data in network"""
 
-    def __init__(self, nidb, node_id):
+    def __init__(self, nidb):
 #Set using this method to bypass __setattr__ 
         object.__setattr__(self, 'nidb', nidb)
 
@@ -362,10 +362,35 @@ class nidb_graph_data(object):
 #TODO: make this inherit same overlay base as overlay_graph for add nodes etc properties
 # but not the degree etc
 
+
+class lab_topology(object):
+    """API to access lab topology in network"""
+
+    def __init__(self, nidb, topology_id):
+#Set using this method to bypass __setattr__ 
+        object.__setattr__(self, 'nidb', nidb)
+        object.__setattr__(self, 'topology_id', topology_id)
+
+    def __repr__(self):
+        return "Lab Topology: %s" % self.topology_id
+
+    @property
+    def _topology_data(self):
+        return self.nidb._graph.graph['topologies'][self.topology_id]
+
+    def dump(self):
+        return str(self._topology_data)
+
+    def __getattr__(self, key):
+        """Returns topology property"""
+        return self._topology_data.get(key)
+
+    def __setattr__(self, key, val):
+        """Sets topology property"""
+        self._topology_data[key] = val
+
 class NIDB_base(object):
-
     #TODO: inherit common methods from same base as overlay
-
     def __init__(self):
         pass
 
@@ -533,10 +558,44 @@ class NIDB_base(object):
         return iter(nidb_node(self, node)
                 for node in self._graph)
 
+class lab_topology_accessor(object):
+    """API to access overlay graphs in ANM"""
+    def __init__(self, nidb):
+#Set using this method to bypass __setattr__ 
+        object.__setattr__(self, 'nidb', nidb)
+
+    @property
+    def topologies(self):
+        return self.self.nidb._graph.graph['topologies']
+
+#TODO: add iter similarly to anm overlay accessor
+    def __iter__(self):
+        return iter(lab_topology(self.nidb, key) for key in self.topologies.keys())
+
+    def __repr__(self):
+        return "Available lab topologies: %s" % ", ".join(sorted(self.topologies.keys()))
+
+    def __getattr__(self, key):
+        """Access overlay graph"""
+        return lab_topology(self.nidb, key)
+
+    def get(self, key):
+        return getattr(self, key)
+
+    def add(self, key):
+        self.topologies[key] = {}
+        return lab_topology(self.nidb, key)
+
+
 class NIDB(NIDB_base):
     def __init__(self):
         self._graph = nx.Graph() # only for connectivity, any other information stored on node
+        self._graph.graph['topologies'] = {}
         self.timestamp =  time.strftime("%Y%m%d_%H%M%S", time.localtime())
+
+    @property
+    def topology(self):
+        return lab_topology_accessor(self)
 
     def subgraph(self, nbunch, name = None):
         nbunch = (n.node_id for n in nbunch) # only store the id in overlay
@@ -557,4 +616,5 @@ class overlay_subgraph(NIDB_base):
         #TODO: need to refer back to the source nidb
         self._graph = graph # only for connectivity, any other information stored on node
         self._name = name
-
+    def __repr__(self):
+        return "nidb: %s" % self._name

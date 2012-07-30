@@ -9,6 +9,7 @@
 
     <!-- Le styles -->
     <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="font-awesome.css" rel="stylesheet">
     <style type="text/css">
       body {
         padding-top: 60px;
@@ -31,7 +32,6 @@
   </head>
 
   <body>
-
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
@@ -45,6 +45,7 @@
             <ul class="nav">
               <li class="active"><a href="#">Home</a></li>
               <li><a href="#about">About</a></li>
+              <li><a href="#publications">Publications</a></li>
               <li><a href="#contact">Contact</a></li>
             </ul>
           </div><!--/.nav-collapse -->
@@ -56,30 +57,152 @@
 
       <!-- Main hero unit for a primary marketing message or call to action -->
       <div class="hero-unit">
-        <h1>Simple network configuration</h1>
+        <h1>Simplicity in Network Configuration</h1>
         <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.
-        
         </p>
       </div>
 
       <!-- Example row of columns -->
       <div class="row">
         <div class="span4">
-          <h2>Heading</h2>
-           <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+          <div style="font-size: 24px;">
+            <i class="icon-picture"></i> Succinct Capture
+          </div>
+          <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
           <p><a class="btn" href="#">View details &raquo;</a></p>
         </div>
         <div class="span4">
-          <h2>Heading</h2>
-           <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-          <p><a class="btn" href="#">View details &raquo;</a></p>
+          <div style="font-size: 24px;">
+            <i class="icon-magic"></i> High-Level Design
+          </div>
+          <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+          <p><a class="btn" href="#design">View details &raquo;</a></p>
        </div>
         <div class="span4">
-          <h2>Heading</h2>
+          <div style="font-size: 24px;">
+            <i class="icon-edit"></i> Template-Based Configuration
+          </div>
           <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-          <p><a class="btn" href="#">View details &raquo;</a></p>
+          <p><a class="btn" href="#building">View details &raquo;</a></p>
         </div>
       </div>
+
+      <section id="capture">
+      <div class="page-header">
+        <h1>Capturing a Network Design</h1>
+<img src="images/yed.png">
+        <p>
+        Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+        Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+        </p>
+      </div>
+
+      <section id="design">
+      <div class="page-header">
+        <h1>Designing Network Services</h1>
+        <pre>
+G_bgp = anm.add_overlay("bgp", directed = True)
+G_bgp.add_nodes_from(G_in.nodes("is_router"))
+
+ebgp_edges = [edge for edge in G_in.edges() if edge.src.asn != edge.dst.asn]
+G_bgp.add_edges_from(ebgp_edges, bidirectional = True, type = 'ebgp')</pre>
+        <p>
+        Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+        Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+        </p>
+      </div>
+
+      <section id="building">
+      <div class="page-header">
+        <h1>Building Configurations</h1>
+        <pre>
+hostname ${node}
+password ${node.zebra.password}   
+banner motd file /etc/quagga/motd.txt
+!
+% for interface in node.interfaces:  
+  interface ${interface.id}
+  #Link to ${interface.description}
+  ip ospf cost ${interface.ospf_cost}
+  !
+%endfor
+!
+% if node.ospf: 
+router ospf
+% for ospf_link in node.ospf.ospf_links:
+  network ${ospf_link.network.cidr} area ${ospf_link.area} 
+% endfor    
+% endif           
+!</pre>
+
+<pre>
+hostname 1a.1
+password 1234   
+banner motd file /etc/quagga/motd.txt
+!
+  interface eth0
+  #Link to 1a.1 to 1b.1
+  ip ospf cost 1
+  !
+  interface eth1
+  #Link to 1a.1 to 1c.1
+  ip ospf cost 1
+  !
+!
+</pre>
+
+<pre>
+├── 1a.1
+│   └── etc
+│       ├── hostname
+│       ├── ssh
+│       │   └── sshd_config
+│       └── zebra
+│           ├── bgp.conf
+│           ├── motd.txt
+│           ├── ospf.conf
+│           ├── zebra.conf
+│           └── zebra_daemons.conf
+├── 1a_1.startup
+</pre>
+        <p>
+        Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+        Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+        </p>
+      </div>
+
+            <section id="visualization">
+      <div class="page-header">
+        <h1>Visual Feedback</h1>
+<img src="images/plot.png">
+        <p>
+        Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+        Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+        </p>
+      </div>
+
+      <section id="publications">
+      <div class="page-header">
+        <h1>Publications</h1>
+        <ul class="icons">
+          <li> <i class="icon-book"></i>
+          <a href="publications/AutoNetkit.pdf">How to Build Complex, Large-Scale Emulated Networks</a> <em>Hung Nguyen, Matthew Roughan, Simon Knight, Nick Falkner, Olaf Maennel, Randy Bush</em> The 6th International Conference on Testbeds and Research Infrastructures for the Development of Networks and Communities, Berlin, Germany, May 2010;
+          </li>  
+          <li><i class="icon-book"></i>	Simon Knight, Matthew Roughan, Askar Jaboldinov, Olaf Maennel, Iain Phillips,
+          <a href="publications/ank_sigcomm_poster.pdf">AutoNetkit: Simplifying Large Scale, Open-Source Network Experimentation</a>, Poster,
+          2012 ACM SIGCOMM Conference, Helsinki, Finland (To Appear).</li>
+        </ul>      
+        </p>
+      </ul>
+    </div>
+
+    <section id="contact">
+    <div class="page-header">
+      <h1>Contact</h1>
+      <p>
+      <i class="icon-envelope"></i> AutoNetkit is on <a href="https://groups.google.com/group/autonetkit">Google Groups</a>. Please use this group for feedback and suggestions.
+      </p>
+    </div>
 
       <hr>
 

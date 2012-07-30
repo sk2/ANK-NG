@@ -125,8 +125,11 @@ def render_node(node):
 
         return
 
-def render(node):
-    render_single(node)
+def render(nidb):
+    render_single(nidb)
+    render_topologies(nidb)
+
+#TODO: turn back on multithreaded rendering?
 
 def render_single(nidb):
     for node in nidb:
@@ -165,3 +168,46 @@ def render_multi(nidb):
             else:
                 #print "rendered", len(rendered_nodes)
                 pass
+
+def render_topologies(nidb):
+    for topology in nidb.topology:
+        render_topology(topology)
+
+def render_topology(topology):
+    ank_version = pkg_resources.get_distribution("AutoNetkit").version
+    date = time.strftime("%Y-%m-%d %H:%M", time.localtime())
+    print topology
+    try:
+        render_output_dir = topology.render_dst_folder
+        render_base = topology.render_base
+        render_base_output_dir = topology.render_base_dst_folder
+        render_template_file = topology.render_template
+    except KeyError, error:
+        return
+
+    try:
+        render_template = lookup.get_template(render_template_file)
+    except SyntaxException, error:
+        print "Unable to render %s: Syntax error in template: %s" % (topology, error)
+        return
+    dst_file = os.path.join(render_output_dir, topology.render_dst_file)
+
+#TODO: may need to iterate if multiple parts of the directory need to be created
+
+    #TODO: capture mako errors better
+
+    with open( dst_file, 'wb') as dst_fh:
+        try:
+            dst_fh.write(render_template.render(
+                topology = topology,
+                ank_version = ank_version,
+                date = date,
+                ))
+        except KeyError, error:
+            print "Unable to render %s: %s not set" % (topology, error)
+        except AttributeError, error:
+            print "Unable to render %s: %s " % (topology, error)
+        except NameError, error:
+            print "Unable to render %s: %s. Check all variables used are defined" % (topology, error)
+
+
