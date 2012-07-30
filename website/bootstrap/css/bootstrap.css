@@ -376,8 +376,8 @@ h6 small {
   color: #999999;
 }
 h1 {
-  font-size: 30px;
-  line-height: 36px;
+  font-size: 26px;
+  line-height: 26px;
 }
 h1 small {
   font-size: 18px;
@@ -3144,7 +3144,7 @@ a.thumbnail:hover {
 }
 .hero-unit h1 {
   margin-bottom: 0;
-  font-size: 60px;
+  font-size: 52px;
   line-height: 1;
   color: inherit;
   letter-spacing: -1px;

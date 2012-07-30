@@ -311,13 +311,12 @@ class NetkitCompiler(PlatformCompiler):
         host_nodes = self.nidb.nodes(host = self.host)
 #TODO: replace name/label and use attribute from subgraph
         lab_topology = self.nidb.topology.add(self.host)
-        lab_topology.render_base = "templates/quagga"
-        lab_topology.render_template = "templates/netkit_startup.mako"
+        lab_topology.render_template = "templates/netkit_lab_conf.mako"
         lab_topology.render_dst_folder = "rendered/%s/%s" % (self.host, "netkit")
-        lab_topology.render_base_dst_folder = "rendered/%s/%s/%s" % (self.host, "netkit", phy_node)
         lab_topology.render_dst_file = "%s.startup" % ank.name_folder_safe(phy_node.label)
         subgraph = self.nidb.subgraph(host_nodes, self.host)
-
+        for node in subgraph:
+            print self.nidb.edges(nidb_node)
 
 class CiscoCompiler(PlatformCompiler):
     def interface_ids_ios(self):
