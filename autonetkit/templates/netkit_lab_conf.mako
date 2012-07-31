@@ -4,8 +4,10 @@ LAB_AUTHOR="${topology.author}"
 LAB_EMAIL="${topology.email}"
 LAB_WEB="${topology.web}"    
 
-${topology}
-
 % for config_item in topology.config_items:
-${config_item}
+${config_item.device}[${config_item.key}]=${config_item.value}
+%endfor
+
+% for tap in topology.tap_ips:
+${tap.device}[${tap.id}]=${tap.ip}
 %endfor

@@ -14,6 +14,10 @@ def dict_to_sorted_list(data, sort_key):
     """Returns values in dict, sorted by sort_key"""
     return sorted(data.values(), key = lambda x: x[sort_key])
 
+def sort_attribute(attribute, sort_key):
+    print sorted(attribute,  key = lambda x: x[sort_key])
+    return sorted(attribute,  key = lambda x: x[sort_key])
+
 class RouterCompiler(object):
     def __init__(self, nidb, anm):
         self.nidb = nidb
@@ -312,8 +316,17 @@ class NetkitCompiler(PlatformCompiler):
             quagga_compiler.compile(nidb_node)
 
         # and lab.conf
+        self.allocate_tap_ips()
         self.lab_topology()
 
+    def allocate_tap_ips(self):
+        #TODO: take tap subnet parameter
+        from netaddr import IPNetwork
+        address_block = IPNetwork("172.16.0.0/16").iter_hosts()
+        for node in self.nidb.nodes("is_l3device", host = self.host):
+            #TODO: check this works for switches
+            node.tap.ip = address_block.next()
+        
     def lab_topology(self):
         host_nodes = self.nidb.nodes(host = self.host)
 #TODO: replace name/label and use attribute from subgraph
@@ -327,31 +340,30 @@ class NetkitCompiler(PlatformCompiler):
         lab_topology.web = "www.autonetkit.org"
 
         G_ip = self.anm['ip']
-        config_items = {}
-        for node in subgraph:
-            node_config_data = {}
+        config_items = []
+        for node in subgraph.nodes("is_l3device"):
             for edge in node.edges():
-                node_config_data[edge.id] = G_ip.edge(edge).ip_address
-            config_items[node] = node_config_data
+                config_items.append({
+                    'device': node,
+                    'key': edge.id,
+                    'value':  G_ip.edge(edge).ip_address,
+                    })
+
+        tap_ips = []
+        for node in subgraph:
+            if node.tap:
+                tap_ips.append({
+                    'device': node.label,
+                    'id': node.tap.id,
+                    'ip': node.tap.ip,
+                    })
+
 
 #TODO: include ram, etc from here
 
-
         lab_topology.config_items = config_items
+        lab_topology.tap_ips = sort_attribute(tap_ips, "device")
 # taps
-        for node in subgraph:
-            if node.tap:
-                #print node, node.tap.id
-                pass
-        
-        for config_item in lab_topology.config_items:
-            print "item", config_item
-            print type(config_item)
-            for elem in config_item:
-                #print elem
-                pass
-
-
 
 class CiscoCompiler(PlatformCompiler):
     def interface_ids_ios(self):

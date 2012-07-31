@@ -288,6 +288,26 @@ class nidb_node(object):
     def dump(self):
         return str(self._node_data)
 
+
+    @property
+    def is_router(self):
+        return self.device_type == "router"
+
+    @property
+    def is_switch(self):
+        return self.device_type == "switch"
+
+    @property
+    def is_server(self):
+        return self.device_type == "server"
+
+    @property
+    def is_l3device(self):
+        """Layer 3 devices: router, server, cloud, host
+        ie not switch
+        """
+        return self.is_router or self.is_server
+
     def edges(self, *args, **kwargs):
         #TODO: want to add filter for *args and **kwargs here too
         return self.nidb.edges(self, *args, **kwargs)
@@ -381,8 +401,7 @@ class lab_topology(object):
 
     def __getattr__(self, key):
         """Returns topology property"""
-        print "returning", key
-        data = self._category_data.get(key)
+        data = self._topology_data.get(key)
         try:
             [item.keys() for item in data]
 #TODO: replace this with an OrderedDict

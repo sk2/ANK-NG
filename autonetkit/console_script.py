@@ -207,6 +207,12 @@ def compile_network(anm):
     ios_nodes = list(nidb.nodes(platform="ios"))
 
 #TODO: add platform and host
+    for node in nidb:
+        graphics_node = G_graphics.node(node)
+        node.graphics.x = graphics_node.x
+        node.graphics.y = graphics_node.y
+        node.graphics.device_type = graphics_node.device_type
+        node.device_type = graphics_node.device_type
 
     host = "nectar1"
     junosphere_compiler = ank_compiler.JunosphereCompiler(nidb, anm, host)
@@ -220,12 +226,6 @@ def compile_network(anm):
     cisco_compiler.compile()
 
 # update nidb graphics
-    for node in nidb:
-        graphics_node = G_graphics.node(node)
-        node.graphics.x = graphics_node.x
-        node.graphics.y = graphics_node.y
-        node.graphics.device_type = graphics_node.device_type
-
     #nidb.save()
 
     #diff = ank_diff.diff_history(os.path.join("versions", "anm")
