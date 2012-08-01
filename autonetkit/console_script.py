@@ -81,10 +81,7 @@ def build_ip(anm):
 #TODO: add function to update edge properties: can overload node update?
 
 #TODO: abstract this better
-    edges_to_split = [edge for edge in G_ip.edges() if edge.src.is_l3device and edge.dst.is_l3device]
-    print edges_to_split
     edges_to_split = [edge for edge in G_ip.edges() if edge.attr_both("is_l3device")]
-    print edges_to_split
     split_created_nodes = list(ank.split(G_ip, edges_to_split, retain='edge_id'))
     for node in split_created_nodes:
         node.overlay.graphics.x = ank.neigh_average(G_ip, node, "x", G_graphics)
@@ -172,13 +169,6 @@ def build_network(input_filename):
 #TODO: add a "balance" function that returns true if nodes at both end of an edge have same property, eg asn
     non_same_asn_edges = [link for link in G_ospf.edges() if link.src.asn != link.dst.asn]
     G_ospf.remove_edges_from(non_same_asn_edges)
-    for link in G_ospf.edges():
-        print link
-
-    G_phy = anm['phy']
-
-
-
 
     return anm
 

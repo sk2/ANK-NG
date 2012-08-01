@@ -67,7 +67,7 @@ def load_graphml(filename):
     try:
         graph = nx.read_graphml(filename)
     except IOError:
-        log.warn("Unable to read GraphML %s" % filename)
+        log.warning("Unable to read GraphML %s" % filename)
         return
     graph.graph['timestamp'] =  os.stat(filename).st_mtime
 
