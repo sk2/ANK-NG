@@ -216,6 +216,24 @@ This is currently O(N). Could use a lookup table</p>
 <em class="property">class </em><tt class="descclassname">autonetkit.anm.</tt><tt class="descname">overlay_edge</tt><big>(</big><em>anm</em>, <em>overlay_id</em>, <em>src_id</em>, <em>dst_id</em><big>)</big><a class="reference internal" href="../_modules/autonetkit/anm.html#overlay_edge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autonetkit.anm.overlay_edge" title="Permalink to this definition">¶</a></dt>
 <dd><p>API to access link in network</p>
 <dl class="method">
+<dt id="autonetkit.anm.overlay_edge.attr_any">
+<tt class="descname">attr_any</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#autonetkit.anm.overlay_edge.attr_any" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return edges which either src and dst have attributes set</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="autonetkit.anm.overlay_edge.attr_both">
+<tt class="descname">attr_both</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#autonetkit.anm.overlay_edge.attr_both" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return edges which both src and dst have attributes set</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="autonetkit.anm.overlay_edge.attr_equal">
+<tt class="descname">attr_equal</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#autonetkit.anm.overlay_edge.attr_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return edges which both src and dst have attributes equal</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="autonetkit.anm.overlay_edge.get">
 <tt class="descname">get</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="../_modules/autonetkit/anm.html#overlay_edge.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autonetkit.anm.overlay_edge.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>For consistency, edge.get(key) is neater than getattr(edge, key)</p>

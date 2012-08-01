@@ -275,6 +275,18 @@ class overlay_edge(object):
     def dst(self):
         return overlay_node(self.anm, self.overlay_id, self.dst_id)
 
+    def attr_equal(self, *args):
+        """Return edges which both src and dst have attributes equal"""
+        return all(getattr(self.src, key) == getattr(self.dst, key) for key in args )
+
+    def attr_both(self, *args):
+        """Return edges which both src and dst have attributes set"""
+        return all((getattr(self.src, key) and getattr(self.dst, key)) for key in args )
+
+    def attr_any(self, *args):
+        """Return edges which either src and dst have attributes set"""
+        return all((getattr(self.src, key) or getattr(self.dst, key)) for key in args )
+
     def dump(self):
         return str(self._graph[self.src_id][self.dst_id])
 

@@ -82,6 +82,9 @@ def build_ip(anm):
 
 #TODO: abstract this better
     edges_to_split = [edge for edge in G_ip.edges() if edge.src.is_l3device and edge.dst.is_l3device]
+    print edges_to_split
+    edges_to_split = [edge for edge in G_ip.edges() if edge.attr_both("is_l3device")]
+    print edges_to_split
     split_created_nodes = list(ank.split(G_ip, edges_to_split, retain='edge_id'))
     for node in split_created_nodes:
         node.overlay.graphics.x = ank.neigh_average(G_ip, node, "x", G_graphics)
