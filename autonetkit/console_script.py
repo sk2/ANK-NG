@@ -2,22 +2,17 @@ from anm import AbstractNetworkModel
 import ank
 import itertools
 from nidb import NIDB
-import ank_render
-import pprint
+import render
 import time
-import ank_diff
-#import ank_deploy
-#import pprint
-#import ank_plot
-import ank_compiler
-#import ank_http_server
-import ank_change_monitor
-#import ank_plot
-import os
+import compiler
+import pkg_resources
+import change_monitor
 import math
-import sys
+import autonetkit.log as log
 
 def main():
+    ank_version = pkg_resources.get_distribution("AutoNetkit").version
+    log.info("AutoNetkit %s" % ank_version)
 
     import optparse
     opt = optparse.OptionParser()
@@ -32,74 +27,53 @@ def main():
     anm = build_network(input_filename)
     anm.save()
     nidb = compile_network(anm)
-    ank_render.render(nidb)
+    render.render(nidb)
 
-#ank_http_server.stream(anm)
-
-#TODO: add support for nidb subgraphs, especially for platforms, and show boundary nodes and boundary edges easily
     if options.monitor:
         try:
-            print "Monitoring for updates..."
+            log.info("Monitoring for updates...")
             while True:
                 time.sleep(0.2)
-                if ank_change_monitor.check_for_change(input_filename, anm):
-                    print "Input graph updated, recompiling network"
+                if change_monitor.check_for_change(input_filename, anm):
+                    log.info("Input graph updated, recompiling network")
                     anm = build_network(input_filename)
                     anm.save()
                     nidb = compile_network(anm)
-                    ank_render.render(nidb)
-                    print "Monitoring for updates..."
+                    render.render(nidb)
+                    log.info("Monitoring for updates...")
         except KeyboardInterrupt:
-            print
-            print "Exiting"
+            log.info("Exiting")
 
-def build_network(input_filename):
+def build_bgp(anm):
+    # eBGP
+    G_phy = anm['phy']
+    G_in = anm['input']
+    G_bgp = anm.add_overlay("bgp", directed = True)
+    G_bgp.add_nodes_from(G_in.nodes("is_router"))
+    ebgp_edges = [edge for edge in G_in.edges() if edge.src.asn != edge.dst.asn]
+    G_bgp.add_edges_from(ebgp_edges, bidirectional = True, type = 'ebgp')
 
-    anm = AbstractNetworkModel()
+# now iBGP
+    if len(G_phy) < 500:
+# full mesh
+        for asn, devices in G_phy.groupby("asn").items():
+            routers = [d for d in devices if d.is_router]
+            ibgp_edges = [ (s, t) for s in routers for t in routers if s!=t]
+            G_bgp.add_edges_from(ibgp_edges, type = 'ibgp')
+    else:
+        ank.allocate_route_reflectors(G_phy, G_bgp)
 
-    input_graph = ank.load_graphml(input_filename)
-#input_graph = ank.load_graphml("graph_combined.graphml")
+#TODO: probably want to use l3 connectivity graph for allocating route reflectors
 
-    G_in = anm.add_overlay("input", input_graph)
-    ank.set_node_default(G_in, G_in.nodes(), platform="cisco")
-    ank.set_node_default(G_in, G_in.nodes(), host="demo")
-    if len(ank.unique_attr(G_in, "asn")) > 1:
-        # Multiple ASNs set, use label format device.asn 
-        anm.set_node_label(".",  ['label', 'asn'])
+    ebgp_nodes = [d for d in G_bgp if any(edge.type == 'ebgp' for edge in d.edges())]
+    G_bgp.update(ebgp_nodes, ebgp=True)
 
-# set syntax for routers according to platform
-    G_in.update(G_in.nodes("is_router", platform = "junosphere"), syntax="junos")
-    G_in.update(G_in.nodes("is_router", platform = "dynagen"), syntax="ios")
-    G_in.update(G_in.nodes("is_router", platform = "netkit"), syntax="quagga")
-
-    G_phy = anm.overlay.phy #G_phy created automatically by ank
-
-
-# build physical graph
-    G_phy.add_nodes_from(G_in, retain=['label', 'device_type', 'asn', 'platform', 'host', 'syntax'])
-    G_phy.add_edges_from([edge for edge in G_in.edges() if edge.type == "physical"])
-    #G_phy2 = anm['phy']
-
-    #dst_nbunch = [n for n in G_phy if n.asn != 20965 and n.degree() > 15]
-    #test_edges = G_phy.edges(G_phy.nodes(asn=20965), dst_nbunch)
-    #print list(test_edges)
-
-
-    """
-    r1 = G_phy.node("r1")
-    r1.test = "xxx"
-    ank.set_node_default(G_phy, G_phy.nodes(), test="AA", color="blue")
-    for node in G_phy:
-        print node.dump()
-    r1.test = "xxx"
-    """
-
-#G_phy.add_edge(G_phy.node("r1"), G_phy.node("r4"))
-
-    G_graphics = anm.add_overlay("graphics") # plotting data
-    G_graphics.add_nodes_from(G_in, retain=['x', 'y', 'device_type', 'asn'])
-
+def build_ip(anm):
     G_ip = anm.add_overlay("ip")
+    G_in = anm['input']
+    G_graphics = anm['graphics']
+    G_phy = anm['phy']
+
     G_ip.add_nodes_from(G_in)
     G_ip.add_edges_from(G_in.edges(type="physical"))
 
@@ -113,9 +87,7 @@ def build_network(input_filename):
         node.overlay.graphics.x = ank.neigh_average(G_ip, node, "x", G_graphics)
         node.overlay.graphics.y = ank.neigh_average(G_ip, node, "y", G_graphics)
         node.overlay.graphics.asn = math.floor(ank.neigh_average(G_ip, node, "asn", G_phy)) # arbitrary choice
-#TODO: assign ASN when splitting?
 
-#TODO: OSPF needs to aggregate switches out
     switch_nodes = G_ip.nodes("is_switch")# regenerate due to aggregated
     G_ip.update(switch_nodes, collision_domain=True) # switches are part of collision domain
     G_ip.update(split_created_nodes, collision_domain=True)
@@ -141,53 +113,72 @@ def build_network(input_filename):
 
     ank.allocate_ips(G_ip)
     ank.save(G_ip)
+
+
+def build_phy(anm):
+    G_in = anm['input']
+    G_phy = anm['phy']
+# build physical graph
+    G_phy.add_nodes_from(G_in, retain=['label', 'device_type', 'asn', 'platform', 'host', 'syntax'])
+    G_phy.add_edges_from([edge for edge in G_in.edges() if edge.type == "physical"])
+
+def build_network(input_filename):
+
+    anm = AbstractNetworkModel()
+
+    input_graph = ank.load_graphml(input_filename)
+
+    G_in = anm.add_overlay("input", input_graph)
+    ank.set_node_default(G_in, G_in.nodes(), platform="cisco")
+    ank.set_node_default(G_in, G_in.nodes(), host="demo")
+    if len(ank.unique_attr(G_in, "asn")) > 1:
+        # Multiple ASNs set, use label format device.asn 
+        anm.set_node_label(".",  ['label', 'asn'])
+
+# set syntax for routers according to platform
+    G_in.update(G_in.nodes("is_router", platform = "junosphere"), syntax="junos")
+    G_in.update(G_in.nodes("is_router", platform = "dynagen"), syntax="ios")
+    G_in.update(G_in.nodes("is_router", platform = "netkit"), syntax="quagga")
+
+
+    G_graphics = anm.add_overlay("graphics") # plotting data
+    G_graphics.add_nodes_from(G_in, retain=['x', 'y', 'device_type', 'asn'])
+
+    build_phy(anm)
+    build_ip(anm)
+    build_bgp(anm)
+
+
+#TODO: assign ASN when splitting?
+
+#TODO: OSPF needs to aggregate switches out
+
     
 #TODO: add sanity checks like only routers can cross ASes: can't have an eBGP server
     G_ospf = anm.add_overlay("ospf")
     G_ospf.add_nodes_from(G_in.nodes("is_router"), retain=['asn'])
     G_ospf.add_nodes_from(G_in.nodes("is_switch"), retain=['asn'])
     G_ospf.add_edges_from(G_in.edges(), retain = ['edge_id', 'ospf_cost'])
+#TODO: trim out non same asn edges
     ank.aggregate_nodes(G_ospf, G_ospf.nodes("is_switch"), retain = "edge_id")
     ank.explode_nodes(G_ospf, G_ospf.nodes("is_switch"))
     for link in G_ospf.edges():
            link.cost = 1
            link.area = 0
-           print link.edge_id
 
-    G_bgp = anm.add_overlay("bgp", directed = True)
-    G_bgp.add_nodes_from(G_in.nodes("is_router"))
+#TODO: add a "balance" function that returns true if nodes at both end of an edge have same property, eg asn
+    non_same_asn_edges = [link for link in G_ospf.edges() if link.src.asn != link.dst.asn]
+    G_ospf.remove_edges_from(non_same_asn_edges)
+    for link in G_ospf.edges():
+        print link
 
-# eBGP
-    ebgp_edges = [edge for edge in G_in.edges() if edge.src.asn != edge.dst.asn]
-    G_bgp.add_edges_from(ebgp_edges, bidirectional = True, type = 'ebgp')
-
-# now iBGP
-    if len(G_phy) < 500:
-# full mesh
-        for asn, devices in G_phy.groupby("asn").items():
-            routers = [d for d in devices if d.is_router]
-            ibgp_edges = [ (s, t) for s in routers for t in routers if s!=t]
-            G_bgp.add_edges_from(ibgp_edges, type = 'ibgp')
-    else:
-        ank.allocate_route_reflectors(G_phy, G_bgp)
+    G_phy = anm['phy']
 
 
-#TODO: probably want to use l3 connectivity graph for allocating route reflectors
 
-
-    ebgp_nodes = [d for d in G_bgp if any(edge.type == 'ebgp' for edge in d.edges())]
-    G_bgp.update(ebgp_nodes, ebgp=True)
-    #ank.save(G_bgp)
-    #ank.save(G_phy)
-
-    #ank_plot.plot_pylab(G_bgp, edge_label_attribute = 'type', node_label_attribute='asn')
-    #ank_plot.plot_pylab(G_phy, edge_label_attribute = 'edge_id')
-    #ank_plot.plot_pylab(G_ospf, edge_label_attribute='cost')
-    #ank_plot.plot_pylab(G_ip, edge_label_attribute = 'ip_address', node_label_attribute = 'loopback')
 
     return anm
 
-#TODO: set fqdn property
 
 def compile_network(anm):
     nidb = NIDB() 
@@ -204,9 +195,6 @@ def compile_network(anm):
     nidb.add_edges_from(edges_to_add, retain='edge_id')
 
 #TODO: boundaries is still a work in progress...
-    ios_nodes = list(nidb.nodes(platform="ios"))
-
-#TODO: add platform and host
     for node in nidb:
         graphics_node = G_graphics.node(node)
         node.graphics.x = graphics_node.x
@@ -215,22 +203,15 @@ def compile_network(anm):
         node.device_type = graphics_node.device_type
 
     host = "nectar1"
-    junosphere_compiler = ank_compiler.JunosphereCompiler(nidb, anm, host)
+    junosphere_compiler = compiler.JunosphereCompiler(nidb, anm, host)
     junosphere_compiler.compile()
-    netkit_compiler = ank_compiler.NetkitCompiler(nidb, anm, host)
+    netkit_compiler = compiler.NetkitCompiler(nidb, anm, host)
     netkit_compiler.compile()
-    dynagen_compiler = ank_compiler.DynagenCompiler(nidb, anm, host)
+    dynagen_compiler = compiler.DynagenCompiler(nidb, anm, host)
     dynagen_compiler.compile()
 
-    cisco_compiler = ank_compiler.CiscoCompiler(nidb, anm, host)
+    cisco_compiler = compiler.CiscoCompiler(nidb, anm, host)
     cisco_compiler.compile()
-
-# update nidb graphics
-    #nidb.save()
-
-    #diff = ank_diff.diff_history(os.path.join("versions", "anm")
-    #pprint.pprint(diff)
-
 
     return nidb
 

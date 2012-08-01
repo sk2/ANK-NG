@@ -6,6 +6,9 @@ import pprint
 import time
 import json
 import os
+import autonetkit.log as log
+from ank_utils import unwrap_nodes, unwrap_graph, unwrap_edges
+
 try:
     import cPickle as pickle
 except ImportError:
@@ -64,7 +67,7 @@ def load_graphml(filename):
     try:
         graph = nx.read_graphml(filename)
     except IOError:
-        print "Unable to read GraphML", filename
+        log.warn("Unable to read GraphML %s" % filename)
         return
     graph.graph['timestamp'] =  os.stat(filename).st_mtime
 
@@ -224,19 +227,6 @@ def wrap_nodes(overlay_graph, nodes):
     """ wraps node id into node overlay """
     return ( overlay_node(overlay_graph._anm, overlay_graph._overlay_id, node)
             for node in nodes)
-
-#TODO: use these wrap and unwrap functions inside overlays
-def unwrap_nodes(nodes):
-    try:
-        return nodes.node_id # treat as single node
-    except AttributeError:
-        return (node.node_id for node in nodes) # treat as list
-
-def unwrap_edges(edges):
-    return ( (edge.src_id, edge.dst_id) for edge in edges)
-
-def unwrap_graph(overlay_graph):
-    return overlay_graph._graph
 
 def in_edges(overlay_graph, nodes=None):
     graph = unwrap_graph(overlay_graph)
@@ -522,6 +512,7 @@ def allocate_ips_to_cds(node):
 
     
 def allocate_ips(G_ip):
+    log.info("Allocating IP addresses")
     from netaddr import IPNetwork
     address_block = IPNetwork("10.0.0.0/8")
     subnet_address_blocks = address_block.subnet(16)
@@ -630,7 +621,7 @@ def allocate_ips(G_ip):
         # TODO: should loopbacks be a sentinel type node for faster traversal rather than checking each time?
 
 def allocate_route_reflectors(G_phy, G_bgp):
-    print "allocating route reflectors"
+    log.info("Allocating route reflectors")
     graph_phy = G_phy._graph
     for asn, devices in G_phy.groupby("asn").items():
         routers = [d for d in devices if d.is_router]

@@ -58,5 +58,10 @@ logging.setLoggerClass(ColoredLogger)
 logger = logging.getLogger("ANK")
 logger.setLevel(logging.DEBUG)
 
-logger.info("test")
-logger.warn("test")
+
+# Use approach of Pika, allows for autonetkit.log.debug("message")
+debug = logger.debug
+error = logger.error
+info = logger.info
+warning = logger.warning
+

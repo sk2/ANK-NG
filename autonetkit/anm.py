@@ -2,6 +2,8 @@ import networkx as nx
 import itertools
 import pprint
 import time
+from ank_utils import unwrap_edges
+
 try:
     import cPickle as pickle
 except ImportError:
@@ -492,8 +494,6 @@ class OverlayBase(object):
         else:
             result =  (overlay_edge(self._anm, self._overlay_id, src, dst)
                     for (src, dst) in valid_edges)
-
-
         return result
 
 class overlay_subgraph(OverlayBase):
@@ -539,6 +539,15 @@ class overlay_graph(OverlayBase):
         except AttributeError:
             pass # already a list
         self.add_edges_from([(src, dst)], retain, **kwargs)
+
+    def remove_edges_from(self, ebunch):
+        #TODO: check if this try/except consumes generator
+        try:
+            ebunch = unwrap_edges(ebunch)
+        except AttributeError:
+            pass # don't need to unwrap
+        self._graph.remove_edges_from(ebunch)
+
 
     def add_edges_from(self, ebunch, bidirectional = False, retain=[], **kwargs):
         """Add edges. Unlike NetworkX, can only add an edge if both src and dst in graph already.
