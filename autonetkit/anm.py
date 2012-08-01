@@ -282,7 +282,7 @@ class overlay_edge(object):
         """Allows for checking if edge exists
         """
         try:
-            self._graph[self.src_id][self.dst_id]
+            self._graph[self.src_id][self.dst_id] # edge exists
             return True
         except KeyError:
             return False

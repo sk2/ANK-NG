@@ -121,7 +121,8 @@ class QuaggaCompiler(RouterCompiler):
         interfaces = super(QuaggaCompiler, self).interfaces(node)
         # OSPF cost
         for link in interfaces:
-            interfaces[link]['ospf_cost'] = link['ospf'].cost
+            if link['ospf']:
+                interfaces[link]['ospf_cost'] = link['ospf'].cost
 
         return interfaces
 
