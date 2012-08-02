@@ -56,6 +56,7 @@ def extract(host, tar_file, cd_dir):
         print "HERE"
         conn.send("exit")
 
+#TODO: need to capture and handle tap startup
 
     accounts = [Account("sknight")] 
     hosts = ['ssh://%s' % host]

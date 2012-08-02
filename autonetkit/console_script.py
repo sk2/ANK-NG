@@ -29,6 +29,7 @@ def main():
     anm.save()
     nidb = compile_network(anm)
     render.render(nidb)
+    deploy_network()
 
     if options.monitor:
         try:
@@ -209,12 +210,13 @@ def compile_network(anm):
 
     return nidb
 
-#tar_file = deploy.package("rendered/nectar1/netkit/", "netkit")
-#server = "trc1.trc.adelaide.edu.au"
-#deploy.transfer(server, "sknight", tar_file, tar_file)
-#print "server", server
-#cd_dir = "rendered/nectar1/netkit/"
-#deploy.extract(server, tar_file, cd_dir)
+def deploy_network():
+    tar_file = deploy.package("rendered/nectar1/netkit/", "netkit")
+    server = "trc1.trc.adelaide.edu.au"
+    deploy.transfer(server, "sknight", tar_file, tar_file)
+    print "server", server
+    cd_dir = "rendered/nectar1/netkit/"
+    deploy.extract(server, tar_file, cd_dir)
 
 if __name__ == "__main__":
     try:

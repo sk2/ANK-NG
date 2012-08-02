@@ -8,6 +8,9 @@ import autonetkit.log as log
 
 #TODO: tidy up the dict to list, and sorting formats
 
+def dot_to_underscore(instring):
+    return instring.replace(".", "_")
+
 def dict_to_sorted_list(data, sort_key):
     """Returns values in dict, sorted by sort_key"""
     return sorted(data.values(), key = lambda x: x[sort_key])
@@ -290,12 +293,13 @@ class NetkitCompiler(PlatformCompiler):
         quagga_compiler = QuaggaCompiler(self.nidb, self.anm)
 #TODO: this should be all l3 devices not just routers
         for phy_node in G_phy.nodes('is_router', host = self.host, syntax='quagga'):
+            folder_name = ank.name_folder_safe(phy_node.label)
             nidb_node = self.nidb.node(phy_node)
             nidb_node.render.base = "templates/quagga"
             nidb_node.render.template = "templates/netkit_startup.mako"
             nidb_node.render.dst_folder = "rendered/%s/%s" % (self.host, "netkit")
-            nidb_node.render.base_dst_folder = "rendered/%s/%s/%s" % (self.host, "netkit", phy_node)
-            nidb_node.render.dst_file = "%s.startup" % ank.name_folder_safe(phy_node.label)
+            nidb_node.render.base_dst_folder = "rendered/%s/%s/%s" % (self.host, "netkit", folder_name)
+            nidb_node.render.dst_file = "%s.startup" % folder_name 
 
 # allocate zebra information
             nidb_node.zebra.password = "1234"
@@ -306,7 +310,6 @@ class NetkitCompiler(PlatformCompiler):
             int_ids = self.interface_ids()
             for edge in self.nidb.edges(nidb_node):
                 edge.id = int_ids.next()
-
 # and allocate tap interface
             nidb_node.tap.id = int_ids.next()
 
@@ -322,6 +325,7 @@ class NetkitCompiler(PlatformCompiler):
         from netaddr import IPNetwork
         address_block = IPNetwork("172.16.0.0/16").iter_hosts()
         lab_topology.tap_host = address_block.next()
+        lab_topology.tap_vm = address_block.next() # for tunnel host
         for node in self.nidb.nodes("is_l3device", host = self.host):
             #TODO: check this works for switches
             node.tap.ip = address_block.next()
@@ -342,17 +346,20 @@ class NetkitCompiler(PlatformCompiler):
         config_items = []
         for node in subgraph.nodes("is_l3device"):
             for edge in node.edges():
+                collision_domain = "%s.%s" % (G_ip.edge(edge).ip_address, 
+                        G_ip.edge(edge).dst.subnet.prefixlen)
+                numeric_id = edge.id.replace("eth", "") # netkit lab.conf uses 1 instead of eth1
                 config_items.append({
-                    'device': node,
-                    'key': edge.id,
-                    'value':  G_ip.edge(edge).ip_address,
+                    'device': ank.name_folder_safe(node.label),
+                    'key': numeric_id,
+                    'value':  collision_domain,
                     })
 
         tap_ips = []
         for node in subgraph:
             if node.tap:
                 tap_ips.append({
-                    'device': node.label,
+                    'device': ank.name_folder_safe(node.label),
                     'id': node.tap.id,
                     'ip': node.tap.ip,
                     })
