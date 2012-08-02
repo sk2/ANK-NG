@@ -16,6 +16,7 @@ def sort_attribute(attribute, sort_key):
     return sorted(attribute,  key = lambda x: x[sort_key])
 
 class RouterCompiler(object):
+    """Base Router compiler"""
     def __init__(self, nidb, anm):
         self.nidb = nidb
         self.anm = anm
@@ -114,6 +115,7 @@ class RouterCompiler(object):
 
 
 class QuaggaCompiler(RouterCompiler):
+    """Base Router compiler"""
     def interfaces(self, node):
         ip_node = self.anm.overlay.ip.node(node)
         loopback_subnet = netaddr.IPNetwork("0.0.0.0/32")
@@ -127,6 +129,7 @@ class QuaggaCompiler(RouterCompiler):
         return interfaces
 
 class IosCompiler(RouterCompiler):
+    """Base IOS compiler"""
 
     def interfaces(self, node):
         ip_node = self.anm.overlay.ip.node(node)
@@ -203,6 +206,7 @@ class Ios2Compiler(RouterCompiler):
         return ospf_links
 
 class JunosCompiler(RouterCompiler):
+    """Base Junos compiler"""
 
     def compile(self, node):
         node.interfaces = dict_to_sorted_list(self.interfaces(node), 'id')
@@ -233,6 +237,7 @@ class JunosCompiler(RouterCompiler):
 
 # Platform compilers
 class PlatformCompiler(object):
+    """Base Platform Compiler"""
 # and set properties in nidb._graph.graph
     def __init__(self, nidb, anm, host):
         self.nidb = nidb
@@ -248,6 +253,7 @@ class PlatformCompiler(object):
         pass
 
 class JunosphereCompiler(PlatformCompiler):
+    """Junosphere Platform Compiler"""
     def interface_ids(self):
         invalid = set([2])
         valid_ids = (x for x in itertools.count(0) if x not in invalid)
@@ -272,6 +278,7 @@ class JunosphereCompiler(PlatformCompiler):
             junos_compiler.compile(nidb_node)
 
 class NetkitCompiler(PlatformCompiler):
+    """Netkit Platform Compiler"""
     def interface_ids(self):
         for x in itertools.count(0):
             yield "eth%s" % x
@@ -355,6 +362,7 @@ class NetkitCompiler(PlatformCompiler):
 # taps
 
 class CiscoCompiler(PlatformCompiler):
+    """Cisco Platform Compiler"""
     def interface_ids_ios(self):
         id_pairs = ( (slot, port) for (slot, port) in itertools.product(range(17), range(5))) 
         for (slot, port) in id_pairs:
@@ -396,6 +404,7 @@ class CiscoCompiler(PlatformCompiler):
             ios2_compiler.compile(nidb_node)
 
 class DynagenCompiler(PlatformCompiler):
+    """Dynagen Platform Compiler"""
     def interface_ids(self):
         for x in itertools.count(0):
             yield "gigabitethernet0/0/0/%s" % x

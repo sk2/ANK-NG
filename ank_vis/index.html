@@ -122,6 +122,18 @@ var groupPath = function(d) {
 }
 
 
+var path_x = function(d) {
+  return nodes[d].x + 32;
+}
+
+var path_y = function(d) {
+  return nodes[d].y+ 32;
+}
+
+
+
+
+
 //d3.json(
 //'json/overlay/ip',
 //function (jsondata) {
@@ -208,10 +220,22 @@ function redraw() {
     .remove();
   //});
 
+    //var pathinfo = [1, 6, 4, 8, 2];
+
+  //var line = d3.svg.line()
+  //.x(path_x)
+//.y(path_y)
+  //.interpolate("cardinal")
+  //.tension(0.9);
+//
+  //chart.append("svg:path")
+  //.attr("d", line(pathinfo))
+  //.style("stroke-width", 1)
+  //.style("stroke", "orange")
+  //.style("fill", "none");
 
 
-
-    }
+  }
 
 
 function drawEdges() {

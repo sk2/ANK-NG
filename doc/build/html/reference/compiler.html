@@ -151,6 +151,67 @@
    
   <div class="section" id="module-autonetkit.compiler">
 <span id="compiler"></span><h1>Compiler<a class="headerlink" href="#module-autonetkit.compiler" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="autonetkit.compiler.CiscoCompiler">
+<em class="property">class </em><tt class="descclassname">autonetkit.compiler.</tt><tt class="descname">CiscoCompiler</tt><big>(</big><em>nidb</em>, <em>anm</em>, <em>host</em><big>)</big><a class="reference internal" href="../_modules/autonetkit/compiler.html#CiscoCompiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autonetkit.compiler.CiscoCompiler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cisco Platform Compiler</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="autonetkit.compiler.DynagenCompiler">
+<em class="property">class </em><tt class="descclassname">autonetkit.compiler.</tt><tt class="descname">DynagenCompiler</tt><big>(</big><em>nidb</em>, <em>anm</em>, <em>host</em><big>)</big><a class="reference internal" href="../_modules/autonetkit/compiler.html#DynagenCompiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autonetkit.compiler.DynagenCompiler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dynagen Platform Compiler</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="autonetkit.compiler.IosCompiler">
+<em class="property">class </em><tt class="descclassname">autonetkit.compiler.</tt><tt class="descname">IosCompiler</tt><big>(</big><em>nidb</em>, <em>anm</em><big>)</big><a class="reference internal" href="../_modules/autonetkit/compiler.html#IosCompiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autonetkit.compiler.IosCompiler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base IOS compiler</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="autonetkit.compiler.JunosCompiler">
+<em class="property">class </em><tt class="descclassname">autonetkit.compiler.</tt><tt class="descname">JunosCompiler</tt><big>(</big><em>nidb</em>, <em>anm</em><big>)</big><a class="reference internal" href="../_modules/autonetkit/compiler.html#JunosCompiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autonetkit.compiler.JunosCompiler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base Junos compiler</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="autonetkit.compiler.JunosphereCompiler">
+<em class="property">class </em><tt class="descclassname">autonetkit.compiler.</tt><tt class="descname">JunosphereCompiler</tt><big>(</big><em>nidb</em>, <em>anm</em>, <em>host</em><big>)</big><a class="reference internal" href="../_modules/autonetkit/compiler.html#JunosphereCompiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autonetkit.compiler.JunosphereCompiler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Junosphere Platform Compiler</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="autonetkit.compiler.NetkitCompiler">
+<em class="property">class </em><tt class="descclassname">autonetkit.compiler.</tt><tt class="descname">NetkitCompiler</tt><big>(</big><em>nidb</em>, <em>anm</em>, <em>host</em><big>)</big><a class="reference internal" href="../_modules/autonetkit/compiler.html#NetkitCompiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autonetkit.compiler.NetkitCompiler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Netkit Platform Compiler</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="autonetkit.compiler.PlatformCompiler">
+<em class="property">class </em><tt class="descclassname">autonetkit.compiler.</tt><tt class="descname">PlatformCompiler</tt><big>(</big><em>nidb</em>, <em>anm</em>, <em>host</em><big>)</big><a class="reference internal" href="../_modules/autonetkit/compiler.html#PlatformCompiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autonetkit.compiler.PlatformCompiler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base Platform Compiler</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="autonetkit.compiler.QuaggaCompiler">
+<em class="property">class </em><tt class="descclassname">autonetkit.compiler.</tt><tt class="descname">QuaggaCompiler</tt><big>(</big><em>nidb</em>, <em>anm</em><big>)</big><a class="reference internal" href="../_modules/autonetkit/compiler.html#QuaggaCompiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autonetkit.compiler.QuaggaCompiler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base Router compiler</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="autonetkit.compiler.RouterCompiler">
+<em class="property">class </em><tt class="descclassname">autonetkit.compiler.</tt><tt class="descname">RouterCompiler</tt><big>(</big><em>nidb</em>, <em>anm</em><big>)</big><a class="reference internal" href="../_modules/autonetkit/compiler.html#RouterCompiler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autonetkit.compiler.RouterCompiler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base Router compiler</p>
+<dl class="method">
+<dt id="autonetkit.compiler.RouterCompiler.ospf">
+<tt class="descname">ospf</tt><big>(</big><em>node</em><big>)</big><a class="reference internal" href="../_modules/autonetkit/compiler.html#RouterCompiler.ospf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autonetkit.compiler.RouterCompiler.ospf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns OSPF links
+Also sets process_id</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="function">
 <dt id="autonetkit.compiler.dict_to_sorted_list">
 <tt class="descclassname">autonetkit.compiler.</tt><tt class="descname">dict_to_sorted_list</tt><big>(</big><em>data</em>, <em>sort_key</em><big>)</big><a class="reference internal" href="../_modules/autonetkit/compiler.html#dict_to_sorted_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#autonetkit.compiler.dict_to_sorted_list" title="Permalink to this definition">¶</a></dt>
