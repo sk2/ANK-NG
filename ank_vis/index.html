@@ -220,19 +220,19 @@ function redraw() {
     .remove();
   //});
 
-    //var pathinfo = [1, 6, 4, 8, 2];
+    var pathinfo = [1, 6, 4, 2];
 
-  //var line = d3.svg.line()
-  //.x(path_x)
-//.y(path_y)
-  //.interpolate("cardinal")
-  //.tension(0.9);
-//
-  //chart.append("svg:path")
-  //.attr("d", line(pathinfo))
-  //.style("stroke-width", 1)
-  //.style("stroke", "orange")
-  //.style("fill", "none");
+  var line = d3.svg.line()
+  .x(path_x)
+.y(path_y)
+  .interpolate("cardinal")
+  .tension(0.9);
+
+  chart.append("svg:path")
+  .attr("d", line(pathinfo))
+  .style("stroke-width", 3)
+  .style("stroke", "red")
+  .style("fill", "none");
 
 
   }
