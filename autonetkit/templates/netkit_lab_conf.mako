@@ -9,5 +9,5 @@ ${config_item.device}[${config_item.key}]=${config_item.value}
 %endfor
 
 % for tap in topology.tap_ips:
-${tap.device}[${tap.id}]=${tap.ip}
+${tap.device}[${tap.id}]=tap,${topology.tap_host},${tap.ip}
 %endfor

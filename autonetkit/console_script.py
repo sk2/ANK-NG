@@ -7,6 +7,7 @@ import time
 import compiler
 import pkg_resources
 import change_monitor
+import deploy
 import math
 import autonetkit.log as log
 
@@ -208,14 +209,12 @@ def compile_network(anm):
 
     return nidb
 
-"""
-tar_file = ank_deploy.package("rendered/trc1/netkit/", "netkit")
-server = "trc1.trc.adelaide.edu.au"
-ank_deploy.transfer(server, "sknight", tar_file, tar_file)
-print "server", server
-cd_dir = "rendered/trc1/netkit/"
-ank_deploy.extract(server, tar_file, cd_dir)
-"""
+#tar_file = deploy.package("rendered/nectar1/netkit/", "netkit")
+#server = "trc1.trc.adelaide.edu.au"
+#deploy.transfer(server, "sknight", tar_file, tar_file)
+#print "server", server
+#cd_dir = "rendered/nectar1/netkit/"
+#deploy.extract(server, tar_file, cd_dir)
 
 if __name__ == "__main__":
     try:

@@ -607,6 +607,10 @@ class lab_topology_accessor(object):
         """Access overlay graph"""
         return lab_topology(self.nidb, key)
 
+    def __getitem__(self, key):
+        """Access overlay graph"""
+        return lab_topology(self.nidb, key)
+
     def get(self, key):
         return getattr(self, key)
 
@@ -618,7 +622,7 @@ class lab_topology_accessor(object):
 class NIDB(NIDB_base):
     def __init__(self):
         self._graph = nx.Graph() # only for connectivity, any other information stored on node
-        self._graph.graph['topologies'] = {}
+        self._graph.graph['topologies'] = collections.defaultdict(dict)
         self.timestamp =  time.strftime("%Y%m%d_%H%M%S", time.localtime())
 
     @property

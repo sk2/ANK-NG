@@ -23,6 +23,7 @@ def transfer(host, username, local, remote):
 def extract(host, tar_file, cd_dir):
     from Exscript import Account
     from Exscript.util.start import start
+    from Exscript.util.match import first_match
     from Exscript.protocols.Exception import InvalidCommandException
 
     def starting_host(protocol, index, data):
@@ -51,10 +52,12 @@ def extract(host, tar_file, cd_dir):
                 print "Halted previous lab"
                 print "Starting lab"
                 conn.execute(start_command)
+        first_match(conn, r'^The lab has been started')
+        print "HERE"
         conn.send("exit")
 
 
     accounts = [Account("sknight")] 
     hosts = ['ssh://%s' % host]
-    start(accounts, hosts, do_something, verbose = 0)
+    start(accounts, hosts, do_something, verbose = 2)
 

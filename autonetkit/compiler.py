@@ -135,6 +135,7 @@ class IosCompiler(RouterCompiler):
         ip_node = self.anm.overlay.ip.node(node)
         loopback_subnet = netaddr.IPNetwork("0.0.0.0/32")
 
+#TODO: strip out returns from super
         interfaces = super(IosCompiler, self).interfaces(node)
         # OSPF cost
         for link in interfaces:
@@ -317,8 +318,10 @@ class NetkitCompiler(PlatformCompiler):
 
     def allocate_tap_ips(self):
         #TODO: take tap subnet parameter
+        lab_topology = self.nidb.topology[self.host]
         from netaddr import IPNetwork
         address_block = IPNetwork("172.16.0.0/16").iter_hosts()
+        lab_topology.tap_host = address_block.next()
         for node in self.nidb.nodes("is_l3device", host = self.host):
             #TODO: check this works for switches
             node.tap.ip = address_block.next()
@@ -326,7 +329,7 @@ class NetkitCompiler(PlatformCompiler):
     def lab_topology(self):
         host_nodes = self.nidb.nodes(host = self.host)
 #TODO: replace name/label and use attribute from subgraph
-        lab_topology = self.nidb.topology.add(self.host)
+        lab_topology = self.nidb.topology[self.host]
         lab_topology.render_template = "templates/netkit_lab_conf.mako"
         lab_topology.render_dst_folder = "rendered/%s/%s" % (self.host, "netkit")
         lab_topology.render_dst_file = "lab.conf" 
