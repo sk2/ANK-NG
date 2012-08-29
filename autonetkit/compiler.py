@@ -47,6 +47,10 @@ class RouterCompiler(object):
             ip_link = G_ip.edge(link)
             nidb_edge = self.nidb.edge(link)
             #TODO: what if multiple ospf costs for this link
+            if not ip_link:
+                #TODO: fix this
+                continue
+
             subnet =  ip_link.dst.subnet # netmask comes from collision domain on the link
             interfaces[link] = {
                     'id': nidb_edge.id,
@@ -62,13 +66,19 @@ class RouterCompiler(object):
         Also sets process_id
         """
         G_ospf = self.anm.overlay.ospf
+        G_ip = self.anm.overlay.ip
         phy_node = self.anm.overlay.phy.node(node)
         node.ospf.process_id = 1
         node.ospf.lo_interface = "Loopback0"
         ospf_links = {}
         for link in G_ospf.edges(phy_node):
+            ip_link = G_ip.edge(link)
+            if not ip_link:
+                #TODO: fix this: due to multi edges from router to same switch cluster
+                continue
+            
             ospf_links[link] = {
-                'network': link.overlay.ip.dst.subnet,
+                'network': ip_link.dst.subnet,
                 'area': link.area,
                 }
         return ospf_links
@@ -345,7 +355,7 @@ class NetkitCompiler(PlatformCompiler):
         G_ip = self.anm['ip']
         config_items = []
         for node in subgraph.nodes("is_l3device"):
-            for edge in node.edges():
+            for edge in node.edges('is_router'):
                 collision_domain = "%s.%s" % (G_ip.edge(edge).ip_address, 
                         G_ip.edge(edge).dst.subnet.prefixlen)
                 numeric_id = edge.id.replace("eth", "") # netkit lab.conf uses 1 instead of eth1

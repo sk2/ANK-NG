@@ -10,6 +10,8 @@ import change_monitor
 import deploy
 import math
 import autonetkit.log as log
+import autonetkit.plugins.ip as ip
+import autonetkit.plugins.route_reflectors as route_reflectors
 
 def main():
     ank_version = pkg_resources.get_distribution("AutoNetkit").version
@@ -29,7 +31,7 @@ def main():
     anm.save()
     nidb = compile_network(anm)
     render.render(nidb)
-    deploy_network()
+    #deploy_network()
 
     if options.monitor:
         try:
@@ -37,12 +39,17 @@ def main():
             while True:
                 time.sleep(0.2)
                 if change_monitor.check_for_change(input_filename, anm):
-                    log.info("Input graph updated, recompiling network")
-                    anm = build_network(input_filename)
-                    anm.save()
-                    nidb = compile_network(anm)
-                    render.render(nidb)
-                    log.info("Monitoring for updates...")
+                    try:
+                        log.info("Input graph updated, recompiling network")
+                        anm = build_network(input_filename)
+                        anm.save()
+                        nidb = compile_network(anm)
+                        render.render(nidb)
+                        log.info("Monitoring for updates...")
+                    except:
+                        # TODO: remove this, add proper warning
+                        log.warn("Unable to build network")
+                        pass
         except KeyboardInterrupt:
             log.info("Exiting")
 
@@ -52,7 +59,7 @@ def build_bgp(anm):
     G_in = anm['input']
     G_bgp = anm.add_overlay("bgp", directed = True)
     G_bgp.add_nodes_from(G_in.nodes("is_router"))
-    ebgp_edges = [edge for edge in G_in.edges() if edge.src.asn != edge.dst.asn]
+    ebgp_edges = [edge for edge in G_in.edges() if not edge.attr_equal("asn")]
     G_bgp.add_edges_from(ebgp_edges, bidirectional = True, type = 'ebgp')
 
 # now iBGP
@@ -63,7 +70,7 @@ def build_bgp(anm):
             ibgp_edges = [ (s, t) for s in routers for t in routers if s!=t]
             G_bgp.add_edges_from(ibgp_edges, type = 'ibgp')
     else:
-        ank.allocate_route_reflectors(G_phy, G_bgp)
+        route_reflectors.allocate(G_phy, G_bgp)
 
 #TODO: probably want to use l3 connectivity graph for allocating route reflectors
 
@@ -113,7 +120,7 @@ def build_ip(anm):
             node.cd_id = cd_label
             graphics_node.label = cd_label
 
-    ank.allocate_ips(G_ip)
+    ip.allocate_ips(G_ip)
     ank.save(G_ip)
 
 
@@ -123,6 +130,22 @@ def build_phy(anm):
 # build physical graph
     G_phy.add_nodes_from(G_in, retain=['label', 'device_type', 'asn', 'platform', 'host', 'syntax'])
     G_phy.add_edges_from([edge for edge in G_in.edges() if edge.type == "physical"])
+
+def build_ospf(anm):
+    G_in = anm['input']
+    G_ospf = anm.add_overlay("ospf")
+    G_ospf.add_nodes_from(G_in.nodes("is_router"), retain=['asn'])
+    G_ospf.add_nodes_from(G_in.nodes("is_switch"), retain=['asn'])
+    G_ospf.add_edges_from(G_in.edges(), retain = ['edge_id', 'ospf_cost'])
+#TODO: trim out non same asn edges
+    ank.aggregate_nodes(G_ospf, G_ospf.nodes("is_switch"), retain = "edge_id")
+    ank.explode_nodes(G_ospf, G_ospf.nodes("is_switch"))
+    for link in G_ospf.edges():
+           link.cost = 1
+           link.area = 0
+
+    non_same_asn_edges = [link for link in G_ospf.edges() if link.src.asn != link.dst.asn]
+    G_ospf.remove_edges_from(non_same_asn_edges)
 
 def build_network(input_filename):
 
@@ -135,42 +158,20 @@ def build_network(input_filename):
     ank.set_node_default(G_in, G_in.nodes(), host="demo")
     if len(ank.unique_attr(G_in, "asn")) > 1:
         # Multiple ASNs set, use label format device.asn 
-        anm.set_node_label(".",  ['label', 'asn'])
+        anm.set_node_label(".as",  ['label', 'asn'])
 
 # set syntax for routers according to platform
     G_in.update(G_in.nodes("is_router", platform = "junosphere"), syntax="junos")
     G_in.update(G_in.nodes("is_router", platform = "dynagen"), syntax="ios")
     G_in.update(G_in.nodes("is_router", platform = "netkit"), syntax="quagga")
 
-
     G_graphics = anm.add_overlay("graphics") # plotting data
     G_graphics.add_nodes_from(G_in, retain=['x', 'y', 'device_type', 'asn'])
 
     build_phy(anm)
     build_ip(anm)
+    build_ospf(anm)
     build_bgp(anm)
-
-
-#TODO: assign ASN when splitting?
-
-#TODO: OSPF needs to aggregate switches out
-
-    
-#TODO: add sanity checks like only routers can cross ASes: can't have an eBGP server
-    G_ospf = anm.add_overlay("ospf")
-    G_ospf.add_nodes_from(G_in.nodes("is_router"), retain=['asn'])
-    G_ospf.add_nodes_from(G_in.nodes("is_switch"), retain=['asn'])
-    G_ospf.add_edges_from(G_in.edges(), retain = ['edge_id', 'ospf_cost'])
-#TODO: trim out non same asn edges
-    ank.aggregate_nodes(G_ospf, G_ospf.nodes("is_switch"), retain = "edge_id")
-    ank.explode_nodes(G_ospf, G_ospf.nodes("is_switch"))
-    for link in G_ospf.edges():
-           link.cost = 1
-           link.area = 0
-
-#TODO: add a "balance" function that returns true if nodes at both end of an edge have same property, eg asn
-    non_same_asn_edges = [link for link in G_ospf.edges() if link.src.asn != link.dst.asn]
-    G_ospf.remove_edges_from(non_same_asn_edges)
 
     return anm
 
@@ -198,19 +199,20 @@ def compile_network(anm):
         node.device_type = graphics_node.device_type
 
     host = "nectar1"
-    junosphere_compiler = compiler.JunosphereCompiler(nidb, anm, host)
-    junosphere_compiler.compile()
+    #junosphere_compiler = compiler.JunosphereCompiler(nidb, anm, host)
+    #junosphere_compiler.compile()
     netkit_compiler = compiler.NetkitCompiler(nidb, anm, host)
     netkit_compiler.compile()
-    dynagen_compiler = compiler.DynagenCompiler(nidb, anm, host)
-    dynagen_compiler.compile()
+    #dynagen_compiler = compiler.DynagenCompiler(nidb, anm, host)
+    #dynagen_compiler.compile()
 
-    cisco_compiler = compiler.CiscoCompiler(nidb, anm, host)
-    cisco_compiler.compile()
+    #cisco_compiler = compiler.CiscoCompiler(nidb, anm, host)
+    #cisco_compiler.compile()
 
     return nidb
 
 def deploy_network():
+    log.info("Deploying network")
     tar_file = deploy.package("rendered/nectar1/netkit/", "netkit")
     server = "trc1.trc.adelaide.edu.au"
     deploy.transfer(server, "sknight", tar_file, tar_file)

@@ -146,21 +146,22 @@ function redraw() {
 
   var groups = d3.nest().key(asn).entries(nodes);
 
-  //chart.selectAll("path")
-    //.data(groups)
-      //.attr("d", groupPath)
-    //.enter().insert("path", "circle")
-      //.style("fill", groupFill)
-      //.style("stroke", groupFill)
-      //.style("stroke-width", 100)
-      //.style("stroke-linejoin", "round")
-      //.style("opacity", 0.1)
-      //.attr("d", groupPath);
+  chart.selectAll("path")
+    .data(groups)
+      .attr("d", groupPath)
+    .enter().insert("path", "circle")
+      .style("fill", groupFill)
+      .style("stroke", groupFill)
+      .style("stroke-width", 80)
+      .style("stroke-linejoin", "round")
+      .style("opacity", 0.1)
+      .attr("d", groupPath);
 
   //TODO: filter the json data x and y ranges: store in nodes, and use this for the image plotting
 
   var line = chart.selectAll("line")
-    .data(jsondata.links, edge_id)
+    //.data(jsondata.links, edge_id)
+    .data(jsondata.links)
 
     //TODO: see why edge_id changes sometimes even though appears the same
 
@@ -178,9 +179,12 @@ function redraw() {
     .style("opacity",0)
     .remove();
 
-  var image = chart.selectAll("image")
-    .data(nodes, label);
+  var node_id = function(d) {
+    return d.label + d.network;
+  }
 
+  var image = chart.selectAll("image")
+    .data(nodes, node_id);
 
   image.enter().append("image")
     .attr("x", function(d) { return d.x; })
@@ -212,7 +216,7 @@ function redraw() {
     .attr("y", function(d) { return d.y; } )
     .attr("dx", 32) // padding-right
     .attr("dy", 65) // vertical-align: middle
-    .text(function (d) { return d.asn; } );
+    .text(function (d) { return d.id; } );
 
   text.exit().transition()
     .duration(1000)
@@ -220,19 +224,19 @@ function redraw() {
     .remove();
   //});
 
-    var pathinfo = [1, 6, 4, 2];
+    //var pathinfo = [1, 6, 4, 2];
 
-  var line = d3.svg.line()
-  .x(path_x)
-.y(path_y)
-  .interpolate("cardinal")
-  .tension(0.9);
-
-  chart.append("svg:path")
-  .attr("d", line(pathinfo))
-  .style("stroke-width", 3)
-  .style("stroke", "red")
-  .style("fill", "none");
+  //var line = d3.svg.line()
+  //.x(path_x)
+//.y(path_y)
+  //.interpolate("cardinal")
+  //.tension(0.9);
+//
+  //chart.append("svg:path")
+  //.attr("d", line(pathinfo))
+  //.style("stroke-width", 3)
+  //.style("stroke", "red")
+  //.style("fill", "none");
 
 
   }

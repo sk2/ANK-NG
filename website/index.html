@@ -59,8 +59,8 @@
           <div class="nav-collapse">
             <ul class="nav">
               <li class="active"><a href="#">Home</a></li>
+              <li><a href="#installation">Installation</a></li>
               <li><a href="#publications">Publications</a></li>
-              <li><a href="http://packages.python.org/AutoNetkit">API Documentation</a></li>
               <li><a href="#contact">Contact</a></li>
             </ul>
           </div><!--/.nav-collapse -->
@@ -74,13 +74,15 @@
       <div class="hero-unit">
         <div class="row">
           <div class="span5">
-            <h1>Simplify Network Management</h1>
+            <h1>Simplify Network Management.</h1>
             <p>
             Build your network from a diagram. Easily configure protocols. Automatically allocate IP addresses. Get live visual feedback. Generate configuration files from templates. Deploy to emulated networks. Measure the results.
             </p>
+          <br>
             <p>
             <i class="icon-bullhorn"></i> A number of the features described here refer to the upcoming release of AutoNetkit, which will be available shortly. Subscribe to our Twitter feed for updates</a>.
           </p>
+          <br>
             <p>
             <i class="icon-download-alt"></i> <a href="#installation">Install</a> from Python Package Index. 
             <br>
@@ -92,7 +94,7 @@
             </p>
           </div>
           <div class="span5">
-            <img src="images/flowchart.png">
+            <img src="images/flowchart_pt2.png">
           </div>
         </div>
       </div>
@@ -119,7 +121,7 @@
           <div style="font-size: 24px;">
             <i class="icon-refresh"></i> Visual Feedback
           </div>
-          <p>View the results of network designs in real time, using browser-based visualizations powered by <a href="d3js.org">d3</a>.</p>
+          <p>View the results of network designs in real time, using browser-based visualizations powered by <a href="http://www.d3js.org">d3</a>.</p>
           <p><a class="btn" href="#visualization">View details &raquo;</a></p>
         </div>
       </div>
@@ -159,6 +161,16 @@
         <img src="images/yed.png">
         <p>
         Draw your network in a visual tool such as yEd. AutoNetkit supports the GraphML input format.
+        </p>
+      </div>
+
+
+        <section id="abstractions">
+      <div class="page-header">
+        <h1>Built on Abstract Model</h1>
+        <img src="images/flowchart_pt1.png">
+        <p>
+        AutoNetkit builds on our research work into abstract network representations, providing a formal and flexible approach to network design.
         </p>
       </div>
 
@@ -275,11 +287,21 @@ quagga/
 
               <section id="deployment">
             <div class="page-header">
-            </div>
             <h1>Deployment</h1>
+            </div>
             <p>
             Automated deployment using <a href="https://github.com/knipknap/exscript/wiki">Exscript</a>.
             </p>
+
+              <section id="allocation">
+              <div class="page-header">
+                <h1>Resource Allocation</h1>
+              </div>
+              <img src="images/ip_tree_as1.png">
+              <p>
+              Automatically allocate network resources such as IP addresses.
+              </p>
+
 
               <section id="visualization">
               <div class="page-header">
@@ -307,10 +329,10 @@ quagga/
               </div>
               <ul class="icons">
                 <li> <i class="icon-book"></i>
-                <a href="publications/AutoNetkit.pdf">How to Build Complex, Large-Scale Emulated Networks</a> <em>Hung Nguyen, Matthew Roughan, Simon Knight, Nick Falkner, Olaf Maennel, Randy Bush</em> The 6th International Conference on Testbeds and Research Infrastructures for the Development of Networks and Communities, Berlin, Germany, May 2010;
+                <a href="publications/tridentcom.pdf">How to Build Complex, Large-Scale Emulated Networks</a> <em>Hung Nguyen, Matthew Roughan, Simon Knight, Nick Falkner, Olaf Maennel, Randy Bush</em> The 6th International Conference on Testbeds and Research Infrastructures for the Development of Networks and Communities, Berlin, Germany, May 2010;
                 </li>  
                 <li><i class="icon-book"></i>	Simon Knight, Matthew Roughan, Askar Jaboldinov, Olaf Maennel, Iain Phillips,
-                <a href="publications/ank_sigcomm_poster.pdf">AutoNetkit: Simplifying Large Scale, Open-Source Network Experimentation</a>, Poster,
+                AutoNetkit: Simplifying Large Scale, Open-Source Network Experimentation</a>, <a href="publications/sigcomm12_poster_abstract.pdf">Poster Abstract</a> and <a href="publications/sigcomm12_poster.pdf">Poster</a>,
                 2012 ACM SIGCOMM Conference, Helsinki, Finland (To Appear).</li>
               </ul>      
               </p>
@@ -384,23 +406,33 @@ quagga/
 
             <section id="opensource">
             <div class="page-header">
-            </div>
             <h1>Open-Source</h1>
+            </div>
             <p>
             AutoNetkit is available under a <a href="LICENCE.txt">BSD Licence</a>.
             </p>
 
+            <section id="api">
+            <div class="page-header">
+            <h1>API Documentation</h1>
+            </div>
+            <p>
+            API documentation is available on the Python Package Index page: <a href="http://packages.python.org/AutoNetkit">API Documentation</a>
+            </p>
+
             <section id="contact">
             <div class="page-header">
-            </div>
             <h1>Contact</h1>
+            </div>
             <p>
             <i class="icon-envelope"></i> AutoNetkit is on <a href="https://groups.google.com/group/autonetkit">Google Groups</a>. Please use this group for feedback and suggestions.
             </p>
 
 
             <section id="contributors">
+            <div class="page-header">
             <h1>Contributors</h1>
+            </div>
 
             <div class="row">
               <div class="span3">

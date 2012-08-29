@@ -136,6 +136,21 @@
         </y:ShapeNode>
       </data>
     </node>
+    <node id="n8">
+      <data key="d9"/>
+      <data key="d11">
+        <y:SVGNode>
+          <y:Geometry height="38.691199999999995" width="56.7751304347826" x="527.6124347826087" y="158.6544"/>
+          <y:Fill color="#CCCCFF" transparent="false"/>
+          <y:BorderStyle color="#000000" type="line" width="1.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="18.1328125" modelName="internal" modelPosition="c" textColor="#000000" visible="true" width="11.587890625" x="22.593619904891284" y="10.27919374999999">9</y:NodeLabel>
+          <y:SVGNodeProperties usingVisualBounds="true"/>
+          <y:SVGModel svgBoundsPolicy="0">
+            <y:SVGContent refid="1"/>
+          </y:SVGModel>
+        </y:SVGNode>
+      </data>
+    </node>
     <edge id="e0" source="n0" target="n1">
       <data key="d16">
         <y:PolyLineEdge>
@@ -244,6 +259,124 @@
     </edge>
   </graph>
   <data key="d0">
-    <y:Resources/>
+    <y:Resources>
+      <y:Resource id="1">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;
+&lt;!-- Created with Inkscape (http://www.inkscape.org/) --&gt;
+
+&lt;svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg3004"
+   version="1.1"
+   inkscape:version="0.48.2 r9819"
+   width="47.5"
+   height="32.5"
+   xml:space="preserve"
+   sodipodi:docname="router.pdf"&gt;&lt;metadata
+     id="metadata3010"&gt;&lt;rdf:RDF&gt;&lt;cc:Work
+         rdf:about=""&gt;&lt;dc:format&gt;image/svg+xml&lt;/dc:format&gt;&lt;dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /&gt;&lt;dc:title&gt;&lt;/dc:title&gt;&lt;/cc:Work&gt;&lt;/rdf:RDF&gt;&lt;/metadata&gt;&lt;defs
+     id="defs3008"&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3020"&gt;&lt;path
+         d="M 0,0 38,0 38,26 0,26 0,0 z"
+         id="path3022" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3030"&gt;&lt;path
+         d="m 0.06,25.18 36.94,0 0,-25 -36.94,0 0,25 z"
+         id="path3032" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3036"&gt;&lt;path
+         d="M 0,0 38,0 38,26 0,26 0,0 z"
+         id="path3038" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3046"&gt;&lt;path
+         d="M 0,0 38,0 38,26 0,26 0,0 z"
+         id="path3048" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3056"&gt;&lt;path
+         d="m 0.06,25.18 36.94,0 0,-25 -36.94,0 0,25 z"
+         id="path3058" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3062"&gt;&lt;path
+         d="M 0,0 38,0 38,26 0,26 0,0 z"
+         id="path3064" /&gt;&lt;/clipPath&gt;&lt;clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath3072"&gt;&lt;path
+         d="M 0,0 38,0 38,26 0,26 0,0 z"
+         id="path3074" /&gt;&lt;/clipPath&gt;&lt;/defs&gt;&lt;sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview3006"
+     showgrid="false"
+     inkscape:zoom="25.969231"
+     inkscape:cx="23.75"
+     inkscape:cy="16.25"
+     inkscape:window-x="2020"
+     inkscape:window-y="195"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="g3012" /&gt;&lt;g
+     id="g3012"
+     inkscape:groupmode="layer"
+     inkscape:label="router"
+     transform="matrix(1.25,0,0,-1.25,0,32.5)"&gt;&lt;g
+       id="g3014" /&gt;&lt;g
+       id="g3016"&gt;&lt;g
+         id="g3018"
+         clip-path="url(#clipPath3020)"&gt;&lt;path
+           d="m 36.985,17.828 c 0,-3.95 -8.234,-7.152 -18.392,-7.152 C 8.435,10.676 0.2,13.878 0.2,17.828 l 0,-10.476 c 0,-3.951 8.235,-7.153 18.393,-7.153 10.158,0 18.392,3.202 18.392,7.153 l 0,10.476"
+           style="fill:#026c9b;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path3024" /&gt;&lt;/g&gt;&lt;/g&gt;&lt;g
+       id="g3026"&gt;&lt;g
+         id="g3028"
+         clip-path="url(#clipPath3030)"&gt;&lt;g
+           id="g3034"
+           clip-path="url(#clipPath3036)"&gt;&lt;path
+             d="m 36.985,17.828 c 0,-3.95 -8.234,-7.152 -18.392,-7.152 C 8.435,10.676 0.2,13.878 0.2,17.828 l 0,-10.476 c 0,-3.951 8.235,-7.153 18.393,-7.153 10.158,0 18.392,3.202 18.392,7.153 l 0,10.476 z"
+             style="fill:none;stroke:#ffffff;stroke-opacity:1;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
+             id="path3040" /&gt;&lt;/g&gt;&lt;/g&gt;&lt;/g&gt;&lt;g
+       id="g3042"&gt;&lt;g
+         id="g3044"
+         clip-path="url(#clipPath3046)"&gt;&lt;path
+           d="m 18.593,10.676 c 10.158,0 18.392,3.202 18.392,7.152 0,3.951 -8.234,7.152 -18.392,7.152 C 8.435,24.98 0.2,21.779 0.2,17.828 c 0,-3.95 8.235,-7.152 18.393,-7.152"
+           style="fill:#026c9b;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path3050" /&gt;&lt;/g&gt;&lt;/g&gt;&lt;g
+       id="g3052"&gt;&lt;g
+         id="g3054"
+         clip-path="url(#clipPath3056)"&gt;&lt;g
+           id="g3060"
+           clip-path="url(#clipPath3062)"&gt;&lt;path
+             d="m 18.593,10.676 c 10.158,0 18.392,3.202 18.392,7.152 0,3.951 -8.234,7.152 -18.392,7.152 C 8.435,24.98 0.2,21.779 0.2,17.828 c 0,-3.95 8.235,-7.152 18.393,-7.152 z"
+             style="fill:none;stroke:#ffffff;stroke-opacity:1;stroke-width:0.4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"
+             id="path3066" /&gt;&lt;/g&gt;&lt;/g&gt;&lt;/g&gt;&lt;g
+       id="g3068"&gt;&lt;g
+         id="g3070"
+         clip-path="url(#clipPath3072)"&gt;&lt;path
+           d="m 14.393,20.625 1.518,-2.278 -5.742,-1.327 1.255,1.044 -8.875,1.517 2.226,1.669 8.564,-1.45 1.054,0.825"
+           style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path3076" /&gt;&lt;path
+           d="m 22.473,15.101 -1.036,2.348 5.179,1.035 -0.898,-0.804 8.633,-1.475 -2.072,-1.657 -8.581,1.611 -1.225,-1.058"
+           style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path3078" /&gt;&lt;path
+           d="m 19.641,21.869 5.801,1.588 0.069,-2.486 -1.451,0.276 -2.831,-2.349 -2.702,0.395 2.923,2.297 -1.809,0.279"
+           style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path3080" /&gt;&lt;path
+           d="m 17.154,12.959 -5.524,-1.035 -0.207,2.555 1.588,-0.345 3.041,2.596 2.691,-0.455 -3.246,-2.832 1.657,-0.484"
+           style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path3082" /&gt;&lt;/g&gt;&lt;/g&gt;&lt;/g&gt;&lt;/svg&gt;</y:Resource>
+    </y:Resources>
   </data>
 </graphml>
