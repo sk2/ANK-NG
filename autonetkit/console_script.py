@@ -152,8 +152,9 @@ def build_network(input_filename):
     input_graph = ank.load_graphml(input_filename)
 
     G_in = anm.add_overlay("input", input_graph)
-    ank.set_node_default(G_in, G_in.nodes(), platform="netkit")
-    ank.set_node_default(G_in, G_in.nodes(), host="nectar1")
+    ank.set_node_default(G_in, G_in, platform="netkit")
+    ank.set_node_default(G_in, G_in, host="nectar1")
+    
     if len(ank.unique_attr(G_in, "asn")) > 1:
         # Multiple ASNs set, use label format device.asn 
         anm.set_node_label(".as",  ['label', 'asn'])

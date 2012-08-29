@@ -128,7 +128,8 @@ def render_node(node):
 def render(nidb):
     #TODO: option for single or multi threaded
     log.info("Rendering Network")
-    render_single(nidb)
+    #render_single(nidb)
+    render_multi(nidb)
     render_topologies(nidb)
 
 #TODO: turn back on multithreaded rendering?

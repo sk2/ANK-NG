@@ -135,15 +135,16 @@ class overlay_node(object):
 
     @property
     def is_router(self):
-        return self.phy.device_type == "router"
+        """Either from this graph or the physical graph"""
+        return self.device_type == "router" or self.phy.device_type == "router"
 
     @property
     def is_switch(self):
-        return self.phy.device_type == "switch"
+        return self.device_type == "switch" or self.phy.device_type == "switch"
 
     @property
     def is_server(self):
-        return self.phy.device_type == "server"
+        return self.device_type == "server" or self.phy.device_type == "server"
 
     @property
     def is_l3device(self):

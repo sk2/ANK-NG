@@ -163,62 +163,6 @@ class IosCompiler(RouterCompiler):
 
         return interfaces
 
-class Ios2Compiler(RouterCompiler):
-
-    def compile(self, node):
-        ip_node = self.anm.overlay.ip.node(node)
-        node.loopback = ip_node.loopback
-        node.interfaces = dict_to_sorted_list(self.interfaces(node), 'id')
-        if node in self.anm.overlay.ospf:
-            node.ospf.ospf_links = dict_to_sorted_list(self.ospf(node), 'interface')
-        
-        if node in self.anm.overlay.bgp:
-            bgp_data = self.bgp(node)
-            node.bgp.ibgp_rr_clients = dict_to_sorted_list(bgp_data['ibgp_rr_clients'], 'neighbor')
-            node.bgp.ibgp_rr_parents = dict_to_sorted_list(bgp_data['ibgp_rr_parents'], 'neighbor')
-            node.bgp.ibgp_neighbors = dict_to_sorted_list(bgp_data['ibgp_neighbors'], 'neighbor')
-            node.bgp.ebgp_neighbors = dict_to_sorted_list(bgp_data['ebgp_neighbors'], 'neighbor')
-
-    def interfaces(self, node):
-        ip_node = self.anm.overlay.ip.node(node)
-        loopback_subnet = netaddr.IPNetwork("0.0.0.0/32")
-
-        interfaces = super(Ios2Compiler, self).interfaces(node)
-
-        interfaces['lo0'] = {
-            'id': 'Loopback0',
-            'description': "Loopback",
-            'ip_address': ip_node.loopback,
-            'subnet': loopback_subnet,
-            }
-
-        return interfaces
-
-    def ospf(self, node):
-        """Returns OSPF links
-        Also sets process_id
-        """
-        ip_node = self.anm.overlay.ip.node(node)
-        node.ospf.router_id = ip_node.loopback
-        node.ospf.area = 0 #TODO: build area dict from node/links
-
-        node.ospf.lo_interface = "Loopback0"
-        
-        G_ospf = self.anm.overlay.ospf
-        phy_node = self.anm.overlay.phy.node(node)
-        node.ospf.process_id = 1
-        ospf_links = {}
-       
-        for link in G_ospf.edges(phy_node):
-            nidb_edge = self.nidb.edge(link)
-            ospf_links[link] = {
-                'network': link.overlay.ip.dst.subnet,
-                'interface': nidb_edge.id,
-                'cost': link.cost,
-                }
-
-        return ospf_links
-
 class JunosCompiler(RouterCompiler):
     """Base Junos compiler"""
 
@@ -388,15 +332,10 @@ class CiscoCompiler(PlatformCompiler):
         for (slot, port) in id_pairs:
             yield "Ethernet%s/%s" % (slot, port)
 
-    def interface_ids_ios2(self):
-        for x in itertools.count(0):
-            yield "GigabitEthernet0/0/0/%s" % x
-
     def compile(self):
         log.info("Compiling Cisco for %s" % self.host)
         G_phy = self.anm.overlay.phy
         ios_compiler = IosCompiler(self.nidb, self.anm)
-        ios2_compiler = Ios2Compiler(self.nidb, self.anm)
         for phy_node in G_phy.nodes('is_router', host = self.host, syntax='ios'):
             nidb_node = self.nidb.node(phy_node)
             nidb_node.render.template = "templates/ios.mako"
@@ -409,19 +348,6 @@ class CiscoCompiler(PlatformCompiler):
                 edge.id = int_ids.next()
 
             ios_compiler.compile(nidb_node)
-
-        for phy_node in G_phy.nodes('is_router', host = self.host, syntax='ios2'):
-            nidb_node = self.nidb.node(phy_node)
-            nidb_node.render.base = "templates/ios2"
-            nidb_node.render.dst_folder = os.path.join(self.host, self.timestamp)
-            nidb_node.render.base_dst_folder = os.path.join(self.host, self.timestamp, str(phy_node))
-
-            # Assign interfaces
-            int_ids = self.interface_ids_ios2()
-            for edge in self.nidb.edges(nidb_node):
-                edge.id = int_ids.next()
-
-            ios2_compiler.compile(nidb_node)
 
 class DynagenCompiler(PlatformCompiler):
     """Dynagen Platform Compiler"""
